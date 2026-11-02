@@ -57,6 +57,8 @@ Staging rules (the engine renders exactly this, so keep it physically sensible):
   and/or a sound effect plays. Reactions land ON the punch word. Prefer reactions that show feeling: a smug grin
   before the disaster, sweat when it starts, shock on the snap, a dazed fall after. Listeners automatically look at
   whoever is talking, so give the explainer the "talk" action.
+- Set "mood" to pick the background music: funny (mishaps, absurd stories), upbeat (adventure, success),
+  mysterious (secrets, crimes, unexplained), sad (loss, tragedy), epic (battles, great feats).
 - Use effects sparingly: at most 3 per short ("shake" for impacts, "explosion", "splash", "confetti", "smoke", "flash").
   Set "effect_word" to the exact narration word the effect (and any "fall"/"shocked" reaction) must land on.
 - Every object is a catalog model: pick the closest one for things the catalog lacks (a printing press -> a desk with

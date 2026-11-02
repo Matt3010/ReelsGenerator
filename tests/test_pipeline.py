@@ -154,3 +154,16 @@ def test_normalize_audio_reaches_short_loudness(tmp_path):
     assert _loudness(src) < -25
     normalize_audio(src, dst)
     assert abs(_loudness(dst) + 14) < 1.5
+
+
+def test_pick_music_follows_the_mood(tmp_path):
+    from shorts.pipeline import pick_music
+    for mood, names in {"funny": ["a.mp3", "b.mp3"], "sad": ["c.mp3"]}.items():
+        (tmp_path / mood).mkdir()
+        for n in names:
+            (tmp_path / mood / n).write_bytes(b"x")
+    assert pick_music("sad", "topic", tmp_path).name == "c.mp3"
+    assert pick_music("funny", "t1", tmp_path) == pick_music("funny", "t1", tmp_path)   # same topic, same track
+    assert {pick_music("funny", f"t{i}", tmp_path).name for i in range(20)} == {"a.mp3", "b.mp3"}
+    assert pick_music("epic", "topic", tmp_path).parent.name in {"funny", "sad"}        # no epic tracks: any track
+    assert pick_music("funny", "topic", tmp_path / "missing") is None

@@ -164,6 +164,7 @@ class Scene(Strict):
 
 class Story(Strict):
     title: str = Field(min_length=1, max_length=100)
+    mood: Literal["funny", "upbeat", "mysterious", "sad", "epic"] = "funny"  # picks the background music
     cast: list[CastMember] = Field(min_length=1, max_length=30)
     scenes: list[Scene] = Field(min_length=1, max_length=30)
 

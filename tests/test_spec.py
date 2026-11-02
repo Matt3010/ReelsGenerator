@@ -162,3 +162,12 @@ def test_custom_parts_have_organic_shapes_and_tilt(story_dict):
 def test_sea_animals(story_dict, species):
     story_dict["cast"].append({"id": "sea", "name": "Sea", "species": species})
     assert Story.model_validate(story_dict).cast[-1].species == species
+
+
+def test_story_mood(story_dict):
+    assert Story.model_validate(story_dict).mood == "funny"
+    story_dict["mood"] = "mysterious"
+    assert Story.model_validate(story_dict).mood == "mysterious"
+    story_dict["mood"] = "angry"
+    with pytest.raises(ValidationError):
+        Story.model_validate(story_dict)

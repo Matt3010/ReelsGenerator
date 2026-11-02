@@ -1,6 +1,7 @@
 """Topic -> story.json -> voice -> timeline -> Remotion render, one folder per job."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -149,11 +150,16 @@ def sound_events(story: Story, tl: Timeline, beat_frames: list[list[int]], hits:
     return [{"sound": s, "frame": f, "volume": v} for (s, f), v in sorted(ev.items(), key=lambda kv: kv[0][1])]
 
 
-def pick_music() -> Path | None:
-    if not MUSIC.exists():
+def pick_music(mood: str, topic: str, folder: Path = MUSIC) -> Path | None:
+    """a track from music/<mood>/ (any mood if that folder is empty), the same one for the same topic"""
+    if not folder.exists():
         return None
-    tracks = sorted(p for p in MUSIC.iterdir() if p.suffix.lower() in {".mp3", ".wav", ".ogg", ".m4a"})
-    return tracks[int(time.time()) % len(tracks)] if tracks else None
+    audio = lambda d: sorted(p for p in d.rglob("*") if p.suffix.lower() in {".mp3", ".wav", ".ogg", ".m4a"})
+    tracks = audio(folder / mood) if (folder / mood).is_dir() else []
+    tracks = tracks or audio(folder)
+    if not tracks:
+        return None
+    return tracks[int(hashlib.sha1(topic.encode()).hexdigest(), 16) % len(tracks)]
 
 
 def cleanup_remotion_tmp(tmp: Path = REMOTION_TMP) -> None:
@@ -224,7 +230,7 @@ def run_job(job: Job, generate: Callable[[str], Story], tts: Callable[[str, str,
             s["effect_frame"] = hit
             s["beats"] = [{**b.model_dump(), "frame": f} for b, f in zip(scene.beats, frames)]
 
-        music = pick_music()
+        music = pick_music(story.mood, st["topic"])
         if music:
             (job.dir / "music" ).mkdir(exist_ok=True)
             (job.dir / "music" / music.name).write_bytes(music.read_bytes())

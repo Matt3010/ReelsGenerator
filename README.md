@@ -11,7 +11,7 @@ topic ─► Claude (claude -p, your subscription) ─► story.json ─► Edge
 ## Use
 Double-click `Avvia AI Shorts.bat` → browser on http://127.0.0.1:8765 → type a topic or click **Idee** → **Genera video**.
 CLI: `.venv\Scripts\python -m shorts "The Great Molasses Flood of 1919"`.
-Optional background music: drop royalty-free tracks in `music/` (ducked under the voice automatically).
+Background music: CC0 tracks in `music/<mood>/` (funny, upbeat, mysterious, sad, epic; see music/CREDITS.md). Claude picks the mood; the track is ducked under the voice and faded in/out.
 
 ## What Claude decides (shorts/spec.py)
 - **Scenes**: narration, setting (town, city, countryside, forest, desert, beach, snow, harbor, castle, lab, space),
