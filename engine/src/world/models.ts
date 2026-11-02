@@ -101,6 +101,7 @@ type AnimalEntry = { file: string; h: number; clips: { idle: string; walk: strin
 const A = (name: string, h: number, clips: AnimalEntry["clips"], tint?: string, yaw = 0): AnimalEntry => ({ file: `models/animals/${name}.glb`, h, clips, tint, yaw });
 const FULL = { idle: "Idle", walk: "|Walk", run: "Run", jump: "Jump", death: "Death" };
 const WALKER = { idle: "Idle", walk: "Walking", run: "Walking" };
+const SWIM = { idle: "Swim", walk: "Swim", run: "Swim" };
 const HOPPER = { idle: "Idle", walk: "Jump", run: "Jump", jump: "Jump" };
 export const ANIMALS3D: Record<string, AnimalEntry> = {
   cow: A("cow", 1.5, FULL), horse: A("horse", 1.8, FULL), zebra: A("zebra", 1.5, FULL),
@@ -109,6 +110,8 @@ export const ANIMALS3D: Record<string, AnimalEntry> = {
   pig: A("pig", 0.85, HOPPER), sheep: A("sheep", 0.9, HOPPER), llama: A("llama", 1.8, HOPPER), pug: A("pug", 0.45, HOPPER),
   eagle: A("eagle", 0.9, { idle: "Idle", walk: "Flying", run: "Flying", jump: "Flying" }, undefined, Math.PI),
   fish: A("piranha", 0.4, { idle: "Swimming", walk: "Swimming", run: "Swimming", jump: "Bite" }, undefined, Math.PI),
+  // Quaternius animated fish pack: one swim cycle each
+  whale: A("whale", 3.2, SWIM), shark: A("shark", 1.0, SWIM), dolphin: A("dolphin", 0.8, SWIM), manta: A("manta_ray", 0.5, SWIM),
 };
 
 type AnimalTemplate = { scene: THREE.Object3D; clips: THREE.AnimationClip[]; entry: AnimalEntry; scale: number; lift: number; cx: number; cz: number };

@@ -41,6 +41,7 @@ class Strict(BaseModel):
 
 Species = Literal[
     "human", "cat", "cow", "dog", "eagle", "horse", "llama", "pig", "fish", "pug", "sheep", "wolf", "zebra",
+    "whale", "shark", "dolphin", "manta",
 ]
 OptColor = Field(default=None, pattern=r"^#[0-9a-fA-F]{6}$")
 
@@ -76,6 +77,9 @@ class Part(Strict):
         return v
 
 
+LIGHT_MAX = 5.0
+
+
 class Prop(Strict):
     """a CC0 catalog model by key (e.g. "pirate-kit/cannon"), or a custom object built from parts"""
     model: Optional[str] = None
@@ -92,6 +96,12 @@ class Prop(Strict):
                 raise ValueError(f"unknown model '{self.model}': use a key from the model catalog")
         elif not self.parts:
             raise ValueError("a prop needs a catalog 'model' or 1-24 custom 'parts'")
+        else:
+            # custom objects are only for light sources (lanterns, fires, lit windows): everything else is a model
+            if not any(p.glow for p in self.parts):
+                raise ValueError("a custom object must be a light source (at least one 'glow' part); use a catalog model")
+            if any(max(p.size) > LIGHT_MAX for p in self.parts):
+                raise ValueError(f"custom light sources must be small: every part size <= {LIGHT_MAX} m")
         return self
 
 

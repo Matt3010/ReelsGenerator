@@ -2498,5 +2498,3430 @@
 "file": "models/furniture-kit/washerDryerStacked.glb",
 "scale": 2.1,
 "h": 2.25
+},
+"watercraft-kit/arrow-standing": {
+"file": "models/watercraft-kit/arrow-standing.glb",
+"scale": 1.8,
+"h": 3.6
+},
+"watercraft-kit/arrow": {
+"file": "models/watercraft-kit/arrow.glb",
+"scale": 1.8,
+"h": 1.08
+},
+"watercraft-kit/boat-fan": {
+"file": "models/watercraft-kit/boat-fan.glb",
+"scale": 1.8,
+"h": 4.78
+},
+"watercraft-kit/boat-fishing-small": {
+"file": "models/watercraft-kit/boat-fishing-small.glb",
+"scale": 1.8,
+"h": 4.68
+},
+"watercraft-kit/boat-house-a": {
+"file": "models/watercraft-kit/boat-house-a.glb",
+"scale": 1.8,
+"h": 3.91
+},
+"watercraft-kit/boat-house-b": {
+"file": "models/watercraft-kit/boat-house-b.glb",
+"scale": 1.8,
+"h": 3.96
+},
+"watercraft-kit/boat-house-c": {
+"file": "models/watercraft-kit/boat-house-c.glb",
+"scale": 1.8,
+"h": 5.4
+},
+"watercraft-kit/boat-house-d": {
+"file": "models/watercraft-kit/boat-house-d.glb",
+"scale": 1.8,
+"h": 6.19
+},
+"watercraft-kit/boat-row-large": {
+"file": "models/watercraft-kit/boat-row-large.glb",
+"scale": 1.8,
+"h": 1.43
+},
+"watercraft-kit/boat-row-small": {
+"file": "models/watercraft-kit/boat-row-small.glb",
+"scale": 1.8,
+"h": 1.43
+},
+"watercraft-kit/boat-sail-a": {
+"file": "models/watercraft-kit/boat-sail-a.glb",
+"scale": 1.8,
+"h": 6.96
+},
+"watercraft-kit/boat-sail-b": {
+"file": "models/watercraft-kit/boat-sail-b.glb",
+"scale": 1.8,
+"h": 5.73
+},
+"watercraft-kit/boat-speed-a": {
+"file": "models/watercraft-kit/boat-speed-a.glb",
+"scale": 1.8,
+"h": 2.7
+},
+"watercraft-kit/boat-speed-b": {
+"file": "models/watercraft-kit/boat-speed-b.glb",
+"scale": 1.8,
+"h": 2.87
+},
+"watercraft-kit/boat-speed-c": {
+"file": "models/watercraft-kit/boat-speed-c.glb",
+"scale": 1.8,
+"h": 2.34
+},
+"watercraft-kit/boat-speed-d": {
+"file": "models/watercraft-kit/boat-speed-d.glb",
+"scale": 1.8,
+"h": 2.16
+},
+"watercraft-kit/boat-speed-e": {
+"file": "models/watercraft-kit/boat-speed-e.glb",
+"scale": 1.8,
+"h": 2.63
+},
+"watercraft-kit/boat-speed-f": {
+"file": "models/watercraft-kit/boat-speed-f.glb",
+"scale": 1.8,
+"h": 2.16
+},
+"watercraft-kit/boat-speed-g": {
+"file": "models/watercraft-kit/boat-speed-g.glb",
+"scale": 1.8,
+"h": 2.34
+},
+"watercraft-kit/boat-speed-h": {
+"file": "models/watercraft-kit/boat-speed-h.glb",
+"scale": 1.8,
+"h": 2.24
+},
+"watercraft-kit/boat-speed-i": {
+"file": "models/watercraft-kit/boat-speed-i.glb",
+"scale": 1.8,
+"h": 3.06
+},
+"watercraft-kit/boat-speed-j": {
+"file": "models/watercraft-kit/boat-speed-j.glb",
+"scale": 1.8,
+"h": 2.24
+},
+"watercraft-kit/boat-tow-a": {
+"file": "models/watercraft-kit/boat-tow-a.glb",
+"scale": 1.8,
+"h": 5.99
+},
+"watercraft-kit/boat-tow-b": {
+"file": "models/watercraft-kit/boat-tow-b.glb",
+"scale": 1.8,
+"h": 5.5
+},
+"watercraft-kit/boat-tug-a": {
+"file": "models/watercraft-kit/boat-tug-a.glb",
+"scale": 1.8,
+"h": 4.03
+},
+"watercraft-kit/boat-tug-b": {
+"file": "models/watercraft-kit/boat-tug-b.glb",
+"scale": 1.8,
+"h": 4.03
+},
+"watercraft-kit/boat-tug-c": {
+"file": "models/watercraft-kit/boat-tug-c.glb",
+"scale": 1.8,
+"h": 3.24
+},
+"watercraft-kit/buoy-flag": {
+"file": "models/watercraft-kit/buoy-flag.glb",
+"scale": 1.8,
+"h": 4.89
+},
+"watercraft-kit/buoy": {
+"file": "models/watercraft-kit/buoy.glb",
+"scale": 1.8,
+"h": 3.32
+},
+"watercraft-kit/cargo-container-a": {
+"file": "models/watercraft-kit/cargo-container-a.glb",
+"scale": 1.8,
+"h": 1.99
+},
+"watercraft-kit/cargo-container-b": {
+"file": "models/watercraft-kit/cargo-container-b.glb",
+"scale": 1.8,
+"h": 1.99
+},
+"watercraft-kit/cargo-container-c": {
+"file": "models/watercraft-kit/cargo-container-c.glb",
+"scale": 1.8,
+"h": 1.99
+},
+"watercraft-kit/cargo-pile-a": {
+"file": "models/watercraft-kit/cargo-pile-a.glb",
+"scale": 1.8,
+"h": 2.16
+},
+"watercraft-kit/cargo-pile-b": {
+"file": "models/watercraft-kit/cargo-pile-b.glb",
+"scale": 1.8,
+"h": 2.16
+},
+"watercraft-kit/gate-finish": {
+"file": "models/watercraft-kit/gate-finish.glb",
+"scale": 1.8,
+"h": 8.37
+},
+"watercraft-kit/gate": {
+"file": "models/watercraft-kit/gate.glb",
+"scale": 1.8,
+"h": 8.37
+},
+"watercraft-kit/ramp-wide": {
+"file": "models/watercraft-kit/ramp-wide.glb",
+"scale": 1.8,
+"h": 2.05
+},
+"watercraft-kit/ramp": {
+"file": "models/watercraft-kit/ramp.glb",
+"scale": 1.8,
+"h": 2.05
+},
+"watercraft-kit/ship-cargo-a": {
+"file": "models/watercraft-kit/ship-cargo-a.glb",
+"scale": 1.8,
+"h": 6.08
+},
+"watercraft-kit/ship-cargo-b": {
+"file": "models/watercraft-kit/ship-cargo-b.glb",
+"scale": 1.8,
+"h": 5.94
+},
+"watercraft-kit/ship-cargo-c": {
+"file": "models/watercraft-kit/ship-cargo-c.glb",
+"scale": 1.8,
+"h": 4.66
+},
+"watercraft-kit/ship-large": {
+"file": "models/watercraft-kit/ship-large.glb",
+"scale": 1.8,
+"h": 17.93
+},
+"watercraft-kit/ship-ocean-liner-small": {
+"file": "models/watercraft-kit/ship-ocean-liner-small.glb",
+"scale": 1.8,
+"h": 16.08
+},
+"watercraft-kit/ship-ocean-liner": {
+"file": "models/watercraft-kit/ship-ocean-liner.glb",
+"scale": 1.8,
+"h": 16.08
+},
+"watercraft-kit/ship-small-ghost": {
+"file": "models/watercraft-kit/ship-small-ghost.glb",
+"scale": 1.8,
+"h": 17.93
+},
+"watercraft-kit/ship-small": {
+"file": "models/watercraft-kit/ship-small.glb",
+"scale": 1.8,
+"h": 17.93
+},
+"city-kit-commercial/building-a": {
+"file": "models/city-kit-commercial/building-a.glb",
+"scale": 6.0,
+"h": 7.76
+},
+"city-kit-commercial/building-b": {
+"file": "models/city-kit-commercial/building-b.glb",
+"scale": 6.0,
+"h": 7.76
+},
+"city-kit-commercial/building-c": {
+"file": "models/city-kit-commercial/building-c.glb",
+"scale": 6.0,
+"h": 5.36
+},
+"city-kit-commercial/building-d": {
+"file": "models/city-kit-commercial/building-d.glb",
+"scale": 6.0,
+"h": 7.76
+},
+"city-kit-commercial/building-e": {
+"file": "models/city-kit-commercial/building-e.glb",
+"scale": 6.0,
+"h": 5.36
+},
+"city-kit-commercial/building-f": {
+"file": "models/city-kit-commercial/building-f.glb",
+"scale": 6.0,
+"h": 10.16
+},
+"city-kit-commercial/building-g": {
+"file": "models/city-kit-commercial/building-g.glb",
+"scale": 6.0,
+"h": 10.16
+},
+"city-kit-commercial/building-h": {
+"file": "models/city-kit-commercial/building-h.glb",
+"scale": 6.0,
+"h": 7.76
+},
+"city-kit-commercial/building-i": {
+"file": "models/city-kit-commercial/building-i.glb",
+"scale": 6.0,
+"h": 10.08
+},
+"city-kit-commercial/building-j": {
+"file": "models/city-kit-commercial/building-j.glb",
+"scale": 6.0,
+"h": 10.16
+},
+"city-kit-commercial/building-k": {
+"file": "models/city-kit-commercial/building-k.glb",
+"scale": 6.0,
+"h": 8.82
+},
+"city-kit-commercial/building-l": {
+"file": "models/city-kit-commercial/building-l.glb",
+"scale": 6.0,
+"h": 13.62
+},
+"city-kit-commercial/building-m": {
+"file": "models/city-kit-commercial/building-m.glb",
+"scale": 6.0,
+"h": 18.9
+},
+"city-kit-commercial/building-n": {
+"file": "models/city-kit-commercial/building-n.glb",
+"scale": 6.0,
+"h": 14.88
+},
+"city-kit-commercial/building-skyscraper-a": {
+"file": "models/city-kit-commercial/building-skyscraper-a.glb",
+"scale": 6.0,
+"h": 17.28
+},
+"city-kit-commercial/building-skyscraper-b": {
+"file": "models/city-kit-commercial/building-skyscraper-b.glb",
+"scale": 6.0,
+"h": 26.88
+},
+"city-kit-commercial/building-skyscraper-c": {
+"file": "models/city-kit-commercial/building-skyscraper-c.glb",
+"scale": 6.0,
+"h": 24.48
+},
+"city-kit-commercial/building-skyscraper-d": {
+"file": "models/city-kit-commercial/building-skyscraper-d.glb",
+"scale": 6.0,
+"h": 32.82
+},
+"city-kit-commercial/building-skyscraper-e": {
+"file": "models/city-kit-commercial/building-skyscraper-e.glb",
+"scale": 6.0,
+"h": 24.48
+},
+"city-kit-commercial/detail-awning-wide": {
+"file": "models/city-kit-commercial/detail-awning-wide.glb",
+"scale": 6.0,
+"h": 2.4
+},
+"city-kit-commercial/detail-awning": {
+"file": "models/city-kit-commercial/detail-awning.glb",
+"scale": 6.0,
+"h": 2.4
+},
+"city-kit-commercial/detail-overhang-wide": {
+"file": "models/city-kit-commercial/detail-overhang-wide.glb",
+"scale": 6.0,
+"h": 2.4
+},
+"city-kit-commercial/detail-overhang": {
+"file": "models/city-kit-commercial/detail-overhang.glb",
+"scale": 6.0,
+"h": 2.4
+},
+"city-kit-commercial/detail-parasol-a": {
+"file": "models/city-kit-commercial/detail-parasol-a.glb",
+"scale": 6.0,
+"h": 2.7
+},
+"city-kit-commercial/detail-parasol-b": {
+"file": "models/city-kit-commercial/detail-parasol-b.glb",
+"scale": 6.0,
+"h": 2.7
+},
+"city-kit-industrial/building-a": {
+"file": "models/city-kit-industrial/building-a.glb",
+"scale": 6.0,
+"h": 8.82
+},
+"city-kit-industrial/building-b": {
+"file": "models/city-kit-industrial/building-b.glb",
+"scale": 6.0,
+"h": 8.82
+},
+"city-kit-industrial/building-c": {
+"file": "models/city-kit-industrial/building-c.glb",
+"scale": 6.0,
+"h": 7.5
+},
+"city-kit-industrial/building-d": {
+"file": "models/city-kit-industrial/building-d.glb",
+"scale": 6.0,
+"h": 8.49
+},
+"city-kit-industrial/building-e": {
+"file": "models/city-kit-industrial/building-e.glb",
+"scale": 6.0,
+"h": 9.9
+},
+"city-kit-industrial/building-f": {
+"file": "models/city-kit-industrial/building-f.glb",
+"scale": 6.0,
+"h": 11.55
+},
+"city-kit-industrial/building-g": {
+"file": "models/city-kit-industrial/building-g.glb",
+"scale": 6.0,
+"h": 7.68
+},
+"city-kit-industrial/building-h": {
+"file": "models/city-kit-industrial/building-h.glb",
+"scale": 6.0,
+"h": 4.4
+},
+"city-kit-industrial/building-i": {
+"file": "models/city-kit-industrial/building-i.glb",
+"scale": 6.0,
+"h": 4.4
+},
+"city-kit-industrial/building-j": {
+"file": "models/city-kit-industrial/building-j.glb",
+"scale": 6.0,
+"h": 5.17
+},
+"city-kit-industrial/building-k": {
+"file": "models/city-kit-industrial/building-k.glb",
+"scale": 6.0,
+"h": 4.64
+},
+"city-kit-industrial/building-l": {
+"file": "models/city-kit-industrial/building-l.glb",
+"scale": 6.0,
+"h": 11.55
+},
+"city-kit-industrial/building-m": {
+"file": "models/city-kit-industrial/building-m.glb",
+"scale": 6.0,
+"h": 9.11
+},
+"city-kit-industrial/building-n": {
+"file": "models/city-kit-industrial/building-n.glb",
+"scale": 6.0,
+"h": 11.43
+},
+"city-kit-industrial/building-o": {
+"file": "models/city-kit-industrial/building-o.glb",
+"scale": 6.0,
+"h": 5.51
+},
+"city-kit-industrial/building-p": {
+"file": "models/city-kit-industrial/building-p.glb",
+"scale": 6.0,
+"h": 4.29
+},
+"city-kit-industrial/building-q": {
+"file": "models/city-kit-industrial/building-q.glb",
+"scale": 6.0,
+"h": 5.28
+},
+"city-kit-industrial/building-r": {
+"file": "models/city-kit-industrial/building-r.glb",
+"scale": 6.0,
+"h": 8.36
+},
+"city-kit-industrial/building-s": {
+"file": "models/city-kit-industrial/building-s.glb",
+"scale": 6.0,
+"h": 5.02
+},
+"city-kit-industrial/building-t": {
+"file": "models/city-kit-industrial/building-t.glb",
+"scale": 6.0,
+"h": 6.09
+},
+"city-kit-industrial/chimney-basic": {
+"file": "models/city-kit-industrial/chimney-basic.glb",
+"scale": 6.0,
+"h": 6.0
+},
+"city-kit-industrial/chimney-large": {
+"file": "models/city-kit-industrial/chimney-large.glb",
+"scale": 6.0,
+"h": 10.2
+},
+"city-kit-industrial/chimney-medium": {
+"file": "models/city-kit-industrial/chimney-medium.glb",
+"scale": 6.0,
+"h": 11.55
+},
+"city-kit-industrial/chimney-small": {
+"file": "models/city-kit-industrial/chimney-small.glb",
+"scale": 6.0,
+"h": 4.5
+},
+"city-kit-industrial/detail-tank-large": {
+"file": "models/city-kit-industrial/detail-tank-large.glb",
+"scale": 6.0,
+"h": 5.77
+},
+"city-kit-industrial/detail-tank": {
+"file": "models/city-kit-industrial/detail-tank.glb",
+"scale": 6.0,
+"h": 2.49
+},
+"city-kit-industrial/shipping-container-a": {
+"file": "models/city-kit-industrial/shipping-container-a.glb",
+"scale": 2.0,
+"h": 2.58
+},
+"city-kit-industrial/shipping-container-b": {
+"file": "models/city-kit-industrial/shipping-container-b.glb",
+"scale": 2.0,
+"h": 2.58
+},
+"city-kit-industrial/shipping-container-c": {
+"file": "models/city-kit-industrial/shipping-container-c.glb",
+"scale": 2.0,
+"h": 2.58
+},
+"city-kit-industrial/solar-panel-flat": {
+"file": "models/city-kit-industrial/solar-panel-flat.glb",
+"scale": 6.0,
+"h": 0.37
+},
+"city-kit-industrial/solar-panel-landscape-group": {
+"file": "models/city-kit-industrial/solar-panel-landscape-group.glb",
+"scale": 6.0,
+"h": 1.57
+},
+"city-kit-industrial/solar-panel-landscape": {
+"file": "models/city-kit-industrial/solar-panel-landscape.glb",
+"scale": 6.0,
+"h": 1.57
+},
+"city-kit-industrial/solar-panel-portrait-group": {
+"file": "models/city-kit-industrial/solar-panel-portrait-group.glb",
+"scale": 6.0,
+"h": 2.46
+},
+"city-kit-industrial/solar-panel-portrait": {
+"file": "models/city-kit-industrial/solar-panel-portrait.glb",
+"scale": 6.0,
+"h": 2.46
+},
+"city-kit-industrial/water-tower": {
+"file": "models/city-kit-industrial/water-tower.glb",
+"scale": 6.0,
+"h": 13.67
+},
+"city-kit-industrial/windmill-low": {
+"file": "models/city-kit-industrial/windmill-low.glb",
+"scale": 6.0,
+"h": 9.87
+},
+"city-kit-industrial/windmill": {
+"file": "models/city-kit-industrial/windmill.glb",
+"scale": 6.0,
+"h": 12.99
+},
+"food-kit/advocado-half": {
+"file": "models/food-kit/advocado-half.glb",
+"scale": 1.0,
+"h": 0.21
+},
+"food-kit/apple-half": {
+"file": "models/food-kit/apple-half.glb",
+"scale": 1.0,
+"h": 0.19
+},
+"food-kit/apple": {
+"file": "models/food-kit/apple.glb",
+"scale": 1.0,
+"h": 0.19
+},
+"food-kit/avocado": {
+"file": "models/food-kit/avocado.glb",
+"scale": 1.0,
+"h": 0.4
+},
+"food-kit/bacon-raw": {
+"file": "models/food-kit/bacon-raw.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/bacon": {
+"file": "models/food-kit/bacon.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/bag-flat": {
+"file": "models/food-kit/bag-flat.glb",
+"scale": 1.0,
+"h": 0.19
+},
+"food-kit/bag": {
+"file": "models/food-kit/bag.glb",
+"scale": 1.0,
+"h": 0.84
+},
+"food-kit/banana": {
+"file": "models/food-kit/banana.glb",
+"scale": 1.0,
+"h": 0.2
+},
+"food-kit/barrel": {
+"file": "models/food-kit/barrel.glb",
+"scale": 1.0,
+"h": 0.68
+},
+"food-kit/beet": {
+"file": "models/food-kit/beet.glb",
+"scale": 1.0,
+"h": 0.27
+},
+"food-kit/bottle-ketchup": {
+"file": "models/food-kit/bottle-ketchup.glb",
+"scale": 1.0,
+"h": 1.89
+},
+"food-kit/bottle-musterd": {
+"file": "models/food-kit/bottle-musterd.glb",
+"scale": 1.0,
+"h": 1.89
+},
+"food-kit/bottle-oil": {
+"file": "models/food-kit/bottle-oil.glb",
+"scale": 1.0,
+"h": 0.62
+},
+"food-kit/bowl-broth": {
+"file": "models/food-kit/bowl-broth.glb",
+"scale": 1.0,
+"h": 0.29
+},
+"food-kit/bowl-cereal": {
+"file": "models/food-kit/bowl-cereal.glb",
+"scale": 1.0,
+"h": 0.42
+},
+"food-kit/bowl-soup": {
+"file": "models/food-kit/bowl-soup.glb",
+"scale": 1.0,
+"h": 0.21
+},
+"food-kit/bowl": {
+"file": "models/food-kit/bowl.glb",
+"scale": 1.0,
+"h": 0.23
+},
+"food-kit/bread": {
+"file": "models/food-kit/bread.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/broccoli": {
+"file": "models/food-kit/broccoli.glb",
+"scale": 1.0,
+"h": 0.42
+},
+"food-kit/burger-cheese-double": {
+"file": "models/food-kit/burger-cheese-double.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/burger-cheese": {
+"file": "models/food-kit/burger-cheese.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/burger-double": {
+"file": "models/food-kit/burger-double.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/burger": {
+"file": "models/food-kit/burger.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/cabbage": {
+"file": "models/food-kit/cabbage.glb",
+"scale": 1.0,
+"h": 0.31
+},
+"food-kit/cake-birthday": {
+"file": "models/food-kit/cake-birthday.glb",
+"scale": 1.0,
+"h": 0.36
+},
+"food-kit/cake-slicer": {
+"file": "models/food-kit/cake-slicer.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/cake": {
+"file": "models/food-kit/cake.glb",
+"scale": 1.0,
+"h": 0.27
+},
+"food-kit/can-open": {
+"file": "models/food-kit/can-open.glb",
+"scale": 1.0,
+"h": 0.41
+},
+"food-kit/can-small": {
+"file": "models/food-kit/can-small.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/can": {
+"file": "models/food-kit/can.glb",
+"scale": 1.0,
+"h": 0.32
+},
+"food-kit/candy-bar-wrapper": {
+"file": "models/food-kit/candy-bar-wrapper.glb",
+"scale": 1.0,
+"h": 0.08
+},
+"food-kit/candy-bar": {
+"file": "models/food-kit/candy-bar.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/carrot": {
+"file": "models/food-kit/carrot.glb",
+"scale": 1.0,
+"h": 0.72
+},
+"food-kit/carton-small": {
+"file": "models/food-kit/carton-small.glb",
+"scale": 1.0,
+"h": 0.39
+},
+"food-kit/carton": {
+"file": "models/food-kit/carton.glb",
+"scale": 1.0,
+"h": 0.59
+},
+"food-kit/cauliflower": {
+"file": "models/food-kit/cauliflower.glb",
+"scale": 1.0,
+"h": 0.31
+},
+"food-kit/celery-stick": {
+"file": "models/food-kit/celery-stick.glb",
+"scale": 1.0,
+"h": 0.54
+},
+"food-kit/cheese-cut": {
+"file": "models/food-kit/cheese-cut.glb",
+"scale": 1.0,
+"h": 0.02
+},
+"food-kit/cheese-slicer": {
+"file": "models/food-kit/cheese-slicer.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/cheese": {
+"file": "models/food-kit/cheese.glb",
+"scale": 1.0,
+"h": 0.22
+},
+"food-kit/cherries": {
+"file": "models/food-kit/cherries.glb",
+"scale": 1.0,
+"h": 0.17
+},
+"food-kit/chinese": {
+"file": "models/food-kit/chinese.glb",
+"scale": 1.0,
+"h": 0.44
+},
+"food-kit/chocolate-wrapper": {
+"file": "models/food-kit/chocolate-wrapper.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/chocolate": {
+"file": "models/food-kit/chocolate.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/chopstic-decorative": {
+"file": "models/food-kit/chopstic-decorative.glb",
+"scale": 1.0,
+"h": 0.02
+},
+"food-kit/chopstick": {
+"file": "models/food-kit/chopstick.glb",
+"scale": 1.0,
+"h": 0.02
+},
+"food-kit/cocktail": {
+"file": "models/food-kit/cocktail.glb",
+"scale": 1.0,
+"h": 0.41
+},
+"food-kit/coconut-half": {
+"file": "models/food-kit/coconut-half.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/coconut": {
+"file": "models/food-kit/coconut.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/cookie-chocolate": {
+"file": "models/food-kit/cookie-chocolate.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/cookie": {
+"file": "models/food-kit/cookie.glb",
+"scale": 1.0,
+"h": 0.05
+},
+"food-kit/cooking-fork": {
+"file": "models/food-kit/cooking-fork.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/cooking-knife-chopping": {
+"file": "models/food-kit/cooking-knife-chopping.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/cooking-knife": {
+"file": "models/food-kit/cooking-knife.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/cooking-spatula": {
+"file": "models/food-kit/cooking-spatula.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/cooking-spoon": {
+"file": "models/food-kit/cooking-spoon.glb",
+"scale": 1.0,
+"h": 0.02
+},
+"food-kit/corn-dog": {
+"file": "models/food-kit/corn-dog.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/corn": {
+"file": "models/food-kit/corn.glb",
+"scale": 1.0,
+"h": 0.32
+},
+"food-kit/croissant": {
+"file": "models/food-kit/croissant.glb",
+"scale": 1.0,
+"h": 0.19
+},
+"food-kit/cup-coffee": {
+"file": "models/food-kit/cup-coffee.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/cup-saucer": {
+"file": "models/food-kit/cup-saucer.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/cup-tea": {
+"file": "models/food-kit/cup-tea.glb",
+"scale": 1.0,
+"h": 0.2
+},
+"food-kit/cup": {
+"file": "models/food-kit/cup.glb",
+"scale": 1.0,
+"h": 0.2
+},
+"food-kit/cupcake": {
+"file": "models/food-kit/cupcake.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/cutting-board-japanese": {
+"file": "models/food-kit/cutting-board-japanese.glb",
+"scale": 1.0,
+"h": 0.08
+},
+"food-kit/cutting-board-round": {
+"file": "models/food-kit/cutting-board-round.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/cutting-board": {
+"file": "models/food-kit/cutting-board.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/dim-sum": {
+"file": "models/food-kit/dim-sum.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/donut-chocolate": {
+"file": "models/food-kit/donut-chocolate.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/donut-sprinkles": {
+"file": "models/food-kit/donut-sprinkles.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/donut": {
+"file": "models/food-kit/donut.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/egg-cooked": {
+"file": "models/food-kit/egg-cooked.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/egg-cup": {
+"file": "models/food-kit/egg-cup.glb",
+"scale": 1.0,
+"h": 0.15
+},
+"food-kit/egg-half": {
+"file": "models/food-kit/egg-half.glb",
+"scale": 1.0,
+"h": 0.11
+},
+"food-kit/egg": {
+"file": "models/food-kit/egg.glb",
+"scale": 1.0,
+"h": 0.17
+},
+"food-kit/eggplant": {
+"file": "models/food-kit/eggplant.glb",
+"scale": 1.0,
+"h": 0.41
+},
+"food-kit/fish-bones": {
+"file": "models/food-kit/fish-bones.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/fish": {
+"file": "models/food-kit/fish.glb",
+"scale": 1.0,
+"h": 0.32
+},
+"food-kit/frappe": {
+"file": "models/food-kit/frappe.glb",
+"scale": 1.0,
+"h": 0.5
+},
+"food-kit/fries-empty": {
+"file": "models/food-kit/fries-empty.glb",
+"scale": 1.0,
+"h": 0.24
+},
+"food-kit/fries": {
+"file": "models/food-kit/fries.glb",
+"scale": 1.0,
+"h": 0.24
+},
+"food-kit/frikandel-speciaal": {
+"file": "models/food-kit/frikandel-speciaal.glb",
+"scale": 1.0,
+"h": 0.78
+},
+"food-kit/frying-pan-lid": {
+"file": "models/food-kit/frying-pan-lid.glb",
+"scale": 1.0,
+"h": 0.11
+},
+"food-kit/frying-pan": {
+"file": "models/food-kit/frying-pan.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/ginger-bread-cutter": {
+"file": "models/food-kit/ginger-bread-cutter.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/ginger-bread": {
+"file": "models/food-kit/ginger-bread.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/glass-wine": {
+"file": "models/food-kit/glass-wine.glb",
+"scale": 1.0,
+"h": 0.5
+},
+"food-kit/glass": {
+"file": "models/food-kit/glass.glb",
+"scale": 1.0,
+"h": 0.29
+},
+"food-kit/grapes": {
+"file": "models/food-kit/grapes.glb",
+"scale": 1.0,
+"h": 0.42
+},
+"food-kit/honey": {
+"file": "models/food-kit/honey.glb",
+"scale": 1.0,
+"h": 0.32
+},
+"food-kit/hot-dog-raw": {
+"file": "models/food-kit/hot-dog-raw.glb",
+"scale": 1.0,
+"h": 0.1
+},
+"food-kit/hot-dog": {
+"file": "models/food-kit/hot-dog.glb",
+"scale": 1.0,
+"h": 0.63
+},
+"food-kit/ice-cream-cne": {
+"file": "models/food-kit/ice-cream-cne.glb",
+"scale": 1.0,
+"h": 0.3
+},
+"food-kit/ice-cream-cup": {
+"file": "models/food-kit/ice-cream-cup.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/ice-cream-scoop-chocolate": {
+"file": "models/food-kit/ice-cream-scoop-chocolate.glb",
+"scale": 1.0,
+"h": 0.17
+},
+"food-kit/ice-cream-scoop-mint": {
+"file": "models/food-kit/ice-cream-scoop-mint.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/ice-cream": {
+"file": "models/food-kit/ice-cream.glb",
+"scale": 1.0,
+"h": 0.3
+},
+"food-kit/knife-block": {
+"file": "models/food-kit/knife-block.glb",
+"scale": 1.0,
+"h": 0.68
+},
+"food-kit/leek": {
+"file": "models/food-kit/leek.glb",
+"scale": 1.0,
+"h": 0.85
+},
+"food-kit/lemon-half": {
+"file": "models/food-kit/lemon-half.glb",
+"scale": 1.0,
+"h": 0.11
+},
+"food-kit/lemon": {
+"file": "models/food-kit/lemon.glb",
+"scale": 1.0,
+"h": 0.22
+},
+"food-kit/loaf-baguette": {
+"file": "models/food-kit/loaf-baguette.glb",
+"scale": 1.0,
+"h": 0.25
+},
+"food-kit/loaf-round": {
+"file": "models/food-kit/loaf-round.glb",
+"scale": 1.0,
+"h": 0.29
+},
+"food-kit/loaf": {
+"file": "models/food-kit/loaf.glb",
+"scale": 1.0,
+"h": 0.44
+},
+"food-kit/lollypop": {
+"file": "models/food-kit/lollypop.glb",
+"scale": 1.0,
+"h": 0.38
+},
+"food-kit/maki-roe": {
+"file": "models/food-kit/maki-roe.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/maki-salmon": {
+"file": "models/food-kit/maki-salmon.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/maki-vegetable": {
+"file": "models/food-kit/maki-vegetable.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/meat-cooked": {
+"file": "models/food-kit/meat-cooked.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/meat-patty": {
+"file": "models/food-kit/meat-patty.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/meat-raw": {
+"file": "models/food-kit/meat-raw.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/meat-ribs": {
+"file": "models/food-kit/meat-ribs.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/meat-sausage": {
+"file": "models/food-kit/meat-sausage.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/meat-tenderizer": {
+"file": "models/food-kit/meat-tenderizer.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/mincemeat-pie": {
+"file": "models/food-kit/mincemeat-pie.glb",
+"scale": 1.0,
+"h": 0.17
+},
+"food-kit/mortar-pestle": {
+"file": "models/food-kit/mortar-pestle.glb",
+"scale": 1.0,
+"h": 0.34
+},
+"food-kit/mortar": {
+"file": "models/food-kit/mortar.glb",
+"scale": 1.0,
+"h": 0.21
+},
+"food-kit/muffin": {
+"file": "models/food-kit/muffin.glb",
+"scale": 1.0,
+"h": 0.25
+},
+"food-kit/mug": {
+"file": "models/food-kit/mug.glb",
+"scale": 1.0,
+"h": 0.27
+},
+"food-kit/mushroom-half": {
+"file": "models/food-kit/mushroom-half.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/mushroom": {
+"file": "models/food-kit/mushroom.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/mussel-open": {
+"file": "models/food-kit/mussel-open.glb",
+"scale": 1.0,
+"h": 0.11
+},
+"food-kit/mussel": {
+"file": "models/food-kit/mussel.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/onion-half": {
+"file": "models/food-kit/onion-half.glb",
+"scale": 1.0,
+"h": 0.25
+},
+"food-kit/onion": {
+"file": "models/food-kit/onion.glb",
+"scale": 1.0,
+"h": 0.25
+},
+"food-kit/orange": {
+"file": "models/food-kit/orange.glb",
+"scale": 1.0,
+"h": 0.17
+},
+"food-kit/pan-stew": {
+"file": "models/food-kit/pan-stew.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/pan": {
+"file": "models/food-kit/pan.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/pancakes": {
+"file": "models/food-kit/pancakes.glb",
+"scale": 1.0,
+"h": 0.1
+},
+"food-kit/paprika-slice": {
+"file": "models/food-kit/paprika-slice.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/paprika": {
+"file": "models/food-kit/paprika.glb",
+"scale": 1.0,
+"h": 0.2
+},
+"food-kit/peanut-butter": {
+"file": "models/food-kit/peanut-butter.glb",
+"scale": 1.0,
+"h": 0.3
+},
+"food-kit/pear-half": {
+"file": "models/food-kit/pear-half.glb",
+"scale": 1.0,
+"h": 0.27
+},
+"food-kit/pear": {
+"file": "models/food-kit/pear.glb",
+"scale": 1.0,
+"h": 0.27
+},
+"food-kit/pepper-mill": {
+"file": "models/food-kit/pepper-mill.glb",
+"scale": 1.0,
+"h": 0.55
+},
+"food-kit/pepper": {
+"file": "models/food-kit/pepper.glb",
+"scale": 1.0,
+"h": 0.08
+},
+"food-kit/pie": {
+"file": "models/food-kit/pie.glb",
+"scale": 1.0,
+"h": 0.15
+},
+"food-kit/pineapple": {
+"file": "models/food-kit/pineapple.glb",
+"scale": 1.0,
+"h": 0.47
+},
+"food-kit/pizza-box": {
+"file": "models/food-kit/pizza-box.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/pizza-cutter": {
+"file": "models/food-kit/pizza-cutter.glb",
+"scale": 1.0,
+"h": 0.06
+},
+"food-kit/pizza": {
+"file": "models/food-kit/pizza.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/plate-broken": {
+"file": "models/food-kit/plate-broken.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/plate-deep": {
+"file": "models/food-kit/plate-deep.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/plate-dinner": {
+"file": "models/food-kit/plate-dinner.glb",
+"scale": 1.0,
+"h": 0.22
+},
+"food-kit/plate-rectangle": {
+"file": "models/food-kit/plate-rectangle.glb",
+"scale": 1.0,
+"h": 0.13
+},
+"food-kit/plate-sauerkraut": {
+"file": "models/food-kit/plate-sauerkraut.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/plate": {
+"file": "models/food-kit/plate.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/popsicle-chocolate": {
+"file": "models/food-kit/popsicle-chocolate.glb",
+"scale": 1.0,
+"h": 0.49
+},
+"food-kit/popsicle-stick": {
+"file": "models/food-kit/popsicle-stick.glb",
+"scale": 1.0,
+"h": 0.34
+},
+"food-kit/popsicle": {
+"file": "models/food-kit/popsicle.glb",
+"scale": 1.0,
+"h": 0.49
+},
+"food-kit/pot-lid": {
+"file": "models/food-kit/pot-lid.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/pot-stew-lid": {
+"file": "models/food-kit/pot-stew-lid.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/pot-stew": {
+"file": "models/food-kit/pot-stew.glb",
+"scale": 1.0,
+"h": 0.36
+},
+"food-kit/pot": {
+"file": "models/food-kit/pot.glb",
+"scale": 1.0,
+"h": 0.36
+},
+"food-kit/pudding": {
+"file": "models/food-kit/pudding.glb",
+"scale": 1.0,
+"h": 0.2
+},
+"food-kit/pumpkin-basic": {
+"file": "models/food-kit/pumpkin-basic.glb",
+"scale": 1.0,
+"h": 0.3
+},
+"food-kit/pumpkin": {
+"file": "models/food-kit/pumpkin.glb",
+"scale": 1.0,
+"h": 0.23
+},
+"food-kit/radish": {
+"file": "models/food-kit/radish.glb",
+"scale": 1.0,
+"h": 0.58
+},
+"food-kit/rice-ball": {
+"file": "models/food-kit/rice-ball.glb",
+"scale": 1.0,
+"h": 0.13
+},
+"food-kit/rollingPin": {
+"file": "models/food-kit/rollingPin.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/salad": {
+"file": "models/food-kit/salad.glb",
+"scale": 1.0,
+"h": 0.27
+},
+"food-kit/sandwich": {
+"file": "models/food-kit/sandwich.glb",
+"scale": 1.0,
+"h": 0.05
+},
+"food-kit/sausage-half": {
+"file": "models/food-kit/sausage-half.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/sausage": {
+"file": "models/food-kit/sausage.glb",
+"scale": 1.0,
+"h": 0.12
+},
+"food-kit/shaker-pepper": {
+"file": "models/food-kit/shaker-pepper.glb",
+"scale": 1.0,
+"h": 0.2
+},
+"food-kit/shaker-salt": {
+"file": "models/food-kit/shaker-salt.glb",
+"scale": 1.0,
+"h": 0.2
+},
+"food-kit/skewer-vegetables": {
+"file": "models/food-kit/skewer-vegetables.glb",
+"scale": 1.0,
+"h": 0.11
+},
+"food-kit/skewer": {
+"file": "models/food-kit/skewer.glb",
+"scale": 1.0,
+"h": 0.07
+},
+"food-kit/soda-bottle": {
+"file": "models/food-kit/soda-bottle.glb",
+"scale": 1.0,
+"h": 0.58
+},
+"food-kit/soda-can-crushed": {
+"file": "models/food-kit/soda-can-crushed.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/soda-can": {
+"file": "models/food-kit/soda-can.glb",
+"scale": 1.0,
+"h": 0.35
+},
+"food-kit/soda-glass": {
+"file": "models/food-kit/soda-glass.glb",
+"scale": 1.0,
+"h": 0.34
+},
+"food-kit/soda": {
+"file": "models/food-kit/soda.glb",
+"scale": 1.0,
+"h": 0.43
+},
+"food-kit/soy": {
+"file": "models/food-kit/soy.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/steamer": {
+"file": "models/food-kit/steamer.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/strawberry": {
+"file": "models/food-kit/strawberry.glb",
+"scale": 1.0,
+"h": 0.18
+},
+"food-kit/styrofoam-dinner": {
+"file": "models/food-kit/styrofoam-dinner.glb",
+"scale": 1.0,
+"h": 0.33
+},
+"food-kit/styrofoam": {
+"file": "models/food-kit/styrofoam.glb",
+"scale": 1.0,
+"h": 0.29
+},
+"food-kit/sub": {
+"file": "models/food-kit/sub.glb",
+"scale": 1.0,
+"h": 0.1
+},
+"food-kit/sundae": {
+"file": "models/food-kit/sundae.glb",
+"scale": 1.0,
+"h": 0.62
+},
+"food-kit/sushi-egg": {
+"file": "models/food-kit/sushi-egg.glb",
+"scale": 1.0,
+"h": 0.08
+},
+"food-kit/sushi-salmon": {
+"file": "models/food-kit/sushi-salmon.glb",
+"scale": 1.0,
+"h": 0.09
+},
+"food-kit/taco": {
+"file": "models/food-kit/taco.glb",
+"scale": 1.0,
+"h": 0.26
+},
+"food-kit/tajine-lid": {
+"file": "models/food-kit/tajine-lid.glb",
+"scale": 1.0,
+"h": 0.44
+},
+"food-kit/tajine": {
+"file": "models/food-kit/tajine.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/tomato-slice": {
+"file": "models/food-kit/tomato-slice.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/tomato": {
+"file": "models/food-kit/tomato.glb",
+"scale": 1.0,
+"h": 0.14
+},
+"food-kit/turkey": {
+"file": "models/food-kit/turkey.glb",
+"scale": 1.0,
+"h": 0.31
+},
+"food-kit/utensil-fork": {
+"file": "models/food-kit/utensil-fork.glb",
+"scale": 1.0,
+"h": 0.02
+},
+"food-kit/utensil-knife": {
+"file": "models/food-kit/utensil-knife.glb",
+"scale": 1.0,
+"h": 0.02
+},
+"food-kit/utensil-spoon": {
+"file": "models/food-kit/utensil-spoon.glb",
+"scale": 1.0,
+"h": 0.03
+},
+"food-kit/waffle": {
+"file": "models/food-kit/waffle.glb",
+"scale": 1.0,
+"h": 0.04
+},
+"food-kit/watermelon": {
+"file": "models/food-kit/watermelon.glb",
+"scale": 1.0,
+"h": 0.48
+},
+"food-kit/whipped-cream": {
+"file": "models/food-kit/whipped-cream.glb",
+"scale": 1.0,
+"h": 0.13
+},
+"food-kit/whisk": {
+"file": "models/food-kit/whisk.glb",
+"scale": 1.0,
+"h": 0.16
+},
+"food-kit/whole-ham": {
+"file": "models/food-kit/whole-ham.glb",
+"scale": 1.0,
+"h": 0.44
+},
+"food-kit/wholer-ham": {
+"file": "models/food-kit/wholer-ham.glb",
+"scale": 1.0,
+"h": 0.51
+},
+"food-kit/wine-red": {
+"file": "models/food-kit/wine-red.glb",
+"scale": 1.0,
+"h": 0.7
+},
+"food-kit/wine-white": {
+"file": "models/food-kit/wine-white.glb",
+"scale": 1.0,
+"h": 0.66
+},
+"survival-kit/barrel-open": {
+"file": "models/survival-kit/barrel-open.glb",
+"scale": 4.4,
+"h": 1.51
+},
+"survival-kit/barrel": {
+"file": "models/survival-kit/barrel.glb",
+"scale": 4.4,
+"h": 1.51
+},
+"survival-kit/bedroll-frame": {
+"file": "models/survival-kit/bedroll-frame.glb",
+"scale": 4.4,
+"h": 0.65
+},
+"survival-kit/bedroll-packed": {
+"file": "models/survival-kit/bedroll-packed.glb",
+"scale": 4.4,
+"h": 0.39
+},
+"survival-kit/bedroll": {
+"file": "models/survival-kit/bedroll.glb",
+"scale": 4.4,
+"h": 0.55
+},
+"survival-kit/bottle-large": {
+"file": "models/survival-kit/bottle-large.glb",
+"scale": 4.4,
+"h": 0.63
+},
+"survival-kit/bottle": {
+"file": "models/survival-kit/bottle.glb",
+"scale": 4.4,
+"h": 0.68
+},
+"survival-kit/box-large-open": {
+"file": "models/survival-kit/box-large-open.glb",
+"scale": 4.4,
+"h": 1.35
+},
+"survival-kit/box-large": {
+"file": "models/survival-kit/box-large.glb",
+"scale": 4.4,
+"h": 1.1
+},
+"survival-kit/box-open": {
+"file": "models/survival-kit/box-open.glb",
+"scale": 4.4,
+"h": 1.35
+},
+"survival-kit/box": {
+"file": "models/survival-kit/box.glb",
+"scale": 4.4,
+"h": 1.1
+},
+"survival-kit/bucket": {
+"file": "models/survival-kit/bucket.glb",
+"scale": 4.4,
+"h": 0.85
+},
+"survival-kit/campfire-fishing-stand": {
+"file": "models/survival-kit/campfire-fishing-stand.glb",
+"scale": 4.4,
+"h": 1.21
+},
+"survival-kit/campfire-pit": {
+"file": "models/survival-kit/campfire-pit.glb",
+"scale": 4.4,
+"h": 0.41
+},
+"survival-kit/campfire-stand": {
+"file": "models/survival-kit/campfire-stand.glb",
+"scale": 4.4,
+"h": 1.24
+},
+"survival-kit/chest": {
+"file": "models/survival-kit/chest.glb",
+"scale": 4.4,
+"h": 0.94
+},
+"survival-kit/fence-doorway": {
+"file": "models/survival-kit/fence-doorway.glb",
+"scale": 4.4,
+"h": 2.28
+},
+"survival-kit/fence-fortified": {
+"file": "models/survival-kit/fence-fortified.glb",
+"scale": 4.4,
+"h": 2.28
+},
+"survival-kit/fence": {
+"file": "models/survival-kit/fence.glb",
+"scale": 4.4,
+"h": 2.28
+},
+"survival-kit/fish-large": {
+"file": "models/survival-kit/fish-large.glb",
+"scale": 4.4,
+"h": 0.7
+},
+"survival-kit/fish": {
+"file": "models/survival-kit/fish.glb",
+"scale": 4.4,
+"h": 0.47
+},
+"survival-kit/rock-a": {
+"file": "models/survival-kit/rock-a.glb",
+"scale": 4.4,
+"h": 1.73
+},
+"survival-kit/rock-b": {
+"file": "models/survival-kit/rock-b.glb",
+"scale": 4.4,
+"h": 1.84
+},
+"survival-kit/rock-c": {
+"file": "models/survival-kit/rock-c.glb",
+"scale": 4.4,
+"h": 2.24
+},
+"survival-kit/rock-flat-grass": {
+"file": "models/survival-kit/rock-flat-grass.glb",
+"scale": 4.4,
+"h": 0.99
+},
+"survival-kit/rock-flat": {
+"file": "models/survival-kit/rock-flat.glb",
+"scale": 4.4,
+"h": 0.86
+},
+"survival-kit/rock-sand-a": {
+"file": "models/survival-kit/rock-sand-a.glb",
+"scale": 4.4,
+"h": 1.73
+},
+"survival-kit/rock-sand-b": {
+"file": "models/survival-kit/rock-sand-b.glb",
+"scale": 4.4,
+"h": 1.97
+},
+"survival-kit/rock-sand-c": {
+"file": "models/survival-kit/rock-sand-c.glb",
+"scale": 4.4,
+"h": 2.24
+},
+"survival-kit/signpost-single": {
+"file": "models/survival-kit/signpost-single.glb",
+"scale": 4.4,
+"h": 2.02
+},
+"survival-kit/signpost": {
+"file": "models/survival-kit/signpost.glb",
+"scale": 4.4,
+"h": 2.02
+},
+"survival-kit/structure-roof": {
+"file": "models/survival-kit/structure-roof.glb",
+"scale": 4.4,
+"h": 3.42
+},
+"survival-kit/structure": {
+"file": "models/survival-kit/structure.glb",
+"scale": 4.4,
+"h": 2.2
+},
+"survival-kit/tent-canvas-half": {
+"file": "models/survival-kit/tent-canvas-half.glb",
+"scale": 4.4,
+"h": 2.16
+},
+"survival-kit/tent-canvas": {
+"file": "models/survival-kit/tent-canvas.glb",
+"scale": 4.4,
+"h": 2.16
+},
+"survival-kit/tent": {
+"file": "models/survival-kit/tent.glb",
+"scale": 4.4,
+"h": 2.16
+},
+"survival-kit/tool-axe-upgraded": {
+"file": "models/survival-kit/tool-axe-upgraded.glb",
+"scale": 4.4,
+"h": 1.13
+},
+"survival-kit/tool-axe": {
+"file": "models/survival-kit/tool-axe.glb",
+"scale": 4.4,
+"h": 1.13
+},
+"survival-kit/tool-hammer-upgraded": {
+"file": "models/survival-kit/tool-hammer-upgraded.glb",
+"scale": 4.4,
+"h": 0.81
+},
+"survival-kit/tool-hammer": {
+"file": "models/survival-kit/tool-hammer.glb",
+"scale": 4.4,
+"h": 0.68
+},
+"survival-kit/tool-hoe-upgraded": {
+"file": "models/survival-kit/tool-hoe-upgraded.glb",
+"scale": 4.4,
+"h": 1.06
+},
+"survival-kit/tool-hoe": {
+"file": "models/survival-kit/tool-hoe.glb",
+"scale": 4.4,
+"h": 1.06
+},
+"survival-kit/tool-pickaxe-upgraded": {
+"file": "models/survival-kit/tool-pickaxe-upgraded.glb",
+"scale": 4.4,
+"h": 1.06
+},
+"survival-kit/tool-pickaxe": {
+"file": "models/survival-kit/tool-pickaxe.glb",
+"scale": 4.4,
+"h": 1.06
+},
+"survival-kit/tool-shovel-upgraded": {
+"file": "models/survival-kit/tool-shovel-upgraded.glb",
+"scale": 4.4,
+"h": 1.28
+},
+"survival-kit/tool-shovel": {
+"file": "models/survival-kit/tool-shovel.glb",
+"scale": 4.4,
+"h": 1.28
+},
+"survival-kit/tree-autumn-tall": {
+"file": "models/survival-kit/tree-autumn-tall.glb",
+"scale": 4.4,
+"h": 7.53
+},
+"survival-kit/tree-autumn-trunk": {
+"file": "models/survival-kit/tree-autumn-trunk.glb",
+"scale": 4.4,
+"h": 1.15
+},
+"survival-kit/tree-autumn": {
+"file": "models/survival-kit/tree-autumn.glb",
+"scale": 4.4,
+"h": 6.21
+},
+"survival-kit/tree-log-small": {
+"file": "models/survival-kit/tree-log-small.glb",
+"scale": 4.4,
+"h": 1.22
+},
+"survival-kit/tree-log": {
+"file": "models/survival-kit/tree-log.glb",
+"scale": 4.4,
+"h": 1.22
+},
+"survival-kit/tree-tall": {
+"file": "models/survival-kit/tree-tall.glb",
+"scale": 4.4,
+"h": 7.53
+},
+"survival-kit/tree-trunk": {
+"file": "models/survival-kit/tree-trunk.glb",
+"scale": 4.4,
+"h": 1.15
+},
+"survival-kit/tree": {
+"file": "models/survival-kit/tree.glb",
+"scale": 4.4,
+"h": 6.21
+},
+"survival-kit/workbench-anvil": {
+"file": "models/survival-kit/workbench-anvil.glb",
+"scale": 4.4,
+"h": 1.3
+},
+"survival-kit/workbench-grind": {
+"file": "models/survival-kit/workbench-grind.glb",
+"scale": 4.4,
+"h": 1.37
+},
+"survival-kit/workbench": {
+"file": "models/survival-kit/workbench.glb",
+"scale": 4.4,
+"h": 1.04
+},
+"space-kit/alien": {
+"file": "models/space-kit/alien.glb",
+"scale": 1.15,
+"h": 2.04
+},
+"space-kit/barrel": {
+"file": "models/space-kit/barrel.glb",
+"scale": 1.15,
+"h": 0.29
+},
+"space-kit/barrels": {
+"file": "models/space-kit/barrels.glb",
+"scale": 1.15,
+"h": 0.29
+},
+"space-kit/barrels_rail": {
+"file": "models/space-kit/barrels_rail.glb",
+"scale": 1.15,
+"h": 0.34
+},
+"space-kit/bones": {
+"file": "models/space-kit/bones.glb",
+"scale": 1.15,
+"h": 0.51
+},
+"space-kit/chimney": {
+"file": "models/space-kit/chimney.glb",
+"scale": 1.15,
+"h": 2.3
+},
+"space-kit/chimney_detailed": {
+"file": "models/space-kit/chimney_detailed.glb",
+"scale": 1.15,
+"h": 2.3
+},
+"space-kit/craft_cargoA": {
+"file": "models/space-kit/craft_cargoA.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/craft_cargoB": {
+"file": "models/space-kit/craft_cargoB.glb",
+"scale": 1.15,
+"h": 1.03
+},
+"space-kit/craft_miner": {
+"file": "models/space-kit/craft_miner.glb",
+"scale": 1.15,
+"h": 0.8
+},
+"space-kit/craft_racer": {
+"file": "models/space-kit/craft_racer.glb",
+"scale": 1.15,
+"h": 0.86
+},
+"space-kit/craft_speederA": {
+"file": "models/space-kit/craft_speederA.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/craft_speederB": {
+"file": "models/space-kit/craft_speederB.glb",
+"scale": 1.15,
+"h": 0.69
+},
+"space-kit/craft_speederC": {
+"file": "models/space-kit/craft_speederC.glb",
+"scale": 1.15,
+"h": 0.69
+},
+"space-kit/craft_speederD": {
+"file": "models/space-kit/craft_speederD.glb",
+"scale": 1.15,
+"h": 1.03
+},
+"space-kit/crater": {
+"file": "models/space-kit/crater.glb",
+"scale": 1.15,
+"h": 0.14
+},
+"space-kit/craterLarge": {
+"file": "models/space-kit/craterLarge.glb",
+"scale": 1.15,
+"h": 0.14
+},
+"space-kit/desk_chair": {
+"file": "models/space-kit/desk_chair.glb",
+"scale": 1.15,
+"h": 0.34
+},
+"space-kit/desk_chairArms": {
+"file": "models/space-kit/desk_chairArms.glb",
+"scale": 1.15,
+"h": 0.4
+},
+"space-kit/desk_chairStool": {
+"file": "models/space-kit/desk_chairStool.glb",
+"scale": 1.15,
+"h": 0.19
+},
+"space-kit/desk_computer": {
+"file": "models/space-kit/desk_computer.glb",
+"scale": 1.15,
+"h": 0.43
+},
+"space-kit/desk_computerCorner": {
+"file": "models/space-kit/desk_computerCorner.glb",
+"scale": 1.15,
+"h": 0.43
+},
+"space-kit/desk_computerScreen": {
+"file": "models/space-kit/desk_computerScreen.glb",
+"scale": 1.15,
+"h": 0.73
+},
+"space-kit/gate_complex": {
+"file": "models/space-kit/gate_complex.glb",
+"scale": 1.15,
+"h": 1.16
+},
+"space-kit/gate_simple": {
+"file": "models/space-kit/gate_simple.glb",
+"scale": 1.15,
+"h": 1.24
+},
+"space-kit/hangar_largeA": {
+"file": "models/space-kit/hangar_largeA.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/hangar_largeB": {
+"file": "models/space-kit/hangar_largeB.glb",
+"scale": 1.15,
+"h": 1.26
+},
+"space-kit/hangar_roundA": {
+"file": "models/space-kit/hangar_roundA.glb",
+"scale": 1.15,
+"h": 1.72
+},
+"space-kit/hangar_roundB": {
+"file": "models/space-kit/hangar_roundB.glb",
+"scale": 1.15,
+"h": 2.07
+},
+"space-kit/hangar_roundGlass": {
+"file": "models/space-kit/hangar_roundGlass.glb",
+"scale": 1.15,
+"h": 1.61
+},
+"space-kit/hangar_smallA": {
+"file": "models/space-kit/hangar_smallA.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/hangar_smallB": {
+"file": "models/space-kit/hangar_smallB.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/machine_barrel": {
+"file": "models/space-kit/machine_barrel.glb",
+"scale": 1.15,
+"h": 0.69
+},
+"space-kit/machine_barrelLarge": {
+"file": "models/space-kit/machine_barrelLarge.glb",
+"scale": 1.15,
+"h": 0.69
+},
+"space-kit/machine_generator": {
+"file": "models/space-kit/machine_generator.glb",
+"scale": 1.15,
+"h": 0.46
+},
+"space-kit/machine_generatorLarge": {
+"file": "models/space-kit/machine_generatorLarge.glb",
+"scale": 1.15,
+"h": 0.79
+},
+"space-kit/machine_wireless": {
+"file": "models/space-kit/machine_wireless.glb",
+"scale": 1.15,
+"h": 0.69
+},
+"space-kit/machine_wirelessCable": {
+"file": "models/space-kit/machine_wirelessCable.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/meteor": {
+"file": "models/space-kit/meteor.glb",
+"scale": 1.15,
+"h": 0.85
+},
+"space-kit/meteor_detailed": {
+"file": "models/space-kit/meteor_detailed.glb",
+"scale": 1.15,
+"h": 0.85
+},
+"space-kit/meteor_half": {
+"file": "models/space-kit/meteor_half.glb",
+"scale": 1.15,
+"h": 0.42
+},
+"space-kit/monorail_trackCornerLarge": {
+"file": "models/space-kit/monorail_trackCornerLarge.glb",
+"scale": 1.15,
+"h": 0.15
+},
+"space-kit/monorail_trackCornerSmall": {
+"file": "models/space-kit/monorail_trackCornerSmall.glb",
+"scale": 1.15,
+"h": 0.15
+},
+"space-kit/monorail_trackSlope": {
+"file": "models/space-kit/monorail_trackSlope.glb",
+"scale": 1.15,
+"h": 0.72
+},
+"space-kit/monorail_trackStraight": {
+"file": "models/space-kit/monorail_trackStraight.glb",
+"scale": 1.15,
+"h": 0.15
+},
+"space-kit/monorail_trackSupport": {
+"file": "models/space-kit/monorail_trackSupport.glb",
+"scale": 1.15,
+"h": 0.57
+},
+"space-kit/monorail_trackSupportCorner": {
+"file": "models/space-kit/monorail_trackSupportCorner.glb",
+"scale": 1.15,
+"h": 0.57
+},
+"space-kit/monorail_trainBox": {
+"file": "models/space-kit/monorail_trainBox.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/monorail_trainCargo": {
+"file": "models/space-kit/monorail_trainCargo.glb",
+"scale": 1.15,
+"h": 0.64
+},
+"space-kit/monorail_trainEnd": {
+"file": "models/space-kit/monorail_trainEnd.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/monorail_trainFlat": {
+"file": "models/space-kit/monorail_trainFlat.glb",
+"scale": 1.15,
+"h": 0.29
+},
+"space-kit/monorail_trainFront": {
+"file": "models/space-kit/monorail_trainFront.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/monorail_trainPassenger": {
+"file": "models/space-kit/monorail_trainPassenger.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/rock": {
+"file": "models/space-kit/rock.glb",
+"scale": 1.15,
+"h": 0.34
+},
+"space-kit/rock_crystals": {
+"file": "models/space-kit/rock_crystals.glb",
+"scale": 1.15,
+"h": 0.39
+},
+"space-kit/rock_crystalsLargeA": {
+"file": "models/space-kit/rock_crystalsLargeA.glb",
+"scale": 1.15,
+"h": 0.62
+},
+"space-kit/rock_crystalsLargeB": {
+"file": "models/space-kit/rock_crystalsLargeB.glb",
+"scale": 1.15,
+"h": 0.63
+},
+"space-kit/rock_largeA": {
+"file": "models/space-kit/rock_largeA.glb",
+"scale": 1.15,
+"h": 0.57
+},
+"space-kit/rock_largeB": {
+"file": "models/space-kit/rock_largeB.glb",
+"scale": 1.15,
+"h": 0.57
+},
+"space-kit/rocket_baseA": {
+"file": "models/space-kit/rocket_baseA.glb",
+"scale": 1.15,
+"h": 1.84
+},
+"space-kit/rocket_baseB": {
+"file": "models/space-kit/rocket_baseB.glb",
+"scale": 1.15,
+"h": 1.49
+},
+"space-kit/rocket_finsA": {
+"file": "models/space-kit/rocket_finsA.glb",
+"scale": 1.15,
+"h": 0.8
+},
+"space-kit/rocket_finsB": {
+"file": "models/space-kit/rocket_finsB.glb",
+"scale": 1.15,
+"h": 0.81
+},
+"space-kit/rocket_fuelA": {
+"file": "models/space-kit/rocket_fuelA.glb",
+"scale": 1.15,
+"h": 0.58
+},
+"space-kit/rocket_fuelB": {
+"file": "models/space-kit/rocket_fuelB.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/rocket_sidesA": {
+"file": "models/space-kit/rocket_sidesA.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/rocket_sidesB": {
+"file": "models/space-kit/rocket_sidesB.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/rocket_topA": {
+"file": "models/space-kit/rocket_topA.glb",
+"scale": 1.15,
+"h": 0.92
+},
+"space-kit/rocket_topB": {
+"file": "models/space-kit/rocket_topB.glb",
+"scale": 1.15,
+"h": 1.26
+},
+"space-kit/rocks_smallA": {
+"file": "models/space-kit/rocks_smallA.glb",
+"scale": 1.15,
+"h": 0.12
+},
+"space-kit/rocks_smallB": {
+"file": "models/space-kit/rocks_smallB.glb",
+"scale": 1.15,
+"h": 0.21
+},
+"space-kit/rover": {
+"file": "models/space-kit/rover.glb",
+"scale": 1.15,
+"h": 0.44
+},
+"space-kit/satelliteDish": {
+"file": "models/space-kit/satelliteDish.glb",
+"scale": 1.15,
+"h": 0.71
+},
+"space-kit/satelliteDish_detailed": {
+"file": "models/space-kit/satelliteDish_detailed.glb",
+"scale": 1.15,
+"h": 0.71
+},
+"space-kit/satelliteDish_large": {
+"file": "models/space-kit/satelliteDish_large.glb",
+"scale": 1.15,
+"h": 0.94
+},
+"space-kit/structure": {
+"file": "models/space-kit/structure.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/structure_closed": {
+"file": "models/space-kit/structure_closed.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/structure_detailed": {
+"file": "models/space-kit/structure_detailed.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/structure_diagonal": {
+"file": "models/space-kit/structure_diagonal.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/supports_high": {
+"file": "models/space-kit/supports_high.glb",
+"scale": 1.15,
+"h": 1.15
+},
+"space-kit/supports_low": {
+"file": "models/space-kit/supports_low.glb",
+"scale": 1.15,
+"h": 0.57
+},
+"space-kit/turret_double": {
+"file": "models/space-kit/turret_double.glb",
+"scale": 1.15,
+"h": 0.46
+},
+"space-kit/turret_single": {
+"file": "models/space-kit/turret_single.glb",
+"scale": 1.15,
+"h": 0.63
+},
+"space-kit/weapon_gun": {
+"file": "models/space-kit/weapon_gun.glb",
+"scale": 1.15,
+"h": 0.52
+},
+"space-kit/weapon_rifle": {
+"file": "models/space-kit/weapon_rifle.glb",
+"scale": 1.15,
+"h": 0.63
+},
+"graveyard-kit/altar-stone": {
+"file": "models/graveyard-kit/altar-stone.glb",
+"scale": 2.5,
+"h": 1.22
+},
+"graveyard-kit/altar-wood": {
+"file": "models/graveyard-kit/altar-wood.glb",
+"scale": 2.5,
+"h": 1.34
+},
+"graveyard-kit/bench-damaged": {
+"file": "models/graveyard-kit/bench-damaged.glb",
+"scale": 2.5,
+"h": 1.3
+},
+"graveyard-kit/bench": {
+"file": "models/graveyard-kit/bench.glb",
+"scale": 2.5,
+"h": 1.31
+},
+"graveyard-kit/border-pillar": {
+"file": "models/graveyard-kit/border-pillar.glb",
+"scale": 2.5,
+"h": 1.9
+},
+"graveyard-kit/brick-wall-curve-small": {
+"file": "models/graveyard-kit/brick-wall-curve-small.glb",
+"scale": 2.5,
+"h": 1.81
+},
+"graveyard-kit/brick-wall-curve": {
+"file": "models/graveyard-kit/brick-wall-curve.glb",
+"scale": 2.5,
+"h": 1.81
+},
+"graveyard-kit/brick-wall-end": {
+"file": "models/graveyard-kit/brick-wall-end.glb",
+"scale": 2.5,
+"h": 2.13
+},
+"graveyard-kit/brick-wall": {
+"file": "models/graveyard-kit/brick-wall.glb",
+"scale": 2.5,
+"h": 1.81
+},
+"graveyard-kit/candle-multiple": {
+"file": "models/graveyard-kit/candle-multiple.glb",
+"scale": 2.5,
+"h": 0.5
+},
+"graveyard-kit/candle": {
+"file": "models/graveyard-kit/candle.glb",
+"scale": 2.5,
+"h": 0.5
+},
+"graveyard-kit/character-ghost": {
+"file": "models/graveyard-kit/character-ghost.glb",
+"scale": 2.5,
+"h": 1.66
+},
+"graveyard-kit/character-skeleton": {
+"file": "models/graveyard-kit/character-skeleton.glb",
+"scale": 2.5,
+"h": 1.19
+},
+"graveyard-kit/coffin-old": {
+"file": "models/graveyard-kit/coffin-old.glb",
+"scale": 2.5,
+"h": 0.5
+},
+"graveyard-kit/coffin": {
+"file": "models/graveyard-kit/coffin.glb",
+"scale": 2.5,
+"h": 0.5
+},
+"graveyard-kit/column-large": {
+"file": "models/graveyard-kit/column-large.glb",
+"scale": 2.5,
+"h": 2.82
+},
+"graveyard-kit/cross-column": {
+"file": "models/graveyard-kit/cross-column.glb",
+"scale": 2.5,
+"h": 3.62
+},
+"graveyard-kit/cross-wood": {
+"file": "models/graveyard-kit/cross-wood.glb",
+"scale": 2.5,
+"h": 2.61
+},
+"graveyard-kit/cross": {
+"file": "models/graveyard-kit/cross.glb",
+"scale": 2.5,
+"h": 2.62
+},
+"graveyard-kit/crypt-a": {
+"file": "models/graveyard-kit/crypt-a.glb",
+"scale": 2.5,
+"h": 1.31
+},
+"graveyard-kit/crypt-b": {
+"file": "models/graveyard-kit/crypt-b.glb",
+"scale": 2.5,
+"h": 1.31
+},
+"graveyard-kit/crypt-door": {
+"file": "models/graveyard-kit/crypt-door.glb",
+"scale": 2.5,
+"h": 1.84
+},
+"graveyard-kit/crypt-large-door": {
+"file": "models/graveyard-kit/crypt-large-door.glb",
+"scale": 2.5,
+"h": 1.85
+},
+"graveyard-kit/crypt-large-roof": {
+"file": "models/graveyard-kit/crypt-large-roof.glb",
+"scale": 2.5,
+"h": 1.9
+},
+"graveyard-kit/crypt-large": {
+"file": "models/graveyard-kit/crypt-large.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"graveyard-kit/crypt-small-roof": {
+"file": "models/graveyard-kit/crypt-small-roof.glb",
+"scale": 2.5,
+"h": 1.85
+},
+"graveyard-kit/crypt-small": {
+"file": "models/graveyard-kit/crypt-small.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"graveyard-kit/crypt": {
+"file": "models/graveyard-kit/crypt.glb",
+"scale": 2.5,
+"h": 1.83
+},
+"graveyard-kit/detail-bowl": {
+"file": "models/graveyard-kit/detail-bowl.glb",
+"scale": 2.5,
+"h": 0.32
+},
+"graveyard-kit/detail-chalice": {
+"file": "models/graveyard-kit/detail-chalice.glb",
+"scale": 2.5,
+"h": 0.62
+},
+"graveyard-kit/detail-plate": {
+"file": "models/graveyard-kit/detail-plate.glb",
+"scale": 2.5,
+"h": 0.12
+},
+"graveyard-kit/fence-damaged": {
+"file": "models/graveyard-kit/fence-damaged.glb",
+"scale": 2.5,
+"h": 1.55
+},
+"graveyard-kit/fence-gate": {
+"file": "models/graveyard-kit/fence-gate.glb",
+"scale": 2.5,
+"h": 1.55
+},
+"graveyard-kit/fence": {
+"file": "models/graveyard-kit/fence.glb",
+"scale": 2.5,
+"h": 1.55
+},
+"graveyard-kit/fire-basket": {
+"file": "models/graveyard-kit/fire-basket.glb",
+"scale": 2.5,
+"h": 0.42
+},
+"graveyard-kit/grave-border": {
+"file": "models/graveyard-kit/grave-border.glb",
+"scale": 2.5,
+"h": 0.28
+},
+"graveyard-kit/grave": {
+"file": "models/graveyard-kit/grave.glb",
+"scale": 2.5,
+"h": 0.29
+},
+"graveyard-kit/gravestone-bevel": {
+"file": "models/graveyard-kit/gravestone-bevel.glb",
+"scale": 2.5,
+"h": 1.32
+},
+"graveyard-kit/gravestone-broken": {
+"file": "models/graveyard-kit/gravestone-broken.glb",
+"scale": 2.5,
+"h": 0.85
+},
+"graveyard-kit/gravestone-cross-large": {
+"file": "models/graveyard-kit/gravestone-cross-large.glb",
+"scale": 2.5,
+"h": 2.35
+},
+"graveyard-kit/gravestone-cross": {
+"file": "models/graveyard-kit/gravestone-cross.glb",
+"scale": 2.5,
+"h": 2.29
+},
+"graveyard-kit/gravestone-debris": {
+"file": "models/graveyard-kit/gravestone-debris.glb",
+"scale": 2.5,
+"h": 0.67
+},
+"graveyard-kit/gravestone-decorative": {
+"file": "models/graveyard-kit/gravestone-decorative.glb",
+"scale": 2.5,
+"h": 1.49
+},
+"graveyard-kit/gravestone-roof": {
+"file": "models/graveyard-kit/gravestone-roof.glb",
+"scale": 2.5,
+"h": 1.52
+},
+"graveyard-kit/gravestone-round": {
+"file": "models/graveyard-kit/gravestone-round.glb",
+"scale": 2.5,
+"h": 1.44
+},
+"graveyard-kit/gravestone-wide": {
+"file": "models/graveyard-kit/gravestone-wide.glb",
+"scale": 2.5,
+"h": 1.43
+},
+"graveyard-kit/hay-bale-bundled": {
+"file": "models/graveyard-kit/hay-bale-bundled.glb",
+"scale": 2.5,
+"h": 0.95
+},
+"graveyard-kit/hay-bale": {
+"file": "models/graveyard-kit/hay-bale.glb",
+"scale": 2.5,
+"h": 0.89
+},
+"graveyard-kit/iron-fence-bar": {
+"file": "models/graveyard-kit/iron-fence-bar.glb",
+"scale": 2.5,
+"h": 1.67
+},
+"graveyard-kit/iron-fence-border-column": {
+"file": "models/graveyard-kit/iron-fence-border-column.glb",
+"scale": 2.5,
+"h": 2.2
+},
+"graveyard-kit/iron-fence-border-curve": {
+"file": "models/graveyard-kit/iron-fence-border-curve.glb",
+"scale": 2.5,
+"h": 2.2
+},
+"graveyard-kit/iron-fence-border-gate": {
+"file": "models/graveyard-kit/iron-fence-border-gate.glb",
+"scale": 2.5,
+"h": 1.9
+},
+"graveyard-kit/iron-fence-border": {
+"file": "models/graveyard-kit/iron-fence-border.glb",
+"scale": 2.5,
+"h": 2.2
+},
+"graveyard-kit/iron-fence-curve": {
+"file": "models/graveyard-kit/iron-fence-curve.glb",
+"scale": 2.5,
+"h": 2.2
+},
+"graveyard-kit/iron-fence-damaged": {
+"file": "models/graveyard-kit/iron-fence-damaged.glb",
+"scale": 2.5,
+"h": 2.2
+},
+"graveyard-kit/iron-fence": {
+"file": "models/graveyard-kit/iron-fence.glb",
+"scale": 2.5,
+"h": 2.2
+},
+"graveyard-kit/lantern-candle": {
+"file": "models/graveyard-kit/lantern-candle.glb",
+"scale": 2.5,
+"h": 0.97
+},
+"graveyard-kit/lantern-glass": {
+"file": "models/graveyard-kit/lantern-glass.glb",
+"scale": 2.5,
+"h": 0.97
+},
+"graveyard-kit/lightpost-all": {
+"file": "models/graveyard-kit/lightpost-all.glb",
+"scale": 2.5,
+"h": 3.17
+},
+"graveyard-kit/lightpost-double": {
+"file": "models/graveyard-kit/lightpost-double.glb",
+"scale": 2.5,
+"h": 3.17
+},
+"graveyard-kit/lightpost-single": {
+"file": "models/graveyard-kit/lightpost-single.glb",
+"scale": 2.5,
+"h": 3.17
+},
+"graveyard-kit/pillar-large": {
+"file": "models/graveyard-kit/pillar-large.glb",
+"scale": 2.5,
+"h": 2.81
+},
+"graveyard-kit/pillar-obelisk": {
+"file": "models/graveyard-kit/pillar-obelisk.glb",
+"scale": 2.5,
+"h": 2.53
+},
+"graveyard-kit/pillar-small": {
+"file": "models/graveyard-kit/pillar-small.glb",
+"scale": 2.5,
+"h": 1.89
+},
+"graveyard-kit/pillar-square": {
+"file": "models/graveyard-kit/pillar-square.glb",
+"scale": 2.5,
+"h": 2.87
+},
+"graveyard-kit/pine-crooked": {
+"file": "models/graveyard-kit/pine-crooked.glb",
+"scale": 2.5,
+"h": 5.27
+},
+"graveyard-kit/pine-fall-crooked": {
+"file": "models/graveyard-kit/pine-fall-crooked.glb",
+"scale": 2.5,
+"h": 5.27
+},
+"graveyard-kit/pine-fall": {
+"file": "models/graveyard-kit/pine-fall.glb",
+"scale": 2.5,
+"h": 5.76
+},
+"graveyard-kit/pine": {
+"file": "models/graveyard-kit/pine.glb",
+"scale": 2.5,
+"h": 5.76
+},
+"graveyard-kit/pumpkin-carved": {
+"file": "models/graveyard-kit/pumpkin-carved.glb",
+"scale": 2.5,
+"h": 0.8
+},
+"graveyard-kit/pumpkin-tall-carved": {
+"file": "models/graveyard-kit/pumpkin-tall-carved.glb",
+"scale": 2.5,
+"h": 0.9
+},
+"graveyard-kit/pumpkin-tall": {
+"file": "models/graveyard-kit/pumpkin-tall.glb",
+"scale": 2.5,
+"h": 0.9
+},
+"graveyard-kit/pumpkin": {
+"file": "models/graveyard-kit/pumpkin.glb",
+"scale": 2.5,
+"h": 0.8
+},
+"graveyard-kit/rocks-tall": {
+"file": "models/graveyard-kit/rocks-tall.glb",
+"scale": 2.5,
+"h": 1.47
+},
+"graveyard-kit/rocks": {
+"file": "models/graveyard-kit/rocks.glb",
+"scale": 2.5,
+"h": 0.94
+},
+"graveyard-kit/shovel-dirt": {
+"file": "models/graveyard-kit/shovel-dirt.glb",
+"scale": 2.5,
+"h": 1.65
+},
+"graveyard-kit/shovel": {
+"file": "models/graveyard-kit/shovel.glb",
+"scale": 2.5,
+"h": 1.53
+},
+"graveyard-kit/stone-wall-column": {
+"file": "models/graveyard-kit/stone-wall-column.glb",
+"scale": 2.5,
+"h": 2.13
+},
+"graveyard-kit/stone-wall-curve": {
+"file": "models/graveyard-kit/stone-wall-curve.glb",
+"scale": 2.5,
+"h": 1.81
+},
+"graveyard-kit/stone-wall-damaged": {
+"file": "models/graveyard-kit/stone-wall-damaged.glb",
+"scale": 2.5,
+"h": 1.81
+},
+"graveyard-kit/stone-wall": {
+"file": "models/graveyard-kit/stone-wall.glb",
+"scale": 2.5,
+"h": 1.81
+},
+"graveyard-kit/trunk-long": {
+"file": "models/graveyard-kit/trunk-long.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"graveyard-kit/trunk": {
+"file": "models/graveyard-kit/trunk.glb",
+"scale": 2.5,
+"h": 1.12
+},
+"graveyard-kit/urn-round": {
+"file": "models/graveyard-kit/urn-round.glb",
+"scale": 2.5,
+"h": 0.69
+},
+"graveyard-kit/urn-square": {
+"file": "models/graveyard-kit/urn-square.glb",
+"scale": 2.5,
+"h": 0.69
+},
+"holiday-kit/bench-short": {
+"file": "models/holiday-kit/bench-short.glb",
+"scale": 1.2,
+"h": 0.88
+},
+"holiday-kit/bench": {
+"file": "models/holiday-kit/bench.glb",
+"scale": 1.2,
+"h": 0.88
+},
+"holiday-kit/candy-cane-green": {
+"file": "models/holiday-kit/candy-cane-green.glb",
+"scale": 1.2,
+"h": 0.54
+},
+"holiday-kit/candy-cane-red": {
+"file": "models/holiday-kit/candy-cane-red.glb",
+"scale": 1.2,
+"h": 0.54
+},
+"holiday-kit/festivus-pole": {
+"file": "models/holiday-kit/festivus-pole.glb",
+"scale": 1.2,
+"h": 1.68
+},
+"holiday-kit/gingerbread-man": {
+"file": "models/holiday-kit/gingerbread-man.glb",
+"scale": 1.2,
+"h": 0.45
+},
+"holiday-kit/gingerbread-woman": {
+"file": "models/holiday-kit/gingerbread-woman.glb",
+"scale": 1.2,
+"h": 0.48
+},
+"holiday-kit/hanukkah-dreidel": {
+"file": "models/holiday-kit/hanukkah-dreidel.glb",
+"scale": 1.2,
+"h": 0.43
+},
+"holiday-kit/hanukkah-menorah-candles": {
+"file": "models/holiday-kit/hanukkah-menorah-candles.glb",
+"scale": 1.2,
+"h": 1.04
+},
+"holiday-kit/hanukkah-menorah": {
+"file": "models/holiday-kit/hanukkah-menorah.glb",
+"scale": 1.2,
+"h": 0.78
+},
+"holiday-kit/kwanzaa-kikombe": {
+"file": "models/holiday-kit/kwanzaa-kikombe.glb",
+"scale": 1.2,
+"h": 0.36
+},
+"holiday-kit/kwanzaa-kinara-alternative": {
+"file": "models/holiday-kit/kwanzaa-kinara-alternative.glb",
+"scale": 1.2,
+"h": 0.57
+},
+"holiday-kit/kwanzaa-kinara": {
+"file": "models/holiday-kit/kwanzaa-kinara.glb",
+"scale": 1.2,
+"h": 0.57
+},
+"holiday-kit/lantern-hanging": {
+"file": "models/holiday-kit/lantern-hanging.glb",
+"scale": 1.2,
+"h": 0.8
+},
+"holiday-kit/lantern": {
+"file": "models/holiday-kit/lantern.glb",
+"scale": 1.2,
+"h": 2.08
+},
+"holiday-kit/lights-colored": {
+"file": "models/holiday-kit/lights-colored.glb",
+"scale": 1.2,
+"h": 0.38
+},
+"holiday-kit/lights-green": {
+"file": "models/holiday-kit/lights-green.glb",
+"scale": 1.2,
+"h": 0.38
+},
+"holiday-kit/lights-red": {
+"file": "models/holiday-kit/lights-red.glb",
+"scale": 1.2,
+"h": 0.38
+},
+"holiday-kit/nutcracker": {
+"file": "models/holiday-kit/nutcracker.glb",
+"scale": 1.2,
+"h": 1.29
+},
+"holiday-kit/present-a-cube": {
+"file": "models/holiday-kit/present-a-cube.glb",
+"scale": 1.2,
+"h": 0.36
+},
+"holiday-kit/present-a-rectangle": {
+"file": "models/holiday-kit/present-a-rectangle.glb",
+"scale": 1.2,
+"h": 0.32
+},
+"holiday-kit/present-a-round": {
+"file": "models/holiday-kit/present-a-round.glb",
+"scale": 1.2,
+"h": 0.36
+},
+"holiday-kit/present-b-cube": {
+"file": "models/holiday-kit/present-b-cube.glb",
+"scale": 1.2,
+"h": 0.32
+},
+"holiday-kit/present-b-rectangle": {
+"file": "models/holiday-kit/present-b-rectangle.glb",
+"scale": 1.2,
+"h": 0.32
+},
+"holiday-kit/present-b-round": {
+"file": "models/holiday-kit/present-b-round.glb",
+"scale": 1.2,
+"h": 0.32
+},
+"holiday-kit/reindeer": {
+"file": "models/holiday-kit/reindeer.glb",
+"scale": 1.2,
+"h": 1.35
+},
+"holiday-kit/rocks-large": {
+"file": "models/holiday-kit/rocks-large.glb",
+"scale": 1.2,
+"h": 2.06
+},
+"holiday-kit/rocks-medium": {
+"file": "models/holiday-kit/rocks-medium.glb",
+"scale": 1.2,
+"h": 1.05
+},
+"holiday-kit/rocks-small": {
+"file": "models/holiday-kit/rocks-small.glb",
+"scale": 1.2,
+"h": 0.78
+},
+"holiday-kit/sled-long": {
+"file": "models/holiday-kit/sled-long.glb",
+"scale": 1.2,
+"h": 0.45
+},
+"holiday-kit/sled": {
+"file": "models/holiday-kit/sled.glb",
+"scale": 1.2,
+"h": 0.45
+},
+"holiday-kit/snow-bunker": {
+"file": "models/holiday-kit/snow-bunker.glb",
+"scale": 1.2,
+"h": 0.5
+},
+"holiday-kit/snow-flat-large": {
+"file": "models/holiday-kit/snow-flat-large.glb",
+"scale": 1.2,
+"h": 0.12
+},
+"holiday-kit/snow-flat": {
+"file": "models/holiday-kit/snow-flat.glb",
+"scale": 1.2,
+"h": 0.12
+},
+"holiday-kit/snow-pile": {
+"file": "models/holiday-kit/snow-pile.glb",
+"scale": 1.2,
+"h": 0.24
+},
+"holiday-kit/snowflake-a": {
+"file": "models/holiday-kit/snowflake-a.glb",
+"scale": 1.2,
+"h": 0.48
+},
+"holiday-kit/snowflake-b": {
+"file": "models/holiday-kit/snowflake-b.glb",
+"scale": 1.2,
+"h": 0.48
+},
+"holiday-kit/snowflake-c": {
+"file": "models/holiday-kit/snowflake-c.glb",
+"scale": 1.2,
+"h": 0.48
+},
+"holiday-kit/snowman-hat": {
+"file": "models/holiday-kit/snowman-hat.glb",
+"scale": 1.2,
+"h": 1.64
+},
+"holiday-kit/snowman": {
+"file": "models/holiday-kit/snowman.glb",
+"scale": 1.2,
+"h": 1.28
+},
+"holiday-kit/sock-green-cane": {
+"file": "models/holiday-kit/sock-green-cane.glb",
+"scale": 1.2,
+"h": 0.88
+},
+"holiday-kit/sock-green": {
+"file": "models/holiday-kit/sock-green.glb",
+"scale": 1.2,
+"h": 0.75
+},
+"holiday-kit/sock-red-cane": {
+"file": "models/holiday-kit/sock-red-cane.glb",
+"scale": 1.2,
+"h": 0.88
+},
+"holiday-kit/sock-red": {
+"file": "models/holiday-kit/sock-red.glb",
+"scale": 1.2,
+"h": 0.75
+},
+"holiday-kit/train-locomotive": {
+"file": "models/holiday-kit/train-locomotive.glb",
+"scale": 1.2,
+"h": 0.51
+},
+"holiday-kit/train-tender": {
+"file": "models/holiday-kit/train-tender.glb",
+"scale": 1.2,
+"h": 0.22
+},
+"holiday-kit/train-wagon-flat-short": {
+"file": "models/holiday-kit/train-wagon-flat-short.glb",
+"scale": 1.2,
+"h": 0.21
+},
+"holiday-kit/train-wagon-flat": {
+"file": "models/holiday-kit/train-wagon-flat.glb",
+"scale": 1.2,
+"h": 0.21
+},
+"holiday-kit/train-wagon-logs": {
+"file": "models/holiday-kit/train-wagon-logs.glb",
+"scale": 1.2,
+"h": 0.26
+},
+"holiday-kit/train-wagon-short": {
+"file": "models/holiday-kit/train-wagon-short.glb",
+"scale": 1.2,
+"h": 0.38
+},
+"holiday-kit/train-wagon": {
+"file": "models/holiday-kit/train-wagon.glb",
+"scale": 1.2,
+"h": 0.38
+},
+"holiday-kit/tree-decorated-snow": {
+"file": "models/holiday-kit/tree-decorated-snow.glb",
+"scale": 1.2,
+"h": 2.75
+},
+"holiday-kit/tree-decorated": {
+"file": "models/holiday-kit/tree-decorated.glb",
+"scale": 1.2,
+"h": 2.75
+},
+"holiday-kit/tree-snow-a": {
+"file": "models/holiday-kit/tree-snow-a.glb",
+"scale": 1.2,
+"h": 2.3
+},
+"holiday-kit/tree-snow-b": {
+"file": "models/holiday-kit/tree-snow-b.glb",
+"scale": 1.2,
+"h": 2.36
+},
+"holiday-kit/tree-snow-c": {
+"file": "models/holiday-kit/tree-snow-c.glb",
+"scale": 1.2,
+"h": 2.3
+},
+"holiday-kit/tree": {
+"file": "models/holiday-kit/tree.glb",
+"scale": 1.2,
+"h": 2.3
+},
+"holiday-kit/wreath-decorated": {
+"file": "models/holiday-kit/wreath-decorated.glb",
+"scale": 1.2,
+"h": 0.91
+},
+"holiday-kit/wreath": {
+"file": "models/holiday-kit/wreath.glb",
+"scale": 1.2,
+"h": 0.91
+},
+"train-kit/spline-segment": {
+"file": "models/train-kit/spline-segment.glb",
+"scale": 2.0,
+"h": 0.15
+},
+"train-kit/spline-track-damaged": {
+"file": "models/train-kit/spline-track-damaged.glb",
+"scale": 2.0,
+"h": 0.2
+},
+"train-kit/spline-track": {
+"file": "models/train-kit/spline-track.glb",
+"scale": 2.0,
+"h": 0.2
+},
+"train-kit/track-detailed": {
+"file": "models/train-kit/track-detailed.glb",
+"scale": 2.0,
+"h": 0.3
+},
+"train-kit/track-single-detailed": {
+"file": "models/train-kit/track-single-detailed.glb",
+"scale": 2.0,
+"h": 0.3
+},
+"train-kit/track-single": {
+"file": "models/train-kit/track-single.glb",
+"scale": 2.0,
+"h": 0.3
+},
+"train-kit/track": {
+"file": "models/train-kit/track.glb",
+"scale": 2.0,
+"h": 0.3
+},
+"train-kit/train-carriage-box": {
+"file": "models/train-kit/train-carriage-box.glb",
+"scale": 2.0,
+"h": 3.31
+},
+"train-kit/train-carriage-coal": {
+"file": "models/train-kit/train-carriage-coal.glb",
+"scale": 2.0,
+"h": 3.31
+},
+"train-kit/train-carriage-container-blue": {
+"file": "models/train-kit/train-carriage-container-blue.glb",
+"scale": 2.0,
+"h": 2.52
+},
+"train-kit/train-carriage-container-green": {
+"file": "models/train-kit/train-carriage-container-green.glb",
+"scale": 2.0,
+"h": 2.52
+},
+"train-kit/train-carriage-container-red": {
+"file": "models/train-kit/train-carriage-container-red.glb",
+"scale": 2.0,
+"h": 2.52
+},
+"train-kit/train-carriage-dirt": {
+"file": "models/train-kit/train-carriage-dirt.glb",
+"scale": 2.0,
+"h": 3.31
+},
+"train-kit/train-carriage-flatbed-wood": {
+"file": "models/train-kit/train-carriage-flatbed-wood.glb",
+"scale": 2.0,
+"h": 3.04
+},
+"train-kit/train-carriage-flatbed": {
+"file": "models/train-kit/train-carriage-flatbed.glb",
+"scale": 2.0,
+"h": 3.04
+},
+"train-kit/train-carriage-lumber": {
+"file": "models/train-kit/train-carriage-lumber.glb",
+"scale": 2.0,
+"h": 3.04
+},
+"train-kit/train-carriage-tank-large": {
+"file": "models/train-kit/train-carriage-tank-large.glb",
+"scale": 2.0,
+"h": 4.22
+},
+"train-kit/train-carriage-tank": {
+"file": "models/train-kit/train-carriage-tank.glb",
+"scale": 2.0,
+"h": 4.22
+},
+"train-kit/train-carriage-wood": {
+"file": "models/train-kit/train-carriage-wood.glb",
+"scale": 2.0,
+"h": 3.31
+},
+"train-kit/train-connector": {
+"file": "models/train-kit/train-connector.glb",
+"scale": 2.0,
+"h": 1.8
+},
+"train-kit/train-diesel-a": {
+"file": "models/train-kit/train-diesel-a.glb",
+"scale": 2.0,
+"h": 3.91
+},
+"train-kit/train-diesel-b": {
+"file": "models/train-kit/train-diesel-b.glb",
+"scale": 2.0,
+"h": 3.69
+},
+"train-kit/train-diesel-box-a": {
+"file": "models/train-kit/train-diesel-box-a.glb",
+"scale": 2.0,
+"h": 4.07
+},
+"train-kit/train-diesel-box-b": {
+"file": "models/train-kit/train-diesel-box-b.glb",
+"scale": 2.0,
+"h": 4.02
+},
+"train-kit/train-diesel-box-c": {
+"file": "models/train-kit/train-diesel-box-c.glb",
+"scale": 2.0,
+"h": 4.02
+},
+"train-kit/train-diesel-c": {
+"file": "models/train-kit/train-diesel-c.glb",
+"scale": 2.0,
+"h": 3.64
+},
+"train-kit/train-electric-bullet-a": {
+"file": "models/train-kit/train-electric-bullet-a.glb",
+"scale": 2.0,
+"h": 3.99
+},
+"train-kit/train-electric-bullet-b": {
+"file": "models/train-kit/train-electric-bullet-b.glb",
+"scale": 2.0,
+"h": 3.99
+},
+"train-kit/train-electric-bullet-c": {
+"file": "models/train-kit/train-electric-bullet-c.glb",
+"scale": 2.0,
+"h": 3.99
+},
+"train-kit/train-electric-city-a": {
+"file": "models/train-kit/train-electric-city-a.glb",
+"scale": 2.0,
+"h": 4.08
+},
+"train-kit/train-electric-city-b": {
+"file": "models/train-kit/train-electric-city-b.glb",
+"scale": 2.0,
+"h": 4.08
+},
+"train-kit/train-electric-city-c": {
+"file": "models/train-kit/train-electric-city-c.glb",
+"scale": 2.0,
+"h": 4.08
+},
+"train-kit/train-electric-double-a": {
+"file": "models/train-kit/train-electric-double-a.glb",
+"scale": 2.0,
+"h": 4.57
+},
+"train-kit/train-electric-double-b": {
+"file": "models/train-kit/train-electric-double-b.glb",
+"scale": 2.0,
+"h": 4.57
+},
+"train-kit/train-electric-double-c": {
+"file": "models/train-kit/train-electric-double-c.glb",
+"scale": 2.0,
+"h": 4.57
+},
+"train-kit/train-electric-square-a": {
+"file": "models/train-kit/train-electric-square-a.glb",
+"scale": 2.0,
+"h": 4.28
+},
+"train-kit/train-electric-square-b": {
+"file": "models/train-kit/train-electric-square-b.glb",
+"scale": 2.0,
+"h": 4.28
+},
+"train-kit/train-electric-square-c": {
+"file": "models/train-kit/train-electric-square-c.glb",
+"scale": 2.0,
+"h": 4.28
+},
+"train-kit/train-electric-subway-a": {
+"file": "models/train-kit/train-electric-subway-a.glb",
+"scale": 2.0,
+"h": 3.86
+},
+"train-kit/train-electric-subway-b": {
+"file": "models/train-kit/train-electric-subway-b.glb",
+"scale": 2.0,
+"h": 3.86
+},
+"train-kit/train-electric-subway-c": {
+"file": "models/train-kit/train-electric-subway-c.glb",
+"scale": 2.0,
+"h": 3.86
+},
+"train-kit/train-locomotive-a": {
+"file": "models/train-kit/train-locomotive-a.glb",
+"scale": 2.0,
+"h": 4.04
+},
+"train-kit/train-locomotive-b": {
+"file": "models/train-kit/train-locomotive-b.glb",
+"scale": 2.0,
+"h": 3.86
+},
+"train-kit/train-locomotive-c": {
+"file": "models/train-kit/train-locomotive-c.glb",
+"scale": 2.0,
+"h": 4.04
+},
+"train-kit/train-locomotive-passenger-a": {
+"file": "models/train-kit/train-locomotive-passenger-a.glb",
+"scale": 2.0,
+"h": 4.02
+},
+"train-kit/train-locomotive-passenger-b": {
+"file": "models/train-kit/train-locomotive-passenger-b.glb",
+"scale": 2.0,
+"h": 4.02
+},
+"train-kit/train-tram-classic": {
+"file": "models/train-kit/train-tram-classic.glb",
+"scale": 2.0,
+"h": 4.68
+},
+"train-kit/train-tram-modern": {
+"file": "models/train-kit/train-tram-modern.glb",
+"scale": 2.0,
+"h": 4.25
+},
+"train-kit/train-tram-round": {
+"file": "models/train-kit/train-tram-round.glb",
+"scale": 2.0,
+"h": 4.64
+},
+"fantasy-town-kit/banner-green": {
+"file": "models/fantasy-town-kit/banner-green.glb",
+"scale": 2.5,
+"h": 2.1
+},
+"fantasy-town-kit/banner-red": {
+"file": "models/fantasy-town-kit/banner-red.glb",
+"scale": 2.5,
+"h": 2.1
+},
+"fantasy-town-kit/blade": {
+"file": "models/fantasy-town-kit/blade.glb",
+"scale": 2.5,
+"h": 5.0
+},
+"fantasy-town-kit/cart-high": {
+"file": "models/fantasy-town-kit/cart-high.glb",
+"scale": 2.5,
+"h": 2.15
+},
+"fantasy-town-kit/cart": {
+"file": "models/fantasy-town-kit/cart.glb",
+"scale": 2.5,
+"h": 1.34
+},
+"fantasy-town-kit/chimney": {
+"file": "models/fantasy-town-kit/chimney.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"fantasy-town-kit/fence-broken": {
+"file": "models/fantasy-town-kit/fence-broken.glb",
+"scale": 2.5,
+"h": 0.95
+},
+"fantasy-town-kit/fence-curved": {
+"file": "models/fantasy-town-kit/fence-curved.glb",
+"scale": 2.5,
+"h": 0.95
+},
+"fantasy-town-kit/fence-gate": {
+"file": "models/fantasy-town-kit/fence-gate.glb",
+"scale": 2.5,
+"h": 1.38
+},
+"fantasy-town-kit/fence": {
+"file": "models/fantasy-town-kit/fence.glb",
+"scale": 2.5,
+"h": 0.95
+},
+"fantasy-town-kit/fountain-round-detail": {
+"file": "models/fantasy-town-kit/fountain-round-detail.glb",
+"scale": 2.5,
+"h": 1.2
+},
+"fantasy-town-kit/fountain-round": {
+"file": "models/fantasy-town-kit/fountain-round.glb",
+"scale": 2.5,
+"h": 0.7
+},
+"fantasy-town-kit/fountain-square-detail": {
+"file": "models/fantasy-town-kit/fountain-square-detail.glb",
+"scale": 2.5,
+"h": 1.2
+},
+"fantasy-town-kit/fountain-square": {
+"file": "models/fantasy-town-kit/fountain-square.glb",
+"scale": 2.5,
+"h": 1.14
+},
+"fantasy-town-kit/hedge-curved": {
+"file": "models/fantasy-town-kit/hedge-curved.glb",
+"scale": 2.5,
+"h": 0.62
+},
+"fantasy-town-kit/hedge-gate": {
+"file": "models/fantasy-town-kit/hedge-gate.glb",
+"scale": 2.5,
+"h": 0.62
+},
+"fantasy-town-kit/hedge-large-curved": {
+"file": "models/fantasy-town-kit/hedge-large-curved.glb",
+"scale": 2.5,
+"h": 1.5
+},
+"fantasy-town-kit/hedge-large-gate": {
+"file": "models/fantasy-town-kit/hedge-large-gate.glb",
+"scale": 2.5,
+"h": 1.5
+},
+"fantasy-town-kit/hedge-large": {
+"file": "models/fantasy-town-kit/hedge-large.glb",
+"scale": 2.5,
+"h": 1.5
+},
+"fantasy-town-kit/hedge": {
+"file": "models/fantasy-town-kit/hedge.glb",
+"scale": 2.5,
+"h": 0.62
+},
+"fantasy-town-kit/lantern": {
+"file": "models/fantasy-town-kit/lantern.glb",
+"scale": 1.6,
+"h": 2.49
+},
+"fantasy-town-kit/pillar-stone": {
+"file": "models/fantasy-town-kit/pillar-stone.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"fantasy-town-kit/pillar-wood": {
+"file": "models/fantasy-town-kit/pillar-wood.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"fantasy-town-kit/poles-horizontal": {
+"file": "models/fantasy-town-kit/poles-horizontal.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"fantasy-town-kit/poles": {
+"file": "models/fantasy-town-kit/poles.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"fantasy-town-kit/rock-large": {
+"file": "models/fantasy-town-kit/rock-large.glb",
+"scale": 2.5,
+"h": 2.91
+},
+"fantasy-town-kit/rock-small": {
+"file": "models/fantasy-town-kit/rock-small.glb",
+"scale": 2.5,
+"h": 2.55
+},
+"fantasy-town-kit/rock-wide": {
+"file": "models/fantasy-town-kit/rock-wide.glb",
+"scale": 2.5,
+"h": 2.55
+},
+"fantasy-town-kit/stall-bench": {
+"file": "models/fantasy-town-kit/stall-bench.glb",
+"scale": 2.5,
+"h": 0.56
+},
+"fantasy-town-kit/stall-green": {
+"file": "models/fantasy-town-kit/stall-green.glb",
+"scale": 2.5,
+"h": 3.09
+},
+"fantasy-town-kit/stall-red": {
+"file": "models/fantasy-town-kit/stall-red.glb",
+"scale": 2.5,
+"h": 3.09
+},
+"fantasy-town-kit/stall-stool": {
+"file": "models/fantasy-town-kit/stall-stool.glb",
+"scale": 2.5,
+"h": 0.56
+},
+"fantasy-town-kit/stall": {
+"file": "models/fantasy-town-kit/stall.glb",
+"scale": 2.5,
+"h": 0.91
+},
+"fantasy-town-kit/tree-crooked": {
+"file": "models/fantasy-town-kit/tree-crooked.glb",
+"scale": 2.5,
+"h": 6.03
+},
+"fantasy-town-kit/tree-high-crooked": {
+"file": "models/fantasy-town-kit/tree-high-crooked.glb",
+"scale": 2.5,
+"h": 7.43
+},
+"fantasy-town-kit/tree-high-round": {
+"file": "models/fantasy-town-kit/tree-high-round.glb",
+"scale": 2.5,
+"h": 6.88
+},
+"fantasy-town-kit/tree-high": {
+"file": "models/fantasy-town-kit/tree-high.glb",
+"scale": 2.5,
+"h": 7.43
+},
+"fantasy-town-kit/tree": {
+"file": "models/fantasy-town-kit/tree.glb",
+"scale": 2.5,
+"h": 6.03
+},
+"fantasy-town-kit/wall": {
+"file": "models/fantasy-town-kit/wall.glb",
+"scale": 2.5,
+"h": 2.5
+},
+"fantasy-town-kit/watermill-wide": {
+"file": "models/fantasy-town-kit/watermill-wide.glb",
+"scale": 2.5,
+"h": 4.5
+},
+"fantasy-town-kit/watermill": {
+"file": "models/fantasy-town-kit/watermill.glb",
+"scale": 2.5,
+"h": 4.5
+},
+"fantasy-town-kit/windmill": {
+"file": "models/fantasy-town-kit/windmill.glb",
+"scale": 2.5,
+"h": 7.78
 }
 }

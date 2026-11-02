@@ -7,7 +7,7 @@ export type Action = "idle" | "walk" | "run" | "talk" | "jump" | "fall" | "point
 export type Expression = "neutral" | "happy" | "sad" | "angry" | "surprised" | "scared" | "smug" | "thinking";
 
 export type Species =
-  | "human" | "cat" | "cow" | "dog" | "eagle" | "horse" | "llama" | "pig" | "fish" | "pug" | "sheep" | "wolf" | "zebra";
+  | "human" | "cat" | "cow" | "dog" | "eagle" | "horse" | "llama" | "pig" | "fish" | "pug" | "sheep" | "wolf" | "zebra" | "whale" | "shark" | "dolphin" | "manta";
 export type CastMember = {
   id: string; name: string; species?: Species; kind: "adult" | "kid" | "elder";
   skin: string | null; shirt: string | null; pants: string | null;

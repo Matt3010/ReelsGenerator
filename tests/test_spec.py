@@ -64,13 +64,34 @@ def test_effect_word_matches_ignoring_case_and_punctuation(story_dict):
     assert Story.model_validate(story_dict).scenes[1].effect_word == "SNAPPED"
 
 
-def test_custom_object_parts_are_validated(story_dict):
+LAMP = [
+    {"shape": "cylinder", "size": [0.15, 3.5, 0.15], "pos": [0, 1.75, 0], "color": "#333333"},
+    {"shape": "sphere", "size": [0.5, 0.5, 0.5], "pos": [0, 3.7, 0], "color": "#ffd27a", "glow": True},
+]
+
+
+def test_custom_object_is_a_light_source(story_dict):
+    story_dict["scenes"][0]["props"].append({"x": 3, "z": -8, "parts": LAMP})
+    story = Story.model_validate(story_dict)
+    assert [p.shape for p in story.scenes[0].props[-1].parts] == ["cylinder", "sphere"]
+
+
+def test_custom_object_without_light_rejected(story_dict):
     story_dict["scenes"][0]["props"].append({
         "x": 3, "z": -8,
         "parts": [{"shape": "cylinder", "size": [6, 10, 6], "pos": [0, 5, 0], "color": "#6b3d1f"}],
     })
-    story = Story.model_validate(story_dict)
-    assert story.scenes[0].props[-1].parts[0].shape == "cylinder"
+    with pytest.raises(ValidationError, match="light"):
+        Story.model_validate(story_dict)
+
+
+def test_custom_light_must_be_small(story_dict):
+    story_dict["scenes"][0]["props"].append({
+        "x": 3, "z": -8,
+        "parts": LAMP + [{"shape": "box", "size": [8, 2, 1], "pos": [0, 1, 0], "color": "#6b3d1f"}],
+    })
+    with pytest.raises(ValidationError, match="small"):
+        Story.model_validate(story_dict)
 
 
 def test_custom_object_needs_parts(story_dict):
@@ -128,10 +149,16 @@ def test_custom_parts_have_organic_shapes_and_tilt(story_dict):
     story_dict["scenes"][0]["props"].append({
         "x": 6, "z": -16,
         "parts": [
-            {"shape": "capsule", "size": [3, 8, 3], "pos": [0, 2, 0], "rot_z": 90, "color": "#4f6d8a"},
-            {"shape": "torus", "size": [2, 2, 0.3], "pos": [0, 1, 0], "rot_x": 90, "color": "#333333"},
+            {"shape": "capsule", "size": [0.4, 1, 0.4], "pos": [0, 0.3, 0], "rot_z": 90, "color": "#6b3d1f"},
+            {"shape": "torus", "size": [1, 1, 0.2], "pos": [0, 1, 0], "rot_x": 90, "color": "#ff9a3c", "glow": True},
         ],
     })
     parts = Story.model_validate(story_dict).scenes[0].props[-1].parts
     assert [p.shape for p in parts] == ["capsule", "torus"]
     assert (parts[0].rot_z, parts[1].rot_x) == (90, 90)
+
+
+@pytest.mark.parametrize("species", ["whale", "shark", "dolphin", "manta"])
+def test_sea_animals(story_dict, species):
+    story_dict["cast"].append({"id": "sea", "name": "Sea", "species": species})
+    assert Story.model_validate(story_dict).cast[-1].species == species

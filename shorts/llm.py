@@ -43,7 +43,7 @@ Staging rules (the engine renders exactly this, so keep it physically sensible):
 {catalog}
 - Every actor id must be in "cast". Humans: distinctive colours (hex like "#c0392b");
   nobody wears a hat. Animals (3D, animated): set "species" to one of cat, cow, dog, eagle, horse, llama, pig,
-  fish, pug, sheep, wolf, zebra. Other animals are not available: rewrite the staging around them (e.g. show the
+  fish, pug, sheep, wolf, zebra, whale, shark, dolphin, manta. Other animals are not available: rewrite the staging around them (e.g. show the
   people reacting) rather than substituting a wrong animal.
   Animals appear as themselves, never as humans. For a herd or crowd use ONE actor with "count" (2-30 copies).
   Use as many cast members as the story needs (up to 30); up to 12 actors per scene.
@@ -59,17 +59,14 @@ Staging rules (the engine renders exactly this, so keep it physically sensible):
   whoever is talking, so give the explainer the "talk" action.
 - Use effects sparingly: at most 3 per short ("shake" for impacts, "explosion", "splash", "confetti", "smoke", "flash").
   Set "effect_word" to the exact narration word the effect (and any "fall"/"shocked" reaction) must land on.
-- When the story needs an object that is not in the catalog (a molasses tank, a printing press, a telescope...),
-  omit "model" and build it from 4-20 "parts" (box/cylinder/sphere/cone/capsule/torus; size = [width, height, depth]
-  in metres, pos = part centre relative to the prop's ground point, so a 10 m tall cylinder standing on the ground has
-  pos y = 5). Boxes have rounded edges. Use spheres and capsules for anything organic (animals, bodies, clouds,
-  rocks), torus for wheels and rings, and "rot_x"/"rot_z" (degrees) to tilt parts: rot_z 90 lays a capsule or cylinder
-  on its side, rot_x 90 stands a torus up like a wheel. Never make a creature or vehicle from one big box: build it
-  from a main body plus head, fins/limbs/wheels, eyes (small white + black spheres), and stripes or bands in a second
-  colour. Give it a recognisable silhouette and real-world size. Mark light sources (lamp heads, lanterns, fires, lit
-  windows, signs) with "glow": true: at night they shine and light the scene, so night scenes need a few of them.
+- Every object is a catalog model: pick the closest one for things the catalog lacks (a printing press -> a desk with
+  a machine-like model, a molasses tank -> a large cylinder-like building or silo). The ONLY exception is light
+  sources: lanterns, torches, campfires, lit windows, glowing signs may be built from up to 8 small "parts"
+  (box/cylinder/sphere/cone/capsule/torus; size = [width, height, depth] in metres, every value <= 5; pos = part
+  centre relative to the prop's ground point; optional "rot_x"/"rot_z" tilt in degrees). Mark the lit parts with
+  "glow": true: at night they shine and light the scene, so night scenes need a few of them.
 - Keep big objects (taller than 6 m) at z <= -15 and off-centre (|x| >= 6) so they frame the actors instead of
-  filling the screen; give big custom objects visible detail (bands, rivets, pipes, ladders as thin parts).
+  filling the screen.
 
 Reply with ONLY one JSON object that validates against this JSON Schema (no markdown, no commentary):
 {schema}

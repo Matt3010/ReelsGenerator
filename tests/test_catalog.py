@@ -59,3 +59,18 @@ def test_catalog_has_furniture_at_room_scale():
     cat = load_catalog()
     assert 0.8 < cat["furniture-kit/chair"]["h"] < 1.2
     assert not any(k.startswith("furniture-kit/floor") for k in cat)
+
+
+def test_modular_pieces_of_new_kits_are_skipped(tmp_path):
+    (tmp_path / "train-kit").mkdir()
+    for name in ["train-locomotive-b", "railroad-rail-straight", "roof-gable", "corridor_corner", "cabin-wall"]:
+        write_glb(tmp_path / "train-kit" / f"{name}.glb", 1.0)
+    assert list(build_catalog(tmp_path, scales={"train-kit": 2.0})) == ["train-kit/train-locomotive-b"]
+
+
+def test_real_catalog_has_the_new_kits():
+    cat = load_catalog()
+    for key in ["watercraft-kit/ship-large", "city-kit-industrial/water-tower", "survival-kit/campfire-pit",
+                "graveyard-kit/gravestone-round", "space-kit/rocket_baseA", "food-kit/apple"]:
+        assert key in cat, key
+    assert 2 <= cat["survival-kit/tent"]["h"] <= 2.5

@@ -13,7 +13,11 @@ MODELS = ROOT / "engine" / "public" / "models"
 CATALOG = ROOT / "engine" / "src" / "world" / "catalog.json"
 
 # metres per model unit, per pack (Kenney kits use different unit sizes)
-SCALES = {"city-kit-suburban": 9.0, "nature-kit": 3.5, "pirate-kit": 0.9, "castle-kit": 4.5, "car-kit": 1.0, "furniture-kit": 2.1}
+SCALES = {
+    "city-kit-suburban": 9.0, "nature-kit": 3.5, "pirate-kit": 0.9, "castle-kit": 4.5, "car-kit": 1.0, "furniture-kit": 2.1,
+    "watercraft-kit": 1.8, "city-kit-commercial": 6.0, "city-kit-industrial": 6.0, "food-kit": 1.0, "survival-kit": 4.4,
+    "space-kit": 1.15, "graveyard-kit": 2.5, "holiday-kit": 1.2, "train-kit": 2.0, "fantasy-town-kit": 2.5,
+}
 
 # per-model scale overrides (pack scale is set by its main item; small yard items in the city kit are much smaller)
 OVERRIDES = [
@@ -22,11 +26,17 @@ OVERRIDES = [
     (re.compile(r"^pirate-kit/tool"), 0.55),
     (re.compile(r"^castle-kit/siege"), 3.0),
     (re.compile(r"^castle-kit/rocks"), 2.5),
+    (re.compile(r"^city-kit-industrial/shipping-container"), 2.0),
+    (re.compile(r"^fantasy-town-kit/lantern"), 1.6),
 ]
 
 # modular terrain/building pieces that make no sense as a standalone prop
 SKIP = re.compile(r"^(ground|path|cliff|crops_dirt|debris|driveway|patch|platform|wheel|tower-(square|hexagon)-(mid|top|base|roof|arch)|"
-                  r"wall-(stud|pillar|half|narrow|to|corner)|stairs|hole|grass|bridge_(side|center)|bed$|bed_floor|floor|paneling)")
+                  r"wall-(stud|pillar|half|narrow|to|corner)|stairs|hole|grass|bridge_(side|center)|bed$|bed_floor|floor|paneling|"
+                  r"railroad|trainset|roof|road|balcony|planks|overhang|cabin-|chimney-(base|top)|fountain-(corner|edge|curved|center)|"
+                  r"structure-(metal|canvas|floor)|metal-panel|resource|corridor|character-(keeper|vampire|zombie)|astronaut|low-detail|terrain|pipe|rail)")
+# modular wall pieces of the fantasy town kit
+SKIP_KEY = re.compile(r"^fantasy-town-kit/wall-")
 
 
 def _height(glb: Path) -> float:
@@ -45,9 +55,9 @@ def build_catalog(models: Path = MODELS, scales: dict[str, float] = SCALES) -> d
     out: dict[str, dict] = {}
     for pack, scale in scales.items():
         for glb in sorted((models / pack).glob("*.glb")):
-            if SKIP.match(glb.stem):
-                continue
             key = f"{pack}/{glb.stem}"
+            if SKIP.match(glb.stem) or SKIP_KEY.match(key):
+                continue
             k = next((v for rx, v in OVERRIDES if rx.match(key)), scale)
             out[key] = {"file": f"models/{pack}/{glb.name}", "scale": k, "h": round(_height(glb) * k, 2)}
     return out
