@@ -208,7 +208,8 @@ export const scatter = (setting: Setting, seed: number): Prop[] => {
     case "beach":
       row(PALMS, -7, -26, -8, 4);
       row(PALMS, -7, 8, 26, 4);
-      out.push(P(any(SHIPS), 10 + jitter(6), -30), P(any(SHIPS), -16 + jitter(6), -46), P(any(SHIPS), 30, -60));
+      // ships sail off to the sides, never right behind the action
+      out.push(P(any(SHIPS), 14 + jitter(3), -30), P(any(SHIPS), -20 + jitter(4), -46), P(any(SHIPS), 30, -60));
       band([...K("pirate-kit", ["rocks-sand-a", "rocks-sand-b", "barrel", "crate", "chest"]), ...K("nature-kit", ["canoe"])], 10, -3, -8, 14);
       sides(PALMS, 2);
       break;

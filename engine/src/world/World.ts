@@ -582,6 +582,12 @@ export class World {
         // a close-up frames its subject only; any wider shot keeps the whole cast in, the target just centres it
         if (cam.shot === "close" && cam.target && c.a.id !== cam.target) continue;
         box.setFromObject(c.view.root);
+        // a huge animal (a whale) may run off the sides: frame its middle, not its full length
+        for (const k of ["x", "z"] as const) {
+          const mid = (box.min[k] + box.max[k]) / 2, half = (box.max[k] - box.min[k]) / 2;
+          const keep = half > 3 ? Math.max(3, half * 0.55) : half;
+          box.min[k] = mid - keep; box.max[k] = mid + keep;
+        }
         for (let n = 0; n < 8; n++) {
           v.set(n & 1 ? box.max.x : box.min.x, n & 2 ? box.max.y : box.min.y, n & 4 ? box.max.z : box.min.z);
           const lat = Math.abs(v.clone().sub(look).dot(right)) + 0.25, fwd = v.clone().sub(look).dot(back);

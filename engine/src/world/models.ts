@@ -96,9 +96,9 @@ export const modelFor = (key: string): THREE.Group | null => {
 
 // ---------------- animated 3D animals ----------------
 
-type AnimalEntry = { file: string; h: number; clips: { idle: string; walk: string; run: string; jump?: string; death?: string }; yaw?: number; tint?: string };
+type AnimalEntry = { file: string; h: number; clips: { idle: string; walk: string; run: string; jump?: string; death?: string }; yaw?: number; tint?: string | Record<string, string>; sink?: number };
 /** species -> animated model (filled from the CC0 Quaternius packs in public/models/animals) */
-const A = (name: string, h: number, clips: AnimalEntry["clips"], tint?: string, yaw = 0): AnimalEntry => ({ file: `models/animals/${name}.glb`, h, clips, tint, yaw });
+const A = (name: string, h: number, clips: AnimalEntry["clips"], tint?: AnimalEntry["tint"], yaw = 0): AnimalEntry => ({ file: `models/animals/${name}.glb`, h, clips, tint, yaw });
 const FULL = { idle: "Idle", walk: "|Walk", run: "Run", jump: "Jump", death: "Death" };
 const WALKER = { idle: "Idle", walk: "Walking", run: "Walking" };
 const SWIM = { idle: "Swim", walk: "Swim", run: "Swim" };
@@ -111,7 +111,7 @@ export const ANIMALS3D: Record<string, AnimalEntry> = {
   eagle: A("eagle", 0.9, { idle: "Idle", walk: "Flying", run: "Flying", jump: "Flying" }, undefined, Math.PI),
   fish: A("piranha", 0.4, { idle: "Swimming", walk: "Swimming", run: "Swimming", jump: "Bite" }, undefined, Math.PI),
   // Quaternius animated fish pack: one swim cycle each
-  whale: A("whale", 3.2, SWIM), shark: A("shark", 1.0, SWIM), dolphin: A("dolphin", 0.8, SWIM), manta: A("manta_ray", 0.5, SWIM),
+  whale: { ...A("whale", 3.2, SWIM, { Top: "#4f6478", Bottom: "#d8dde2" }), sink: 0.3 }, shark: A("shark", 1.0, SWIM), dolphin: A("dolphin", 0.8, SWIM), manta: A("manta_ray", 0.5, SWIM),
 };
 
 type AnimalTemplate = { scene: THREE.Object3D; clips: THREE.AnimationClip[]; entry: AnimalEntry; scale: number; lift: number; cx: number; cz: number };
@@ -153,7 +153,9 @@ export class AnimalModel {
         if (!t) {
           const s = mat as THREE.MeshStandardMaterial;
           const vc = !!(m.geometry as THREE.BufferGeometry).attributes.color;
-          const color = this.tpl.entry.tint ? new THREE.Color(this.tpl.entry.tint) : s.color?.clone() ?? new THREE.Color("#ffffff");
+          // tint: one colour for the whole animal, or a colour per material name
+          const tint = this.tpl.entry.tint, byName = typeof tint === "object" ? tint[mat.name] : tint;
+          const color = byName ? new THREE.Color(byName) : s.color?.clone() ?? new THREE.Color("#ffffff");
           t = new THREE.MeshToonMaterial({ color, map: s.map ?? null, vertexColors: vc, gradientMap: toonGradient() });
           toonCache.set(mat, t);
         }
@@ -164,7 +166,8 @@ export class AnimalModel {
       m.frustumCulled = false;
     });
     obj.scale.setScalar(this.tpl.scale);
-    obj.position.set(-this.tpl.cx * this.tpl.scale, this.tpl.lift * this.tpl.scale, -this.tpl.cz * this.tpl.scale);
+    // sink: a beached whale rests its belly on the sand, its fins dig in
+    obj.position.set(-this.tpl.cx * this.tpl.scale, this.tpl.lift * this.tpl.scale - (this.tpl.entry.sink ?? 0) * this.tpl.entry.h, -this.tpl.cz * this.tpl.scale);
     const turn = new THREE.Group();
     turn.add(obj);
     this.root.add(turn);
