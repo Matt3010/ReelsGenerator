@@ -455,7 +455,7 @@ export class World {
       const room = this.symbols.filter((sy) => sy.beat.actor === subj)
         .map((sy) => f - sy.beat.frame).filter((d) => d > -8 && d < 50)
         .reduce((m, d) => Math.max(m, d < 0 ? 1 + d / 8 : d > 42 ? 1 - (d - 42) / 8 : 1), 0);
-      panX += 0.24 * smoother(room) * Math.max(0.5, Math.min(1.5, this.subjectHeight() / 1.7));
+      panX += 0.15 * smoother(room) * Math.max(0.5, Math.min(1.5, this.subjectHeight() / 1.7));
     }
     // wider shots glide behind a moving subject; a close-up must keep it in frame, so it tracks it exactly
     const lag = cam.shot === "close" ? 0 : 0.35;
@@ -526,6 +526,13 @@ export class World {
       pose.z += c.dz;
       pose.phase += c.k * 0.31;
       c.view.update(pose, camera, f + c.k * 7);
+      // close-up: nobody may pass between the lens and the subject (they would read as giant cropped heads)
+      c.view.root.visible = true;
+      if (cam.shot === "close" && c.a.id !== subjectId) {
+        const sub = this.copies.find((x) => x.a.id === subjectId && x.k === 0);
+        if (sub && camera.position.distanceTo(c.view.root.position) < camera.position.distanceTo(sub.view.root.position) - 0.3)
+          c.view.root.visible = false;
+      }
     }
 
     // composition for a vertical frame: in wider shots put the ground line low (feet ~80 % down the frame) so the
