@@ -13,7 +13,7 @@ MODELS = ROOT / "engine" / "public" / "models"
 CATALOG = ROOT / "engine" / "src" / "world" / "catalog.json"
 
 # metres per model unit, per pack (Kenney kits use different unit sizes)
-SCALES = {"city-kit-suburban": 9.0, "nature-kit": 3.5, "pirate-kit": 0.9, "castle-kit": 4.5, "car-kit": 1.0}
+SCALES = {"city-kit-suburban": 9.0, "nature-kit": 3.5, "pirate-kit": 0.9, "castle-kit": 4.5, "car-kit": 1.0, "furniture-kit": 2.1}
 
 # per-model scale overrides (pack scale is set by its main item; small yard items in the city kit are much smaller)
 OVERRIDES = [
@@ -26,7 +26,7 @@ OVERRIDES = [
 
 # modular terrain/building pieces that make no sense as a standalone prop
 SKIP = re.compile(r"^(ground|path|cliff|crops_dirt|debris|driveway|patch|platform|wheel|tower-(square|hexagon)-(mid|top|base|roof|arch)|"
-                  r"wall-(stud|pillar|half|narrow|to|corner)|stairs|hole|grass|bridge_(side|center)|bed)")
+                  r"wall-(stud|pillar|half|narrow|to|corner)|stairs|hole|grass|bridge_(side|center)|bed$|bed_floor|floor|paneling)")
 
 
 def _height(glb: Path) -> float:

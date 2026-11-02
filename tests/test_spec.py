@@ -116,3 +116,9 @@ def test_custom_parts_can_glow(story_dict):
         "parts": [{"shape": "sphere", "size": [0.4, 0.4, 0.4], "pos": [0, 3, 0], "color": "#ffd27a", "glow": True}],
     })
     assert Story.model_validate(story_dict).scenes[0].props[-1].parts[0].glow is True
+
+
+@pytest.mark.parametrize("setting", ["home", "office", "classroom", "tavern"])
+def test_interior_settings(story_dict, setting):
+    story_dict["scenes"][0]["setting"] = setting
+    assert Story.model_validate(story_dict).scenes[0].setting == setting

@@ -78,7 +78,19 @@ const groundTexture = (color: string, setting: string, seed: number) => {
     g.fill();
   }
   g.globalAlpha = 1;
-  if (["town", "harbor", "castle"].includes(setting)) {
+  if (["home", "classroom", "tavern"].includes(setting)) {
+    g.strokeStyle = `#${base.clone().multiplyScalar(0.72).getHexString()}`;
+    g.lineWidth = 3;
+    for (let y = 0; y < 512; y += 42) {
+      g.beginPath(); g.moveTo(0, y); g.lineTo(512, y); g.stroke();
+      for (let x = (y / 42) % 2 ? 90 : 0; x < 512; x += 180) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 42); g.stroke(); }
+    }
+  } else if (["office", "lab"].includes(setting)) {
+    g.strokeStyle = `#${base.clone().multiplyScalar(0.82).getHexString()}`;
+    g.lineWidth = 3;
+    for (let y = 0; y < 512; y += 128) { g.beginPath(); g.moveTo(0, y); g.lineTo(512, y); g.stroke(); }
+    for (let x = 0; x < 512; x += 128) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, 512); g.stroke(); }
+  } else if (["town", "harbor", "castle"].includes(setting)) {
     g.strokeStyle = `#${base.clone().multiplyScalar(0.78).getHexString()}`;
     g.lineWidth = 2;
     for (let y = 0; y < 512; y += 32)
@@ -296,17 +308,24 @@ export class World {
       g.add(edge, w);
     }
     if (interior) {
-      const wall = new THREE.MeshToonMaterial({ color: "#eef0f2" });
-      const back = new THREE.Mesh(new THREE.BoxGeometry(24, 7, 0.3), wall);
-      back.position.set(0, 3.5, -7.5);
-      const left = new THREE.Mesh(new THREE.BoxGeometry(0.3, 7, 24), wall);
-      left.position.set(-10, 3.5, 2);
+      // a three-walled room, tall enough that no camera sees over it, with a skirting and a picture rail
+      const place = PLACES[this.scene.setting];
+      const wall = new THREE.MeshToonMaterial({ color: place.wall ?? "#eef0f2" });
+      const trim = new THREE.MeshToonMaterial({ color: place.trim ?? "#4a90c2" });
+      const back = new THREE.Mesh(new THREE.BoxGeometry(17, 6, 0.3), wall);
+      back.position.set(0, 3, -7.15);
+      const left = new THREE.Mesh(new THREE.BoxGeometry(0.3, 6, 40), wall);
+      left.position.set(-8.3, 3, 12);
       const right = left.clone();
-      right.position.x = 10;
-      const stripe = new THREE.Mesh(new THREE.BoxGeometry(24, 0.5, 0.32), new THREE.MeshToonMaterial({ color: "#4a90c2" }));
-      stripe.position.set(0, 1.2, -7.5);
+      right.position.x = 8.3;
+      const skirt = new THREE.Mesh(new THREE.BoxGeometry(17, 0.3, 0.34), trim);
+      skirt.position.set(0, 0.15, -7.15);
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(17, 0.14, 0.34), trim);
+      rail.position.set(0, 3.9, -7.15);
+      const ceiling = new THREE.Mesh(new THREE.BoxGeometry(17, 0.3, 40), new THREE.MeshToonMaterial({ color: "#f4f1ea" }));
+      ceiling.position.set(0, 5.6, 12);
       for (const m of [back, left, right]) m.receiveShadow = true;
-      g.add(back, left, right, stripe);
+      g.add(back, left, right, skirt, rail, ceiling);
     }
     return g;
   }
@@ -440,7 +459,8 @@ export class World {
     const S = { dist: base.dist * k * (low < 1 ? 1.6 : 1), h: base.h * k * low, look: base.look * k * low, fov: base.fov };
     const u = smoother((f - this.camStart) / Math.max(1, frames - 1 - this.camStart));
     const az0 = (r() - 0.5) * 24, roll0 = (r() - 0.5) * 4;
-    let dist: number = S.dist, az = az0, panX = 0;
+    const indoor = PLACES[this.scene.setting].interior;
+    let dist: number = indoor ? Math.min(S.dist, 8) : S.dist, az = indoor ? az0 * 0.5 : az0, panX = 0;
     switch (cam.move) {
       case "push": dist *= 1 - 0.2 * u; break;
       case "pull": dist *= 0.8 + 0.2 * u; break;

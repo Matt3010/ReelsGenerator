@@ -1843,5 +1843,660 @@
 "file": "models/car-kit/van.glb",
 "scale": 1.0,
 "h": 1.45
+},
+"furniture-kit/bathroomCabinet": {
+"file": "models/furniture-kit/bathroomCabinet.glb",
+"scale": 2.1,
+"h": 0.82
+},
+"furniture-kit/bathroomCabinetDrawer": {
+"file": "models/furniture-kit/bathroomCabinetDrawer.glb",
+"scale": 2.1,
+"h": 1.11
+},
+"furniture-kit/bathroomMirror": {
+"file": "models/furniture-kit/bathroomMirror.glb",
+"scale": 2.1,
+"h": 0.91
+},
+"furniture-kit/bathroomSink": {
+"file": "models/furniture-kit/bathroomSink.glb",
+"scale": 2.1,
+"h": 1.18
+},
+"furniture-kit/bathroomSinkSquare": {
+"file": "models/furniture-kit/bathroomSinkSquare.glb",
+"scale": 2.1,
+"h": 1.22
+},
+"furniture-kit/bathtub": {
+"file": "models/furniture-kit/bathtub.glb",
+"scale": 2.1,
+"h": 0.88
+},
+"furniture-kit/bear": {
+"file": "models/furniture-kit/bear.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/bedBunk": {
+"file": "models/furniture-kit/bedBunk.glb",
+"scale": 2.1,
+"h": 2.06
+},
+"furniture-kit/bedDouble": {
+"file": "models/furniture-kit/bedDouble.glb",
+"scale": 2.1,
+"h": 1.06
+},
+"furniture-kit/bedSingle": {
+"file": "models/furniture-kit/bedSingle.glb",
+"scale": 2.1,
+"h": 1.06
+},
+"furniture-kit/bench": {
+"file": "models/furniture-kit/bench.glb",
+"scale": 2.1,
+"h": 0.99
+},
+"furniture-kit/benchCushion": {
+"file": "models/furniture-kit/benchCushion.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/benchCushionLow": {
+"file": "models/furniture-kit/benchCushionLow.glb",
+"scale": 2.1,
+"h": 0.42
+},
+"furniture-kit/bookcaseClosed": {
+"file": "models/furniture-kit/bookcaseClosed.glb",
+"scale": 2.1,
+"h": 1.78
+},
+"furniture-kit/bookcaseClosedDoors": {
+"file": "models/furniture-kit/bookcaseClosedDoors.glb",
+"scale": 2.1,
+"h": 1.78
+},
+"furniture-kit/bookcaseClosedWide": {
+"file": "models/furniture-kit/bookcaseClosedWide.glb",
+"scale": 2.1,
+"h": 1.66
+},
+"furniture-kit/bookcaseOpen": {
+"file": "models/furniture-kit/bookcaseOpen.glb",
+"scale": 2.1,
+"h": 1.85
+},
+"furniture-kit/bookcaseOpenLow": {
+"file": "models/furniture-kit/bookcaseOpenLow.glb",
+"scale": 2.1,
+"h": 0.84
+},
+"furniture-kit/books": {
+"file": "models/furniture-kit/books.glb",
+"scale": 2.1,
+"h": 0.22
+},
+"furniture-kit/cabinetBed": {
+"file": "models/furniture-kit/cabinetBed.glb",
+"scale": 2.1,
+"h": 0.49
+},
+"furniture-kit/cabinetBedDrawer": {
+"file": "models/furniture-kit/cabinetBedDrawer.glb",
+"scale": 2.1,
+"h": 0.55
+},
+"furniture-kit/cabinetBedDrawerTable": {
+"file": "models/furniture-kit/cabinetBedDrawerTable.glb",
+"scale": 2.1,
+"h": 0.55
+},
+"furniture-kit/cabinetTelevision": {
+"file": "models/furniture-kit/cabinetTelevision.glb",
+"scale": 2.1,
+"h": 0.65
+},
+"furniture-kit/cabinetTelevisionDoors": {
+"file": "models/furniture-kit/cabinetTelevisionDoors.glb",
+"scale": 2.1,
+"h": 0.65
+},
+"furniture-kit/cardboardBoxClosed": {
+"file": "models/furniture-kit/cardboardBoxClosed.glb",
+"scale": 2.1,
+"h": 0.59
+},
+"furniture-kit/cardboardBoxOpen": {
+"file": "models/furniture-kit/cardboardBoxOpen.glb",
+"scale": 2.1,
+"h": 0.59
+},
+"furniture-kit/ceilingFan": {
+"file": "models/furniture-kit/ceilingFan.glb",
+"scale": 2.1,
+"h": 0.28
+},
+"furniture-kit/chair": {
+"file": "models/furniture-kit/chair.glb",
+"scale": 2.1,
+"h": 0.99
+},
+"furniture-kit/chairCushion": {
+"file": "models/furniture-kit/chairCushion.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/chairDesk": {
+"file": "models/furniture-kit/chairDesk.glb",
+"scale": 2.1,
+"h": 0.88
+},
+"furniture-kit/chairModernCushion": {
+"file": "models/furniture-kit/chairModernCushion.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/chairModernFrameCushion": {
+"file": "models/furniture-kit/chairModernFrameCushion.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/chairRounded": {
+"file": "models/furniture-kit/chairRounded.glb",
+"scale": 2.1,
+"h": 0.96
+},
+"furniture-kit/coatRack": {
+"file": "models/furniture-kit/coatRack.glb",
+"scale": 2.1,
+"h": 0.59
+},
+"furniture-kit/coatRackStanding": {
+"file": "models/furniture-kit/coatRackStanding.glb",
+"scale": 2.1,
+"h": 1.62
+},
+"furniture-kit/computerKeyboard": {
+"file": "models/furniture-kit/computerKeyboard.glb",
+"scale": 2.1,
+"h": 0.06
+},
+"furniture-kit/computerMouse": {
+"file": "models/furniture-kit/computerMouse.glb",
+"scale": 2.1,
+"h": 0.05
+},
+"furniture-kit/computerScreen": {
+"file": "models/furniture-kit/computerScreen.glb",
+"scale": 2.1,
+"h": 0.62
+},
+"furniture-kit/desk": {
+"file": "models/furniture-kit/desk.glb",
+"scale": 2.1,
+"h": 0.81
+},
+"furniture-kit/deskCorner": {
+"file": "models/furniture-kit/deskCorner.glb",
+"scale": 2.1,
+"h": 0.81
+},
+"furniture-kit/doorway": {
+"file": "models/furniture-kit/doorway.glb",
+"scale": 2.1,
+"h": 2.12
+},
+"furniture-kit/doorwayFront": {
+"file": "models/furniture-kit/doorwayFront.glb",
+"scale": 2.1,
+"h": 2.12
+},
+"furniture-kit/doorwayOpen": {
+"file": "models/furniture-kit/doorwayOpen.glb",
+"scale": 2.1,
+"h": 2.12
+},
+"furniture-kit/dryer": {
+"file": "models/furniture-kit/dryer.glb",
+"scale": 2.1,
+"h": 1.26
+},
+"furniture-kit/hoodLarge": {
+"file": "models/furniture-kit/hoodLarge.glb",
+"scale": 2.1,
+"h": 0.78
+},
+"furniture-kit/hoodModern": {
+"file": "models/furniture-kit/hoodModern.glb",
+"scale": 2.1,
+"h": 0.84
+},
+"furniture-kit/kitchenBar": {
+"file": "models/furniture-kit/kitchenBar.glb",
+"scale": 2.1,
+"h": 0.88
+},
+"furniture-kit/kitchenBarEnd": {
+"file": "models/furniture-kit/kitchenBarEnd.glb",
+"scale": 2.1,
+"h": 0.88
+},
+"furniture-kit/kitchenBlender": {
+"file": "models/furniture-kit/kitchenBlender.glb",
+"scale": 2.1,
+"h": 0.34
+},
+"furniture-kit/kitchenCabinet": {
+"file": "models/furniture-kit/kitchenCabinet.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/kitchenCabinetCornerInner": {
+"file": "models/furniture-kit/kitchenCabinetCornerInner.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/kitchenCabinetCornerRound": {
+"file": "models/furniture-kit/kitchenCabinetCornerRound.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/kitchenCabinetDrawer": {
+"file": "models/furniture-kit/kitchenCabinetDrawer.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/kitchenCabinetUpper": {
+"file": "models/furniture-kit/kitchenCabinetUpper.glb",
+"scale": 2.1,
+"h": 0.82
+},
+"furniture-kit/kitchenCabinetUpperCorner": {
+"file": "models/furniture-kit/kitchenCabinetUpperCorner.glb",
+"scale": 2.1,
+"h": 0.82
+},
+"furniture-kit/kitchenCabinetUpperDouble": {
+"file": "models/furniture-kit/kitchenCabinetUpperDouble.glb",
+"scale": 2.1,
+"h": 0.82
+},
+"furniture-kit/kitchenCabinetUpperLow": {
+"file": "models/furniture-kit/kitchenCabinetUpperLow.glb",
+"scale": 2.1,
+"h": 0.71
+},
+"furniture-kit/kitchenCoffeeMachine": {
+"file": "models/furniture-kit/kitchenCoffeeMachine.glb",
+"scale": 2.1,
+"h": 0.64
+},
+"furniture-kit/kitchenFridge": {
+"file": "models/furniture-kit/kitchenFridge.glb",
+"scale": 2.1,
+"h": 1.93
+},
+"furniture-kit/kitchenFridgeBuiltIn": {
+"file": "models/furniture-kit/kitchenFridgeBuiltIn.glb",
+"scale": 2.1,
+"h": 1.82
+},
+"furniture-kit/kitchenFridgeLarge": {
+"file": "models/furniture-kit/kitchenFridgeLarge.glb",
+"scale": 2.1,
+"h": 2.78
+},
+"furniture-kit/kitchenFridgeSmall": {
+"file": "models/furniture-kit/kitchenFridgeSmall.glb",
+"scale": 2.1,
+"h": 1.26
+},
+"furniture-kit/kitchenMicrowave": {
+"file": "models/furniture-kit/kitchenMicrowave.glb",
+"scale": 2.1,
+"h": 0.38
+},
+"furniture-kit/kitchenSink": {
+"file": "models/furniture-kit/kitchenSink.glb",
+"scale": 2.1,
+"h": 1.03
+},
+"furniture-kit/kitchenStove": {
+"file": "models/furniture-kit/kitchenStove.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/kitchenStoveElectric": {
+"file": "models/furniture-kit/kitchenStoveElectric.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/lampRoundFloor": {
+"file": "models/furniture-kit/lampRoundFloor.glb",
+"scale": 2.1,
+"h": 1.81
+},
+"furniture-kit/lampRoundTable": {
+"file": "models/furniture-kit/lampRoundTable.glb",
+"scale": 2.1,
+"h": 0.66
+},
+"furniture-kit/lampSquareCeiling": {
+"file": "models/furniture-kit/lampSquareCeiling.glb",
+"scale": 2.1,
+"h": 0.48
+},
+"furniture-kit/lampSquareFloor": {
+"file": "models/furniture-kit/lampSquareFloor.glb",
+"scale": 2.1,
+"h": 1.81
+},
+"furniture-kit/lampSquareTable": {
+"file": "models/furniture-kit/lampSquareTable.glb",
+"scale": 2.1,
+"h": 0.61
+},
+"furniture-kit/lampWall": {
+"file": "models/furniture-kit/lampWall.glb",
+"scale": 2.1,
+"h": 0.34
+},
+"furniture-kit/laptop": {
+"file": "models/furniture-kit/laptop.glb",
+"scale": 2.1,
+"h": 0.77
+},
+"furniture-kit/loungeChair": {
+"file": "models/furniture-kit/loungeChair.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/loungeChairRelax": {
+"file": "models/furniture-kit/loungeChairRelax.glb",
+"scale": 2.1,
+"h": 1.32
+},
+"furniture-kit/loungeDesignChair": {
+"file": "models/furniture-kit/loungeDesignChair.glb",
+"scale": 2.1,
+"h": 0.84
+},
+"furniture-kit/loungeDesignSofa": {
+"file": "models/furniture-kit/loungeDesignSofa.glb",
+"scale": 2.1,
+"h": 0.84
+},
+"furniture-kit/loungeDesignSofaCorner": {
+"file": "models/furniture-kit/loungeDesignSofaCorner.glb",
+"scale": 2.1,
+"h": 0.84
+},
+"furniture-kit/loungeSofa": {
+"file": "models/furniture-kit/loungeSofa.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/loungeSofaCorner": {
+"file": "models/furniture-kit/loungeSofaCorner.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/loungeSofaLong": {
+"file": "models/furniture-kit/loungeSofaLong.glb",
+"scale": 2.1,
+"h": 0.97
+},
+"furniture-kit/loungeSofaOttoman": {
+"file": "models/furniture-kit/loungeSofaOttoman.glb",
+"scale": 2.1,
+"h": 0.48
+},
+"furniture-kit/pillow": {
+"file": "models/furniture-kit/pillow.glb",
+"scale": 2.1,
+"h": 0.47
+},
+"furniture-kit/pillowBlue": {
+"file": "models/furniture-kit/pillowBlue.glb",
+"scale": 2.1,
+"h": 0.27
+},
+"furniture-kit/pillowBlueLong": {
+"file": "models/furniture-kit/pillowBlueLong.glb",
+"scale": 2.1,
+"h": 0.47
+},
+"furniture-kit/pillowLong": {
+"file": "models/furniture-kit/pillowLong.glb",
+"scale": 2.1,
+"h": 0.47
+},
+"furniture-kit/plantSmall1": {
+"file": "models/furniture-kit/plantSmall1.glb",
+"scale": 2.1,
+"h": 0.59
+},
+"furniture-kit/plantSmall2": {
+"file": "models/furniture-kit/plantSmall2.glb",
+"scale": 2.1,
+"h": 0.59
+},
+"furniture-kit/plantSmall3": {
+"file": "models/furniture-kit/plantSmall3.glb",
+"scale": 2.1,
+"h": 0.61
+},
+"furniture-kit/pottedPlant": {
+"file": "models/furniture-kit/pottedPlant.glb",
+"scale": 2.1,
+"h": 1.13
+},
+"furniture-kit/radio": {
+"file": "models/furniture-kit/radio.glb",
+"scale": 2.1,
+"h": 0.48
+},
+"furniture-kit/rugDoormat": {
+"file": "models/furniture-kit/rugDoormat.glb",
+"scale": 2.1,
+"h": 0.02
+},
+"furniture-kit/rugRectangle": {
+"file": "models/furniture-kit/rugRectangle.glb",
+"scale": 2.1,
+"h": 0.02
+},
+"furniture-kit/rugRound": {
+"file": "models/furniture-kit/rugRound.glb",
+"scale": 2.1,
+"h": 0.02
+},
+"furniture-kit/rugRounded": {
+"file": "models/furniture-kit/rugRounded.glb",
+"scale": 2.1,
+"h": 0.02
+},
+"furniture-kit/rugSquare": {
+"file": "models/furniture-kit/rugSquare.glb",
+"scale": 2.1,
+"h": 0.02
+},
+"furniture-kit/shower": {
+"file": "models/furniture-kit/shower.glb",
+"scale": 2.1,
+"h": 5.23
+},
+"furniture-kit/showerRound": {
+"file": "models/furniture-kit/showerRound.glb",
+"scale": 2.1,
+"h": 2.3
+},
+"furniture-kit/sideTable": {
+"file": "models/furniture-kit/sideTable.glb",
+"scale": 2.1,
+"h": 0.81
+},
+"furniture-kit/sideTableDrawers": {
+"file": "models/furniture-kit/sideTableDrawers.glb",
+"scale": 2.1,
+"h": 0.81
+},
+"furniture-kit/speaker": {
+"file": "models/furniture-kit/speaker.glb",
+"scale": 2.1,
+"h": 1.34
+},
+"furniture-kit/speakerSmall": {
+"file": "models/furniture-kit/speakerSmall.glb",
+"scale": 2.1,
+"h": 0.63
+},
+"furniture-kit/stoolBar": {
+"file": "models/furniture-kit/stoolBar.glb",
+"scale": 2.1,
+"h": 0.91
+},
+"furniture-kit/stoolBarSquare": {
+"file": "models/furniture-kit/stoolBarSquare.glb",
+"scale": 2.1,
+"h": 0.85
+},
+"furniture-kit/table": {
+"file": "models/furniture-kit/table.glb",
+"scale": 2.1,
+"h": 0.69
+},
+"furniture-kit/tableCloth": {
+"file": "models/furniture-kit/tableCloth.glb",
+"scale": 2.1,
+"h": 0.69
+},
+"furniture-kit/tableCoffee": {
+"file": "models/furniture-kit/tableCoffee.glb",
+"scale": 2.1,
+"h": 0.48
+},
+"furniture-kit/tableCoffeeGlass": {
+"file": "models/furniture-kit/tableCoffeeGlass.glb",
+"scale": 2.1,
+"h": 0.48
+},
+"furniture-kit/tableCoffeeGlassSquare": {
+"file": "models/furniture-kit/tableCoffeeGlassSquare.glb",
+"scale": 2.1,
+"h": 0.48
+},
+"furniture-kit/tableCoffeeSquare": {
+"file": "models/furniture-kit/tableCoffeeSquare.glb",
+"scale": 2.1,
+"h": 0.48
+},
+"furniture-kit/tableCross": {
+"file": "models/furniture-kit/tableCross.glb",
+"scale": 2.1,
+"h": 1.74
+},
+"furniture-kit/tableCrossCloth": {
+"file": "models/furniture-kit/tableCrossCloth.glb",
+"scale": 2.1,
+"h": 1.74
+},
+"furniture-kit/tableGlass": {
+"file": "models/furniture-kit/tableGlass.glb",
+"scale": 2.1,
+"h": 0.69
+},
+"furniture-kit/tableRound": {
+"file": "models/furniture-kit/tableRound.glb",
+"scale": 2.1,
+"h": 0.77
+},
+"furniture-kit/televisionAntenna": {
+"file": "models/furniture-kit/televisionAntenna.glb",
+"scale": 2.1,
+"h": 0.22
+},
+"furniture-kit/televisionModern": {
+"file": "models/furniture-kit/televisionModern.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/televisionVintage": {
+"file": "models/furniture-kit/televisionVintage.glb",
+"scale": 2.1,
+"h": 0.57
+},
+"furniture-kit/toaster": {
+"file": "models/furniture-kit/toaster.glb",
+"scale": 2.1,
+"h": 0.27
+},
+"furniture-kit/toilet": {
+"file": "models/furniture-kit/toilet.glb",
+"scale": 2.1,
+"h": 1.99
+},
+"furniture-kit/toiletSquare": {
+"file": "models/furniture-kit/toiletSquare.glb",
+"scale": 2.1,
+"h": 0.95
+},
+"furniture-kit/trashcan": {
+"file": "models/furniture-kit/trashcan.glb",
+"scale": 2.1,
+"h": 1.9
+},
+"furniture-kit/wall": {
+"file": "models/furniture-kit/wall.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/wallCorner": {
+"file": "models/furniture-kit/wallCorner.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/wallCornerRond": {
+"file": "models/furniture-kit/wallCornerRond.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/wallDoorway": {
+"file": "models/furniture-kit/wallDoorway.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/wallDoorwayWide": {
+"file": "models/furniture-kit/wallDoorwayWide.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/wallHalf": {
+"file": "models/furniture-kit/wallHalf.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/wallWindow": {
+"file": "models/furniture-kit/wallWindow.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/wallWindowSlide": {
+"file": "models/furniture-kit/wallWindowSlide.glb",
+"scale": 2.1,
+"h": 2.71
+},
+"furniture-kit/washer": {
+"file": "models/furniture-kit/washer.glb",
+"scale": 2.1,
+"h": 1.05
+},
+"furniture-kit/washerDryerStacked": {
+"file": "models/furniture-kit/washerDryerStacked.glb",
+"scale": 2.1,
+"h": 2.25
 }
 }

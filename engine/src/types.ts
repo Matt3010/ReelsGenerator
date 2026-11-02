@@ -1,7 +1,7 @@
 // Mirrors shorts/spec.py (story) + shorts/timeline.py (timing). Python is the source of truth.
 export type Setting =
   | "town" | "countryside" | "city" | "forest" | "desert" | "beach" | "snow"
-  | "harbor" | "castle" | "lab" | "space";
+  | "harbor" | "castle" | "lab" | "space" | "home" | "office" | "classroom" | "tavern";
 export type TimeOfDay = "day" | "golden" | "night";
 export type Action = "idle" | "walk" | "run" | "talk" | "jump" | "fall" | "point" | "cheer" | "shocked" | "sit";
 export type Expression = "neutral" | "happy" | "sad" | "angry" | "surprised" | "scared" | "smug" | "thinking";

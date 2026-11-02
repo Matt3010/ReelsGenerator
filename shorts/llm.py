@@ -49,6 +49,8 @@ Staging rules (the engine renders exactly this, so keep it physically sensible):
   Use as many cast members as the story needs (up to 30); up to 12 actors per scene.
 - For "walk"/"run" set to_x to where they end up. Use "close" shots with a camera target for emotional beats,
   "wide"/"aerial" to establish places. Vary shots; never three of the same shot size in a row.
+- Indoor stories use an interior setting (home, office, classroom, tavern, lab): the room, its windows and typical
+  furniture are built automatically; add the story's own props (furniture-kit models fit rooms).
 - Make the characters ACT. Give most scenes 1-3 "beats": moments pinned to an exact narration word where an actor
   changes expression or action, a cartoon symbol pops over a head (exclaim, question, sweat, anger, stars, hearts,
   idea, zzz), the camera cuts to a new shot (close-up on the reaction; "angle": "dutch" when things go wrong),

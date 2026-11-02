@@ -45,6 +45,9 @@ export type Place = {
   interior: boolean;
   /** overrides the sky for places without one (space) */
   space: boolean;
+  /** interiors: wall and skirting colours */
+  wall?: string;
+  trim?: string;
 };
 
 export const PLACES: Record<Setting, Place> = {
@@ -57,7 +60,11 @@ export const PLACES: Record<Setting, Place> = {
   snow: { ground: "#eef3f8", waterFrom: null, water: "#4f8fc0", interior: false, space: false },
   harbor: { ground: "#a39a8a", waterFrom: -9, water: "#3d7fa8", interior: false, space: false },
   castle: { ground: "#7fa65a", waterFrom: null, water: "#4f8fc0", interior: false, space: false },
-  lab: { ground: "#d9dde3", waterFrom: null, water: "#4f8fc0", interior: true, space: false },
+  lab: { ground: "#d9dde3", waterFrom: null, water: "#4f8fc0", interior: true, space: false, wall: "#eef0f2", trim: "#4a90c2" },
+  home: { ground: "#b07a4a", waterFrom: null, water: "#4f8fc0", interior: true, space: false, wall: "#ecdcc0", trim: "#8a5a34" },
+  office: { ground: "#8f9aa6", waterFrom: null, water: "#4f8fc0", interior: true, space: false, wall: "#e2e8ec", trim: "#5a6b7a" },
+  classroom: { ground: "#c49a62", waterFrom: null, water: "#4f8fc0", interior: true, space: false, wall: "#efe6c8", trim: "#6b8f5a" },
+  tavern: { ground: "#6f4a2e", waterFrom: null, water: "#4f8fc0", interior: true, space: false, wall: "#c9a77a", trim: "#5a3b22" },
   space: { ground: "#9a9aa2", waterFrom: null, water: "#4f8fc0", interior: false, space: true },
 };
 
@@ -117,6 +124,22 @@ const BENCH: Prop["parts"] = [
   part("box", [0.08, 0.48, 0.45], [0.8, 0.24, 0], "#2d3138"),
 ];
 const custom = (parts: Prop["parts"], x: number, z: number): Prop => ({ model: null, x, z, scale: 1, rot_y: 0, parts });
+/** wall dressing: a glazed window (glows a little by day and at night), framed pictures, a clock */
+const WINDOW: Prop["parts"] = [
+  part("box", [1.9, 2.0, 0.08], [0, 2.3, 0], "#f3eee2"),
+  { ...part("box", [1.6, 1.7, 0.1], [0, 2.3, 0.02], "#bfe3f7"), glow: true },
+  part("box", [0.08, 1.7, 0.14], [0, 2.3, 0.05], "#f3eee2"),
+  part("box", [1.6, 0.08, 0.14], [0, 2.3, 0.05], "#f3eee2"),
+  part("box", [2.1, 0.12, 0.3], [0, 1.25, 0.1], "#f3eee2"),
+];
+const PICTURE = (c1: string, c2: string): Prop["parts"] => [
+  part("box", [1.1, 0.8, 0.06], [0, 2.6, 0], "#6b4a33"),
+  part("box", [0.95, 0.65, 0.08], [0, 2.6, 0.01], c1),
+  part("sphere", [0.35, 0.35, 0.05], [0.15, 2.65, 0.05], c2),
+];
+const CLOCK: Prop["parts"] = [part("cylinder", [0.55, 0.55, 0.08], [0, 3.1, 0], "#f6f1e3"), part("box", [0.04, 0.2, 0.1], [0, 3.17, 0.05], "#241726"), part("box", [0.15, 0.04, 0.1], [0.06, 3.1, 0.05], "#241726")];
+const onWall = (parts: Prop["parts"], x: number): Prop => ({ model: null, x, z: -6.95, scale: 1, rot_y: 0, parts: parts.map((q) => ({ ...q, pos: [q.pos[0], q.pos[1], q.pos[2]] as [number, number, number] })) });
+
 const TOWNY = [...K("city-kit-suburban", ["planter", "tree-small"]), ...K("pirate-kit", ["barrel", "crate"]), ...BUSHES, ...FLOWERS];
 
 /** background set dressing in layers: a packed back row (and a second one further away), a midground of smaller
@@ -137,6 +160,16 @@ export const scatter = (setting: Setting, seed: number): Prop[] => {
   /** framing props left and right of the stage, close to the lens */
   const sides = (list: string[], n: number, scale = 1) => {
     for (let i = 0; i < n; i++) out.push(P(any(list), (i % 2 ? 1 : -1) * (5 + r() * 4), -1 - r() * 4, scale * (0.8 + 0.4 * r())));
+  };
+  const F = (names: string[]) => K("furniture-kit", names);
+  /** interiors: windows and pictures on the back wall, tall furniture against it, a denser row of lower furniture
+   *  in front, and props along the side walls */
+  const backWall = (tall: string[], low: string[], centre = true) => {
+    // the 9:16 frame only shows a few metres of the back wall: keep its windows near the middle
+    out.push(onWall(WINDOW, -2.3), onWall(WINDOW, 2.3), onWall(PICTURE("#5a8fc2", "#f2c230"), -5.2), onWall(PICTURE("#6fae45", "#ffffff"), 5.2));
+    if (centre) out.push(onWall(r() < 0.5 ? CLOCK : PICTURE("#d9a441", "#c0392b"), 0));
+    for (let x = -7.4; x <= 7.4; x += 1.7 + 0.6 * r()) out.push(P(any(tall), x, -6.55));
+    if (low.length) for (let x = -6.5; x <= 6.5; x += 2.2 + r()) out.push(P(any(low), x, -4.7 - r() * 0.6));
   };
   switch (setting) {
     case "town":
@@ -200,8 +233,35 @@ export const scatter = (setting: Setting, seed: number): Prop[] => {
       sides([...TREES, ...BUSHES], 4);
       break;
     case "lab":
-      for (const z of [-5, -8]) for (const x of [-6, -2, 2, 6]) out.push({ x: x + jitter(1), z, scale: 1, rot_y: 0, model: null, parts: TABLE });
-      sides(K("pirate-kit", ["crate", "barrel"]), 4);
+      for (const z of [-4.4, -5.9]) for (const x of [-5.5, -2, 2, 5.5]) out.push({ x: x + jitter(1), z, scale: 1, rot_y: 0, model: null, parts: TABLE });
+      backWall(F(["bookcaseClosed", "kitchenFridge", "bookcaseClosedWide"]), F(["computerScreen", "pottedPlant"]));
+      sides(F(["cardboardBoxClosed", "trashcan", "pottedPlant"]), 4);
+      break;
+    case "home":
+      backWall(F(["bookcaseOpen", "cabinetTelevision", "lampSquareFloor", "pottedPlant", "kitchenFridge", "coatRackStanding"]), F(["loungeSofa", "tableCoffee", "loungeChair"]));
+      out.push(P("furniture-kit/rugRectangle", jitter(2), -1.5, 1.6), P("furniture-kit/rugRound", 5.5, -3, 1.2));
+      sides(F(["loungeChair", "pottedPlant", "sideTable", "lampSquareFloor"]), 4);
+      break;
+    case "office":
+      backWall(F(["bookcaseClosed", "bookcaseClosedDoors", "pottedPlant", "lampSquareFloor"]), F(["desk", "deskCorner"]));
+      for (const x of [-6, -2.5, 2.5, 6]) out.push(P("furniture-kit/chairDesk", x + jitter(1), -3.9));
+      sides(F(["pottedPlant", "trashcan", "cardboardBoxClosed", "coatRackStanding"]), 4);
+      break;
+    case "classroom":
+      out.push({ model: null, x: 0, z: -6.95, scale: 1, rot_y: 0, parts: [part("box", [4.6, 2.0, 0.08], [0, 2.5, 0], "#2f4f3a"), part("box", [4.9, 0.12, 0.2], [0, 1.45, 0.05], "#8a5a34"),
+        part("box", [1.4, 0.05, 0.02], [-1, 3, 0.05], "#f6f1e3"), part("box", [0.9, 0.05, 0.02], [0.6, 2.6, 0.05], "#f6f1e3")] });
+      for (const z of [-3.9, -5.4]) for (const x of [-6.6, -4.4, 4.4, 6.6]) out.push(P("furniture-kit/desk", x, z), P("furniture-kit/chair", x, z + 0.75));
+      backWall(F(["bookcaseOpen", "pottedPlant"]), [], false);
+      sides(F(["bookcaseOpenLow", "pottedPlant", "trashcan"]), 4);
+      break;
+    case "tavern":
+      out.push(...[-6, -4.4, -2.8, -1.2, 0.4].map((x) => P("furniture-kit/kitchenBar", x, -6.4)));
+      for (const x of [-5.2, -3.6, -2, -0.4]) out.push(P("furniture-kit/stoolBar", x + jitter(0.3), -5.3));
+      for (const [x, z] of [[-6.4, -3.6], [6.2, -3.6], [5.6, -5.6]] as const) out.push(P("furniture-kit/tableRound", x, z), P("furniture-kit/chair", x - 0.9, z), P("furniture-kit/chair", x + 0.9, z));
+      out.push(P("pirate-kit/barrel", 7.2, -6.6), P("pirate-kit/barrel", 6.1, -6.7), P("pirate-kit/crate-bottles", -7.4, -6.6));
+      for (const x of [-4.5, 0, 4.5]) out.push(onWall([{ ...part("box", [0.3, 0.4, 0.3], [0, 3.2, 0.2], "#ffc65c"), glow: true }, part("box", [0.08, 0.5, 0.3], [0, 3.55, 0.05], "#3b2a20")], x));
+      out.push(onWall(PICTURE("#8a5a34", "#d9a441"), -2.5), onWall(PICTURE("#5a3b22", "#c0392b"), 2.5));
+      sides([...F(["chair", "tableRound"]), "pirate-kit/barrel"], 4);
       break;
     case "space":
       row(ROCKS, -14, -45, 45, 5, 1.5);

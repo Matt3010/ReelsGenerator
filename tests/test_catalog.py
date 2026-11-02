@@ -53,3 +53,9 @@ def test_small_city_items_are_not_building_scale(tmp_path):
     cat = build_catalog(tmp_path, scales={"city-kit-suburban": 9.0})
     assert cat["city-kit-suburban/building-type-a"]["scale"] == 9.0
     assert cat["city-kit-suburban/fence-1x4"]["h"] < 1.3
+
+
+def test_catalog_has_furniture_at_room_scale():
+    cat = load_catalog()
+    assert 0.8 < cat["furniture-kit/chair"]["h"] < 1.2
+    assert not any(k.startswith("furniture-kit/floor") for k in cat)

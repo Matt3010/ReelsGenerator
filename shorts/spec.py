@@ -12,7 +12,7 @@ Color = Field(pattern=r"^#[0-9a-fA-F]{6}$")
 
 Setting = Literal[
     "town", "countryside", "city", "forest", "desert", "beach", "snow",
-    "harbor", "castle", "lab", "space",
+    "harbor", "castle", "lab", "space", "home", "office", "classroom", "tavern",
 ]
 TimeOfDay = Literal["day", "golden", "night"]
 Action = Literal[
