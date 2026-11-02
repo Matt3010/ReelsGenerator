@@ -1,0 +1,1847 @@
+{
+"city-kit-suburban/building-type-a": {
+"file": "models/city-kit-suburban/building-type-a.glb",
+"scale": 9.0,
+"h": 7.5
+},
+"city-kit-suburban/building-type-b": {
+"file": "models/city-kit-suburban/building-type-b.glb",
+"scale": 9.0,
+"h": 10.24
+},
+"city-kit-suburban/building-type-c": {
+"file": "models/city-kit-suburban/building-type-c.glb",
+"scale": 9.0,
+"h": 9.3
+},
+"city-kit-suburban/building-type-d": {
+"file": "models/city-kit-suburban/building-type-d.glb",
+"scale": 9.0,
+"h": 11.14
+},
+"city-kit-suburban/building-type-e": {
+"file": "models/city-kit-suburban/building-type-e.glb",
+"scale": 9.0,
+"h": 10.24
+},
+"city-kit-suburban/building-type-f": {
+"file": "models/city-kit-suburban/building-type-f.glb",
+"scale": 9.0,
+"h": 10.24
+},
+"city-kit-suburban/building-type-g": {
+"file": "models/city-kit-suburban/building-type-g.glb",
+"scale": 9.0,
+"h": 6.91
+},
+"city-kit-suburban/building-type-h": {
+"file": "models/city-kit-suburban/building-type-h.glb",
+"scale": 9.0,
+"h": 6.64
+},
+"city-kit-suburban/building-type-i": {
+"file": "models/city-kit-suburban/building-type-i.glb",
+"scale": 9.0,
+"h": 6.64
+},
+"city-kit-suburban/building-type-j": {
+"file": "models/city-kit-suburban/building-type-j.glb",
+"scale": 9.0,
+"h": 9.34
+},
+"city-kit-suburban/building-type-k": {
+"file": "models/city-kit-suburban/building-type-k.glb",
+"scale": 9.0,
+"h": 10.35
+},
+"city-kit-suburban/building-type-l": {
+"file": "models/city-kit-suburban/building-type-l.glb",
+"scale": 9.0,
+"h": 9.44
+},
+"city-kit-suburban/building-type-m": {
+"file": "models/city-kit-suburban/building-type-m.glb",
+"scale": 9.0,
+"h": 6.64
+},
+"city-kit-suburban/building-type-n": {
+"file": "models/city-kit-suburban/building-type-n.glb",
+"scale": 9.0,
+"h": 10.24
+},
+"city-kit-suburban/building-type-o": {
+"file": "models/city-kit-suburban/building-type-o.glb",
+"scale": 9.0,
+"h": 10.24
+},
+"city-kit-suburban/building-type-p": {
+"file": "models/city-kit-suburban/building-type-p.glb",
+"scale": 9.0,
+"h": 8.26
+},
+"city-kit-suburban/building-type-q": {
+"file": "models/city-kit-suburban/building-type-q.glb",
+"scale": 9.0,
+"h": 8.26
+},
+"city-kit-suburban/building-type-r": {
+"file": "models/city-kit-suburban/building-type-r.glb",
+"scale": 9.0,
+"h": 10.27
+},
+"city-kit-suburban/building-type-s": {
+"file": "models/city-kit-suburban/building-type-s.glb",
+"scale": 9.0,
+"h": 10.24
+},
+"city-kit-suburban/building-type-t": {
+"file": "models/city-kit-suburban/building-type-t.glb",
+"scale": 9.0,
+"h": 10.41
+},
+"city-kit-suburban/building-type-u": {
+"file": "models/city-kit-suburban/building-type-u.glb",
+"scale": 9.0,
+"h": 10.24
+},
+"city-kit-suburban/fence-1x2": {
+"file": "models/city-kit-suburban/fence-1x2.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/fence-1x3": {
+"file": "models/city-kit-suburban/fence-1x3.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/fence-1x4": {
+"file": "models/city-kit-suburban/fence-1x4.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/fence-2x2": {
+"file": "models/city-kit-suburban/fence-2x2.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/fence-2x3": {
+"file": "models/city-kit-suburban/fence-2x3.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/fence-3x2": {
+"file": "models/city-kit-suburban/fence-3x2.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/fence-3x3": {
+"file": "models/city-kit-suburban/fence-3x3.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/fence-low": {
+"file": "models/city-kit-suburban/fence-low.glb",
+"scale": 4.0,
+"h": 0.68
+},
+"city-kit-suburban/fence": {
+"file": "models/city-kit-suburban/fence.glb",
+"scale": 4.0,
+"h": 1.08
+},
+"city-kit-suburban/planter": {
+"file": "models/city-kit-suburban/planter.glb",
+"scale": 4.0,
+"h": 0.71
+},
+"city-kit-suburban/tree-large": {
+"file": "models/city-kit-suburban/tree-large.glb",
+"scale": 9.0,
+"h": 6.9
+},
+"city-kit-suburban/tree-small": {
+"file": "models/city-kit-suburban/tree-small.glb",
+"scale": 9.0,
+"h": 5.1
+},
+"nature-kit/bridge_stone": {
+"file": "models/nature-kit/bridge_stone.glb",
+"scale": 3.5,
+"h": 1.4
+},
+"nature-kit/bridge_stoneNarrow": {
+"file": "models/nature-kit/bridge_stoneNarrow.glb",
+"scale": 3.5,
+"h": 1.22
+},
+"nature-kit/bridge_stoneRound": {
+"file": "models/nature-kit/bridge_stoneRound.glb",
+"scale": 3.5,
+"h": 1.57
+},
+"nature-kit/bridge_stoneRoundNarrow": {
+"file": "models/nature-kit/bridge_stoneRoundNarrow.glb",
+"scale": 3.5,
+"h": 1.4
+},
+"nature-kit/bridge_wood": {
+"file": "models/nature-kit/bridge_wood.glb",
+"scale": 3.5,
+"h": 1.4
+},
+"nature-kit/bridge_woodNarrow": {
+"file": "models/nature-kit/bridge_woodNarrow.glb",
+"scale": 3.5,
+"h": 1.22
+},
+"nature-kit/bridge_woodRound": {
+"file": "models/nature-kit/bridge_woodRound.glb",
+"scale": 3.5,
+"h": 1.57
+},
+"nature-kit/bridge_woodRoundNarrow": {
+"file": "models/nature-kit/bridge_woodRoundNarrow.glb",
+"scale": 3.5,
+"h": 1.4
+},
+"nature-kit/cactus_short": {
+"file": "models/nature-kit/cactus_short.glb",
+"scale": 3.5,
+"h": 1.87
+},
+"nature-kit/cactus_tall": {
+"file": "models/nature-kit/cactus_tall.glb",
+"scale": 3.5,
+"h": 2.62
+},
+"nature-kit/campfire_bricks": {
+"file": "models/nature-kit/campfire_bricks.glb",
+"scale": 3.5,
+"h": 0.24
+},
+"nature-kit/campfire_logs": {
+"file": "models/nature-kit/campfire_logs.glb",
+"scale": 3.5,
+"h": 0.22
+},
+"nature-kit/campfire_planks": {
+"file": "models/nature-kit/campfire_planks.glb",
+"scale": 3.5,
+"h": 0.14
+},
+"nature-kit/campfire_stones": {
+"file": "models/nature-kit/campfire_stones.glb",
+"scale": 3.5,
+"h": 0.27
+},
+"nature-kit/canoe": {
+"file": "models/nature-kit/canoe.glb",
+"scale": 3.5,
+"h": 0.64
+},
+"nature-kit/canoe_paddle": {
+"file": "models/nature-kit/canoe_paddle.glb",
+"scale": 3.5,
+"h": 0.13
+},
+"nature-kit/crop_carrot": {
+"file": "models/nature-kit/crop_carrot.glb",
+"scale": 3.5,
+"h": 2.17
+},
+"nature-kit/crop_melon": {
+"file": "models/nature-kit/crop_melon.glb",
+"scale": 3.5,
+"h": 1.22
+},
+"nature-kit/crop_pumpkin": {
+"file": "models/nature-kit/crop_pumpkin.glb",
+"scale": 3.5,
+"h": 1.17
+},
+"nature-kit/crop_turnip": {
+"file": "models/nature-kit/crop_turnip.glb",
+"scale": 3.5,
+"h": 2.31
+},
+"nature-kit/crops_bambooStageA": {
+"file": "models/nature-kit/crops_bambooStageA.glb",
+"scale": 3.5,
+"h": 1.92
+},
+"nature-kit/crops_bambooStageB": {
+"file": "models/nature-kit/crops_bambooStageB.glb",
+"scale": 3.5,
+"h": 3.11
+},
+"nature-kit/crops_cornStageA": {
+"file": "models/nature-kit/crops_cornStageA.glb",
+"scale": 3.5,
+"h": 1.75
+},
+"nature-kit/crops_cornStageB": {
+"file": "models/nature-kit/crops_cornStageB.glb",
+"scale": 3.5,
+"h": 3.5
+},
+"nature-kit/crops_cornStageC": {
+"file": "models/nature-kit/crops_cornStageC.glb",
+"scale": 3.5,
+"h": 4.38
+},
+"nature-kit/crops_cornStageD": {
+"file": "models/nature-kit/crops_cornStageD.glb",
+"scale": 3.5,
+"h": 4.38
+},
+"nature-kit/crops_leafsStageA": {
+"file": "models/nature-kit/crops_leafsStageA.glb",
+"scale": 3.5,
+"h": 1.49
+},
+"nature-kit/crops_leafsStageB": {
+"file": "models/nature-kit/crops_leafsStageB.glb",
+"scale": 3.5,
+"h": 2.37
+},
+"nature-kit/crops_wheatStageA": {
+"file": "models/nature-kit/crops_wheatStageA.glb",
+"scale": 3.5,
+"h": 1.17
+},
+"nature-kit/crops_wheatStageB": {
+"file": "models/nature-kit/crops_wheatStageB.glb",
+"scale": 3.5,
+"h": 1.87
+},
+"nature-kit/fence_bend": {
+"file": "models/nature-kit/fence_bend.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_bendCenter": {
+"file": "models/nature-kit/fence_bendCenter.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_corner": {
+"file": "models/nature-kit/fence_corner.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_gate": {
+"file": "models/nature-kit/fence_gate.glb",
+"scale": 3.5,
+"h": 1.8
+},
+"nature-kit/fence_planks": {
+"file": "models/nature-kit/fence_planks.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_planksDouble": {
+"file": "models/nature-kit/fence_planksDouble.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_simple": {
+"file": "models/nature-kit/fence_simple.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_simpleCenter": {
+"file": "models/nature-kit/fence_simpleCenter.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_simpleDiagonal": {
+"file": "models/nature-kit/fence_simpleDiagonal.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_simpleDiagonalCenter": {
+"file": "models/nature-kit/fence_simpleDiagonalCenter.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_simpleHigh": {
+"file": "models/nature-kit/fence_simpleHigh.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/fence_simpleLow": {
+"file": "models/nature-kit/fence_simpleLow.glb",
+"scale": 3.5,
+"h": 0.68
+},
+"nature-kit/flower_purpleA": {
+"file": "models/nature-kit/flower_purpleA.glb",
+"scale": 3.5,
+"h": 0.85
+},
+"nature-kit/flower_purpleB": {
+"file": "models/nature-kit/flower_purpleB.glb",
+"scale": 3.5,
+"h": 0.73
+},
+"nature-kit/flower_purpleC": {
+"file": "models/nature-kit/flower_purpleC.glb",
+"scale": 3.5,
+"h": 0.64
+},
+"nature-kit/flower_redA": {
+"file": "models/nature-kit/flower_redA.glb",
+"scale": 3.5,
+"h": 1.02
+},
+"nature-kit/flower_redB": {
+"file": "models/nature-kit/flower_redB.glb",
+"scale": 3.5,
+"h": 0.9
+},
+"nature-kit/flower_redC": {
+"file": "models/nature-kit/flower_redC.glb",
+"scale": 3.5,
+"h": 0.81
+},
+"nature-kit/flower_yellowA": {
+"file": "models/nature-kit/flower_yellowA.glb",
+"scale": 3.5,
+"h": 0.67
+},
+"nature-kit/flower_yellowB": {
+"file": "models/nature-kit/flower_yellowB.glb",
+"scale": 3.5,
+"h": 0.55
+},
+"nature-kit/flower_yellowC": {
+"file": "models/nature-kit/flower_yellowC.glb",
+"scale": 3.5,
+"h": 0.46
+},
+"nature-kit/hanging_moss": {
+"file": "models/nature-kit/hanging_moss.glb",
+"scale": 3.5,
+"h": 1.67
+},
+"nature-kit/lily_large": {
+"file": "models/nature-kit/lily_large.glb",
+"scale": 3.5,
+"h": 0.34
+},
+"nature-kit/lily_small": {
+"file": "models/nature-kit/lily_small.glb",
+"scale": 3.5,
+"h": 0.14
+},
+"nature-kit/log": {
+"file": "models/nature-kit/log.glb",
+"scale": 3.5,
+"h": 0.61
+},
+"nature-kit/log_large": {
+"file": "models/nature-kit/log_large.glb",
+"scale": 3.5,
+"h": 1.46
+},
+"nature-kit/log_stack": {
+"file": "models/nature-kit/log_stack.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/log_stackLarge": {
+"file": "models/nature-kit/log_stackLarge.glb",
+"scale": 3.5,
+"h": 1.21
+},
+"nature-kit/mushroom_red": {
+"file": "models/nature-kit/mushroom_red.glb",
+"scale": 3.5,
+"h": 0.71
+},
+"nature-kit/mushroom_redGroup": {
+"file": "models/nature-kit/mushroom_redGroup.glb",
+"scale": 3.5,
+"h": 0.88
+},
+"nature-kit/mushroom_redTall": {
+"file": "models/nature-kit/mushroom_redTall.glb",
+"scale": 3.5,
+"h": 0.88
+},
+"nature-kit/mushroom_tan": {
+"file": "models/nature-kit/mushroom_tan.glb",
+"scale": 3.5,
+"h": 0.54
+},
+"nature-kit/mushroom_tanGroup": {
+"file": "models/nature-kit/mushroom_tanGroup.glb",
+"scale": 3.5,
+"h": 0.88
+},
+"nature-kit/mushroom_tanTall": {
+"file": "models/nature-kit/mushroom_tanTall.glb",
+"scale": 3.5,
+"h": 0.88
+},
+"nature-kit/plant_bush": {
+"file": "models/nature-kit/plant_bush.glb",
+"scale": 3.5,
+"h": 0.86
+},
+"nature-kit/plant_bushDetailed": {
+"file": "models/nature-kit/plant_bushDetailed.glb",
+"scale": 3.5,
+"h": 1.26
+},
+"nature-kit/plant_bushLarge": {
+"file": "models/nature-kit/plant_bushLarge.glb",
+"scale": 3.5,
+"h": 0.85
+},
+"nature-kit/plant_bushLargeTriangle": {
+"file": "models/nature-kit/plant_bushLargeTriangle.glb",
+"scale": 3.5,
+"h": 0.59
+},
+"nature-kit/plant_bushSmall": {
+"file": "models/nature-kit/plant_bushSmall.glb",
+"scale": 3.5,
+"h": 0.73
+},
+"nature-kit/plant_bushTriangle": {
+"file": "models/nature-kit/plant_bushTriangle.glb",
+"scale": 3.5,
+"h": 1.03
+},
+"nature-kit/plant_flatShort": {
+"file": "models/nature-kit/plant_flatShort.glb",
+"scale": 3.5,
+"h": 0.82
+},
+"nature-kit/plant_flatTall": {
+"file": "models/nature-kit/plant_flatTall.glb",
+"scale": 3.5,
+"h": 1.0
+},
+"nature-kit/pot_large": {
+"file": "models/nature-kit/pot_large.glb",
+"scale": 3.5,
+"h": 0.7
+},
+"nature-kit/pot_small": {
+"file": "models/nature-kit/pot_small.glb",
+"scale": 3.5,
+"h": 0.94
+},
+"nature-kit/rock_largeA": {
+"file": "models/nature-kit/rock_largeA.glb",
+"scale": 3.5,
+"h": 0.91
+},
+"nature-kit/rock_largeB": {
+"file": "models/nature-kit/rock_largeB.glb",
+"scale": 3.5,
+"h": 1.51
+},
+"nature-kit/rock_largeC": {
+"file": "models/nature-kit/rock_largeC.glb",
+"scale": 3.5,
+"h": 1.12
+},
+"nature-kit/rock_largeD": {
+"file": "models/nature-kit/rock_largeD.glb",
+"scale": 3.5,
+"h": 1.99
+},
+"nature-kit/rock_largeE": {
+"file": "models/nature-kit/rock_largeE.glb",
+"scale": 3.5,
+"h": 1.02
+},
+"nature-kit/rock_largeF": {
+"file": "models/nature-kit/rock_largeF.glb",
+"scale": 3.5,
+"h": 1.68
+},
+"nature-kit/rock_smallA": {
+"file": "models/nature-kit/rock_smallA.glb",
+"scale": 3.5,
+"h": 0.67
+},
+"nature-kit/rock_smallB": {
+"file": "models/nature-kit/rock_smallB.glb",
+"scale": 3.5,
+"h": 0.62
+},
+"nature-kit/rock_smallC": {
+"file": "models/nature-kit/rock_smallC.glb",
+"scale": 3.5,
+"h": 0.43
+},
+"nature-kit/rock_smallD": {
+"file": "models/nature-kit/rock_smallD.glb",
+"scale": 3.5,
+"h": 0.81
+},
+"nature-kit/rock_smallE": {
+"file": "models/nature-kit/rock_smallE.glb",
+"scale": 3.5,
+"h": 0.9
+},
+"nature-kit/rock_smallF": {
+"file": "models/nature-kit/rock_smallF.glb",
+"scale": 3.5,
+"h": 0.86
+},
+"nature-kit/rock_smallFlatA": {
+"file": "models/nature-kit/rock_smallFlatA.glb",
+"scale": 3.5,
+"h": 0.23
+},
+"nature-kit/rock_smallFlatB": {
+"file": "models/nature-kit/rock_smallFlatB.glb",
+"scale": 3.5,
+"h": 0.23
+},
+"nature-kit/rock_smallFlatC": {
+"file": "models/nature-kit/rock_smallFlatC.glb",
+"scale": 3.5,
+"h": 0.23
+},
+"nature-kit/rock_smallG": {
+"file": "models/nature-kit/rock_smallG.glb",
+"scale": 3.5,
+"h": 0.86
+},
+"nature-kit/rock_smallH": {
+"file": "models/nature-kit/rock_smallH.glb",
+"scale": 3.5,
+"h": 1.43
+},
+"nature-kit/rock_smallI": {
+"file": "models/nature-kit/rock_smallI.glb",
+"scale": 3.5,
+"h": 0.97
+},
+"nature-kit/rock_smallTopA": {
+"file": "models/nature-kit/rock_smallTopA.glb",
+"scale": 3.5,
+"h": 0.77
+},
+"nature-kit/rock_smallTopB": {
+"file": "models/nature-kit/rock_smallTopB.glb",
+"scale": 3.5,
+"h": 0.98
+},
+"nature-kit/rock_tallA": {
+"file": "models/nature-kit/rock_tallA.glb",
+"scale": 3.5,
+"h": 3.49
+},
+"nature-kit/rock_tallB": {
+"file": "models/nature-kit/rock_tallB.glb",
+"scale": 3.5,
+"h": 3.09
+},
+"nature-kit/rock_tallC": {
+"file": "models/nature-kit/rock_tallC.glb",
+"scale": 3.5,
+"h": 2.74
+},
+"nature-kit/rock_tallD": {
+"file": "models/nature-kit/rock_tallD.glb",
+"scale": 3.5,
+"h": 2.7
+},
+"nature-kit/rock_tallE": {
+"file": "models/nature-kit/rock_tallE.glb",
+"scale": 3.5,
+"h": 1.55
+},
+"nature-kit/rock_tallF": {
+"file": "models/nature-kit/rock_tallF.glb",
+"scale": 3.5,
+"h": 2.01
+},
+"nature-kit/rock_tallG": {
+"file": "models/nature-kit/rock_tallG.glb",
+"scale": 3.5,
+"h": 2.74
+},
+"nature-kit/rock_tallH": {
+"file": "models/nature-kit/rock_tallH.glb",
+"scale": 3.5,
+"h": 2.49
+},
+"nature-kit/rock_tallI": {
+"file": "models/nature-kit/rock_tallI.glb",
+"scale": 3.5,
+"h": 2.84
+},
+"nature-kit/rock_tallJ": {
+"file": "models/nature-kit/rock_tallJ.glb",
+"scale": 3.5,
+"h": 2.17
+},
+"nature-kit/sign": {
+"file": "models/nature-kit/sign.glb",
+"scale": 3.5,
+"h": 1.43
+},
+"nature-kit/statue_block": {
+"file": "models/nature-kit/statue_block.glb",
+"scale": 3.5,
+"h": 1.4
+},
+"nature-kit/statue_column": {
+"file": "models/nature-kit/statue_column.glb",
+"scale": 3.5,
+"h": 3.5
+},
+"nature-kit/statue_columnDamaged": {
+"file": "models/nature-kit/statue_columnDamaged.glb",
+"scale": 3.5,
+"h": 2.45
+},
+"nature-kit/statue_head": {
+"file": "models/nature-kit/statue_head.glb",
+"scale": 3.5,
+"h": 3.5
+},
+"nature-kit/statue_obelisk": {
+"file": "models/nature-kit/statue_obelisk.glb",
+"scale": 3.5,
+"h": 3.06
+},
+"nature-kit/statue_ring": {
+"file": "models/nature-kit/statue_ring.glb",
+"scale": 3.5,
+"h": 2.79
+},
+"nature-kit/stone_largeA": {
+"file": "models/nature-kit/stone_largeA.glb",
+"scale": 3.5,
+"h": 0.91
+},
+"nature-kit/stone_largeB": {
+"file": "models/nature-kit/stone_largeB.glb",
+"scale": 3.5,
+"h": 1.51
+},
+"nature-kit/stone_largeC": {
+"file": "models/nature-kit/stone_largeC.glb",
+"scale": 3.5,
+"h": 1.12
+},
+"nature-kit/stone_largeD": {
+"file": "models/nature-kit/stone_largeD.glb",
+"scale": 3.5,
+"h": 1.99
+},
+"nature-kit/stone_largeE": {
+"file": "models/nature-kit/stone_largeE.glb",
+"scale": 3.5,
+"h": 1.02
+},
+"nature-kit/stone_largeF": {
+"file": "models/nature-kit/stone_largeF.glb",
+"scale": 3.5,
+"h": 1.68
+},
+"nature-kit/stone_smallA": {
+"file": "models/nature-kit/stone_smallA.glb",
+"scale": 3.5,
+"h": 0.67
+},
+"nature-kit/stone_smallB": {
+"file": "models/nature-kit/stone_smallB.glb",
+"scale": 3.5,
+"h": 0.62
+},
+"nature-kit/stone_smallC": {
+"file": "models/nature-kit/stone_smallC.glb",
+"scale": 3.5,
+"h": 0.43
+},
+"nature-kit/stone_smallD": {
+"file": "models/nature-kit/stone_smallD.glb",
+"scale": 3.5,
+"h": 0.81
+},
+"nature-kit/stone_smallE": {
+"file": "models/nature-kit/stone_smallE.glb",
+"scale": 3.5,
+"h": 0.9
+},
+"nature-kit/stone_smallF": {
+"file": "models/nature-kit/stone_smallF.glb",
+"scale": 3.5,
+"h": 0.86
+},
+"nature-kit/stone_smallFlatA": {
+"file": "models/nature-kit/stone_smallFlatA.glb",
+"scale": 3.5,
+"h": 0.23
+},
+"nature-kit/stone_smallFlatB": {
+"file": "models/nature-kit/stone_smallFlatB.glb",
+"scale": 3.5,
+"h": 0.23
+},
+"nature-kit/stone_smallFlatC": {
+"file": "models/nature-kit/stone_smallFlatC.glb",
+"scale": 3.5,
+"h": 0.23
+},
+"nature-kit/stone_smallG": {
+"file": "models/nature-kit/stone_smallG.glb",
+"scale": 3.5,
+"h": 0.86
+},
+"nature-kit/stone_smallH": {
+"file": "models/nature-kit/stone_smallH.glb",
+"scale": 3.5,
+"h": 1.43
+},
+"nature-kit/stone_smallI": {
+"file": "models/nature-kit/stone_smallI.glb",
+"scale": 3.5,
+"h": 0.97
+},
+"nature-kit/stone_smallTopA": {
+"file": "models/nature-kit/stone_smallTopA.glb",
+"scale": 3.5,
+"h": 0.77
+},
+"nature-kit/stone_smallTopB": {
+"file": "models/nature-kit/stone_smallTopB.glb",
+"scale": 3.5,
+"h": 0.98
+},
+"nature-kit/stone_tallA": {
+"file": "models/nature-kit/stone_tallA.glb",
+"scale": 3.5,
+"h": 3.49
+},
+"nature-kit/stone_tallB": {
+"file": "models/nature-kit/stone_tallB.glb",
+"scale": 3.5,
+"h": 3.09
+},
+"nature-kit/stone_tallC": {
+"file": "models/nature-kit/stone_tallC.glb",
+"scale": 3.5,
+"h": 2.74
+},
+"nature-kit/stone_tallD": {
+"file": "models/nature-kit/stone_tallD.glb",
+"scale": 3.5,
+"h": 2.7
+},
+"nature-kit/stone_tallE": {
+"file": "models/nature-kit/stone_tallE.glb",
+"scale": 3.5,
+"h": 1.55
+},
+"nature-kit/stone_tallF": {
+"file": "models/nature-kit/stone_tallF.glb",
+"scale": 3.5,
+"h": 2.01
+},
+"nature-kit/stone_tallG": {
+"file": "models/nature-kit/stone_tallG.glb",
+"scale": 3.5,
+"h": 2.74
+},
+"nature-kit/stone_tallH": {
+"file": "models/nature-kit/stone_tallH.glb",
+"scale": 3.5,
+"h": 2.49
+},
+"nature-kit/stone_tallI": {
+"file": "models/nature-kit/stone_tallI.glb",
+"scale": 3.5,
+"h": 2.84
+},
+"nature-kit/stone_tallJ": {
+"file": "models/nature-kit/stone_tallJ.glb",
+"scale": 3.5,
+"h": 2.17
+},
+"nature-kit/stump_old": {
+"file": "models/nature-kit/stump_old.glb",
+"scale": 3.5,
+"h": 0.93
+},
+"nature-kit/stump_oldTall": {
+"file": "models/nature-kit/stump_oldTall.glb",
+"scale": 3.5,
+"h": 2.33
+},
+"nature-kit/stump_round": {
+"file": "models/nature-kit/stump_round.glb",
+"scale": 3.5,
+"h": 0.72
+},
+"nature-kit/stump_roundDetailed": {
+"file": "models/nature-kit/stump_roundDetailed.glb",
+"scale": 3.5,
+"h": 0.72
+},
+"nature-kit/stump_square": {
+"file": "models/nature-kit/stump_square.glb",
+"scale": 3.5,
+"h": 1.05
+},
+"nature-kit/stump_squareDetailed": {
+"file": "models/nature-kit/stump_squareDetailed.glb",
+"scale": 3.5,
+"h": 0.7
+},
+"nature-kit/stump_squareDetailedWide": {
+"file": "models/nature-kit/stump_squareDetailedWide.glb",
+"scale": 3.5,
+"h": 0.7
+},
+"nature-kit/tent_detailedClosed": {
+"file": "models/nature-kit/tent_detailedClosed.glb",
+"scale": 3.5,
+"h": 1.96
+},
+"nature-kit/tent_detailedOpen": {
+"file": "models/nature-kit/tent_detailedOpen.glb",
+"scale": 3.5,
+"h": 1.96
+},
+"nature-kit/tent_smallClosed": {
+"file": "models/nature-kit/tent_smallClosed.glb",
+"scale": 3.5,
+"h": 1.96
+},
+"nature-kit/tent_smallOpen": {
+"file": "models/nature-kit/tent_smallOpen.glb",
+"scale": 3.5,
+"h": 1.96
+},
+"nature-kit/tree_blocks": {
+"file": "models/nature-kit/tree_blocks.glb",
+"scale": 3.5,
+"h": 4.15
+},
+"nature-kit/tree_blocks_dark": {
+"file": "models/nature-kit/tree_blocks_dark.glb",
+"scale": 3.5,
+"h": 4.15
+},
+"nature-kit/tree_blocks_fall": {
+"file": "models/nature-kit/tree_blocks_fall.glb",
+"scale": 3.5,
+"h": 4.15
+},
+"nature-kit/tree_cone": {
+"file": "models/nature-kit/tree_cone.glb",
+"scale": 3.5,
+"h": 5.01
+},
+"nature-kit/tree_cone_dark": {
+"file": "models/nature-kit/tree_cone_dark.glb",
+"scale": 3.5,
+"h": 5.01
+},
+"nature-kit/tree_cone_fall": {
+"file": "models/nature-kit/tree_cone_fall.glb",
+"scale": 3.5,
+"h": 5.01
+},
+"nature-kit/tree_default": {
+"file": "models/nature-kit/tree_default.glb",
+"scale": 3.5,
+"h": 5.98
+},
+"nature-kit/tree_default_dark": {
+"file": "models/nature-kit/tree_default_dark.glb",
+"scale": 3.5,
+"h": 5.98
+},
+"nature-kit/tree_default_fall": {
+"file": "models/nature-kit/tree_default_fall.glb",
+"scale": 3.5,
+"h": 5.98
+},
+"nature-kit/tree_detailed": {
+"file": "models/nature-kit/tree_detailed.glb",
+"scale": 3.5,
+"h": 4.66
+},
+"nature-kit/tree_detailed_dark": {
+"file": "models/nature-kit/tree_detailed_dark.glb",
+"scale": 3.5,
+"h": 4.66
+},
+"nature-kit/tree_detailed_fall": {
+"file": "models/nature-kit/tree_detailed_fall.glb",
+"scale": 3.5,
+"h": 4.66
+},
+"nature-kit/tree_fat": {
+"file": "models/nature-kit/tree_fat.glb",
+"scale": 3.5,
+"h": 4.03
+},
+"nature-kit/tree_fat_darkh": {
+"file": "models/nature-kit/tree_fat_darkh.glb",
+"scale": 3.5,
+"h": 4.03
+},
+"nature-kit/tree_fat_fall": {
+"file": "models/nature-kit/tree_fat_fall.glb",
+"scale": 3.5,
+"h": 4.03
+},
+"nature-kit/tree_oak": {
+"file": "models/nature-kit/tree_oak.glb",
+"scale": 3.5,
+"h": 4.29
+},
+"nature-kit/tree_oak_dark": {
+"file": "models/nature-kit/tree_oak_dark.glb",
+"scale": 3.5,
+"h": 4.29
+},
+"nature-kit/tree_oak_fall": {
+"file": "models/nature-kit/tree_oak_fall.glb",
+"scale": 3.5,
+"h": 4.29
+},
+"nature-kit/tree_palm": {
+"file": "models/nature-kit/tree_palm.glb",
+"scale": 3.5,
+"h": 5.3
+},
+"nature-kit/tree_palmBend": {
+"file": "models/nature-kit/tree_palmBend.glb",
+"scale": 3.5,
+"h": 4.83
+},
+"nature-kit/tree_palmDetailedShort": {
+"file": "models/nature-kit/tree_palmDetailedShort.glb",
+"scale": 3.5,
+"h": 3.32
+},
+"nature-kit/tree_palmDetailedTall": {
+"file": "models/nature-kit/tree_palmDetailedTall.glb",
+"scale": 3.5,
+"h": 4.37
+},
+"nature-kit/tree_palmShort": {
+"file": "models/nature-kit/tree_palmShort.glb",
+"scale": 3.5,
+"h": 3.7
+},
+"nature-kit/tree_palmTall": {
+"file": "models/nature-kit/tree_palmTall.glb",
+"scale": 3.5,
+"h": 4.74
+},
+"nature-kit/tree_pineDefaultA": {
+"file": "models/nature-kit/tree_pineDefaultA.glb",
+"scale": 3.5,
+"h": 5.41
+},
+"nature-kit/tree_pineDefaultB": {
+"file": "models/nature-kit/tree_pineDefaultB.glb",
+"scale": 3.5,
+"h": 5.41
+},
+"nature-kit/tree_pineGroundA": {
+"file": "models/nature-kit/tree_pineGroundA.glb",
+"scale": 3.5,
+"h": 3.2
+},
+"nature-kit/tree_pineGroundB": {
+"file": "models/nature-kit/tree_pineGroundB.glb",
+"scale": 3.5,
+"h": 3.65
+},
+"nature-kit/tree_pineRoundA": {
+"file": "models/nature-kit/tree_pineRoundA.glb",
+"scale": 3.5,
+"h": 4.78
+},
+"nature-kit/tree_pineRoundB": {
+"file": "models/nature-kit/tree_pineRoundB.glb",
+"scale": 3.5,
+"h": 4.19
+},
+"nature-kit/tree_pineRoundC": {
+"file": "models/nature-kit/tree_pineRoundC.glb",
+"scale": 3.5,
+"h": 4.38
+},
+"nature-kit/tree_pineRoundD": {
+"file": "models/nature-kit/tree_pineRoundD.glb",
+"scale": 3.5,
+"h": 3.79
+},
+"nature-kit/tree_pineRoundE": {
+"file": "models/nature-kit/tree_pineRoundE.glb",
+"scale": 3.5,
+"h": 4.39
+},
+"nature-kit/tree_pineRoundF": {
+"file": "models/nature-kit/tree_pineRoundF.glb",
+"scale": 3.5,
+"h": 4.39
+},
+"nature-kit/tree_pineSmallA": {
+"file": "models/nature-kit/tree_pineSmallA.glb",
+"scale": 3.5,
+"h": 3.39
+},
+"nature-kit/tree_pineSmallB": {
+"file": "models/nature-kit/tree_pineSmallB.glb",
+"scale": 3.5,
+"h": 3.53
+},
+"nature-kit/tree_pineSmallC": {
+"file": "models/nature-kit/tree_pineSmallC.glb",
+"scale": 3.5,
+"h": 3.93
+},
+"nature-kit/tree_pineSmallD": {
+"file": "models/nature-kit/tree_pineSmallD.glb",
+"scale": 3.5,
+"h": 3.34
+},
+"nature-kit/tree_pineTallA": {
+"file": "models/nature-kit/tree_pineTallA.glb",
+"scale": 3.5,
+"h": 5.35
+},
+"nature-kit/tree_pineTallA_detailed": {
+"file": "models/nature-kit/tree_pineTallA_detailed.glb",
+"scale": 3.5,
+"h": 5.35
+},
+"nature-kit/tree_pineTallB": {
+"file": "models/nature-kit/tree_pineTallB.glb",
+"scale": 3.5,
+"h": 6.77
+},
+"nature-kit/tree_pineTallB_detailed": {
+"file": "models/nature-kit/tree_pineTallB_detailed.glb",
+"scale": 3.5,
+"h": 6.77
+},
+"nature-kit/tree_pineTallC": {
+"file": "models/nature-kit/tree_pineTallC.glb",
+"scale": 3.5,
+"h": 5.85
+},
+"nature-kit/tree_pineTallC_detailed": {
+"file": "models/nature-kit/tree_pineTallC_detailed.glb",
+"scale": 3.5,
+"h": 5.85
+},
+"nature-kit/tree_pineTallD": {
+"file": "models/nature-kit/tree_pineTallD.glb",
+"scale": 3.5,
+"h": 7.26
+},
+"nature-kit/tree_pineTallD_detailed": {
+"file": "models/nature-kit/tree_pineTallD_detailed.glb",
+"scale": 3.5,
+"h": 7.26
+},
+"nature-kit/tree_plateau": {
+"file": "models/nature-kit/tree_plateau.glb",
+"scale": 3.5,
+"h": 4.37
+},
+"nature-kit/tree_plateau_dark": {
+"file": "models/nature-kit/tree_plateau_dark.glb",
+"scale": 3.5,
+"h": 4.37
+},
+"nature-kit/tree_plateau_fall": {
+"file": "models/nature-kit/tree_plateau_fall.glb",
+"scale": 3.5,
+"h": 4.37
+},
+"nature-kit/tree_simple": {
+"file": "models/nature-kit/tree_simple.glb",
+"scale": 3.5,
+"h": 5.32
+},
+"nature-kit/tree_simple_dark": {
+"file": "models/nature-kit/tree_simple_dark.glb",
+"scale": 3.5,
+"h": 5.32
+},
+"nature-kit/tree_simple_fall": {
+"file": "models/nature-kit/tree_simple_fall.glb",
+"scale": 3.5,
+"h": 5.32
+},
+"nature-kit/tree_small": {
+"file": "models/nature-kit/tree_small.glb",
+"scale": 3.5,
+"h": 3.89
+},
+"nature-kit/tree_small_dark": {
+"file": "models/nature-kit/tree_small_dark.glb",
+"scale": 3.5,
+"h": 3.89
+},
+"nature-kit/tree_small_fall": {
+"file": "models/nature-kit/tree_small_fall.glb",
+"scale": 3.5,
+"h": 3.89
+},
+"nature-kit/tree_tall": {
+"file": "models/nature-kit/tree_tall.glb",
+"scale": 3.5,
+"h": 5.91
+},
+"nature-kit/tree_tall_dark": {
+"file": "models/nature-kit/tree_tall_dark.glb",
+"scale": 3.5,
+"h": 5.91
+},
+"nature-kit/tree_tall_fall": {
+"file": "models/nature-kit/tree_tall_fall.glb",
+"scale": 3.5,
+"h": 5.91
+},
+"nature-kit/tree_thin": {
+"file": "models/nature-kit/tree_thin.glb",
+"scale": 3.5,
+"h": 5.22
+},
+"nature-kit/tree_thin_dark": {
+"file": "models/nature-kit/tree_thin_dark.glb",
+"scale": 3.5,
+"h": 5.22
+},
+"nature-kit/tree_thin_fall": {
+"file": "models/nature-kit/tree_thin_fall.glb",
+"scale": 3.5,
+"h": 5.22
+},
+"pirate-kit/barrel": {
+"file": "models/pirate-kit/barrel.glb",
+"scale": 0.9,
+"h": 1.11
+},
+"pirate-kit/boat-row-large": {
+"file": "models/pirate-kit/boat-row-large.glb",
+"scale": 0.9,
+"h": 0.71
+},
+"pirate-kit/boat-row-small": {
+"file": "models/pirate-kit/boat-row-small.glb",
+"scale": 0.9,
+"h": 0.71
+},
+"pirate-kit/bottle-large": {
+"file": "models/pirate-kit/bottle-large.glb",
+"scale": 0.35,
+"h": 0.31
+},
+"pirate-kit/bottle": {
+"file": "models/pirate-kit/bottle.glb",
+"scale": 0.35,
+"h": 0.31
+},
+"pirate-kit/cannon-ball": {
+"file": "models/pirate-kit/cannon-ball.glb",
+"scale": 0.9,
+"h": 0.6
+},
+"pirate-kit/cannon-mobile": {
+"file": "models/pirate-kit/cannon-mobile.glb",
+"scale": 0.9,
+"h": 1.24
+},
+"pirate-kit/cannon": {
+"file": "models/pirate-kit/cannon.glb",
+"scale": 0.9,
+"h": 0.95
+},
+"pirate-kit/castle-door": {
+"file": "models/pirate-kit/castle-door.glb",
+"scale": 0.9,
+"h": 3.96
+},
+"pirate-kit/castle-gate": {
+"file": "models/pirate-kit/castle-gate.glb",
+"scale": 0.9,
+"h": 3.96
+},
+"pirate-kit/castle-wall": {
+"file": "models/pirate-kit/castle-wall.glb",
+"scale": 0.9,
+"h": 3.96
+},
+"pirate-kit/castle-window": {
+"file": "models/pirate-kit/castle-window.glb",
+"scale": 0.9,
+"h": 3.96
+},
+"pirate-kit/chest": {
+"file": "models/pirate-kit/chest.glb",
+"scale": 0.9,
+"h": 0.69
+},
+"pirate-kit/crate-bottles": {
+"file": "models/pirate-kit/crate-bottles.glb",
+"scale": 0.9,
+"h": 0.95
+},
+"pirate-kit/crate": {
+"file": "models/pirate-kit/crate.glb",
+"scale": 0.9,
+"h": 0.69
+},
+"pirate-kit/flag-high-pennant": {
+"file": "models/pirate-kit/flag-high-pennant.glb",
+"scale": 0.9,
+"h": 3.24
+},
+"pirate-kit/flag-high": {
+"file": "models/pirate-kit/flag-high.glb",
+"scale": 0.9,
+"h": 3.24
+},
+"pirate-kit/flag-pennant": {
+"file": "models/pirate-kit/flag-pennant.glb",
+"scale": 0.9,
+"h": 1.89
+},
+"pirate-kit/flag-pirate-high-pennant": {
+"file": "models/pirate-kit/flag-pirate-high-pennant.glb",
+"scale": 0.9,
+"h": 3.24
+},
+"pirate-kit/flag-pirate-high": {
+"file": "models/pirate-kit/flag-pirate-high.glb",
+"scale": 0.9,
+"h": 3.24
+},
+"pirate-kit/flag-pirate-pennant": {
+"file": "models/pirate-kit/flag-pirate-pennant.glb",
+"scale": 0.9,
+"h": 1.89
+},
+"pirate-kit/flag-pirate": {
+"file": "models/pirate-kit/flag-pirate.glb",
+"scale": 0.9,
+"h": 1.89
+},
+"pirate-kit/flag": {
+"file": "models/pirate-kit/flag.glb",
+"scale": 0.9,
+"h": 1.89
+},
+"pirate-kit/mast-ropes": {
+"file": "models/pirate-kit/mast-ropes.glb",
+"scale": 0.9,
+"h": 7.1
+},
+"pirate-kit/mast": {
+"file": "models/pirate-kit/mast.glb",
+"scale": 0.9,
+"h": 7.08
+},
+"pirate-kit/palm-bend": {
+"file": "models/pirate-kit/palm-bend.glb",
+"scale": 0.9,
+"h": 3.83
+},
+"pirate-kit/palm-detailed-bend": {
+"file": "models/pirate-kit/palm-detailed-bend.glb",
+"scale": 0.9,
+"h": 3.83
+},
+"pirate-kit/palm-detailed-straight": {
+"file": "models/pirate-kit/palm-detailed-straight.glb",
+"scale": 0.9,
+"h": 3.79
+},
+"pirate-kit/palm-straight": {
+"file": "models/pirate-kit/palm-straight.glb",
+"scale": 0.9,
+"h": 3.79
+},
+"pirate-kit/rocks-a": {
+"file": "models/pirate-kit/rocks-a.glb",
+"scale": 0.9,
+"h": 2.61
+},
+"pirate-kit/rocks-b": {
+"file": "models/pirate-kit/rocks-b.glb",
+"scale": 0.9,
+"h": 3.29
+},
+"pirate-kit/rocks-c": {
+"file": "models/pirate-kit/rocks-c.glb",
+"scale": 0.9,
+"h": 2.07
+},
+"pirate-kit/rocks-sand-a": {
+"file": "models/pirate-kit/rocks-sand-a.glb",
+"scale": 0.9,
+"h": 2.89
+},
+"pirate-kit/rocks-sand-b": {
+"file": "models/pirate-kit/rocks-sand-b.glb",
+"scale": 0.9,
+"h": 3.34
+},
+"pirate-kit/rocks-sand-c": {
+"file": "models/pirate-kit/rocks-sand-c.glb",
+"scale": 0.9,
+"h": 2.35
+},
+"pirate-kit/ship-ghost": {
+"file": "models/pirate-kit/ship-ghost.glb",
+"scale": 0.9,
+"h": 8.97
+},
+"pirate-kit/ship-large": {
+"file": "models/pirate-kit/ship-large.glb",
+"scale": 0.9,
+"h": 8.97
+},
+"pirate-kit/ship-medium": {
+"file": "models/pirate-kit/ship-medium.glb",
+"scale": 0.9,
+"h": 8.97
+},
+"pirate-kit/ship-pirate-large": {
+"file": "models/pirate-kit/ship-pirate-large.glb",
+"scale": 0.9,
+"h": 8.97
+},
+"pirate-kit/ship-pirate-medium": {
+"file": "models/pirate-kit/ship-pirate-medium.glb",
+"scale": 0.9,
+"h": 8.97
+},
+"pirate-kit/ship-pirate-small": {
+"file": "models/pirate-kit/ship-pirate-small.glb",
+"scale": 0.9,
+"h": 8.97
+},
+"pirate-kit/ship-small": {
+"file": "models/pirate-kit/ship-small.glb",
+"scale": 0.9,
+"h": 8.97
+},
+"pirate-kit/ship-wreck": {
+"file": "models/pirate-kit/ship-wreck.glb",
+"scale": 0.9,
+"h": 9.67
+},
+"pirate-kit/structure-fence-sides": {
+"file": "models/pirate-kit/structure-fence-sides.glb",
+"scale": 0.9,
+"h": 1.98
+},
+"pirate-kit/structure-fence": {
+"file": "models/pirate-kit/structure-fence.glb",
+"scale": 0.9,
+"h": 1.98
+},
+"pirate-kit/structure-platform-dock-small": {
+"file": "models/pirate-kit/structure-platform-dock-small.glb",
+"scale": 0.9,
+"h": 1.18
+},
+"pirate-kit/structure-platform-dock": {
+"file": "models/pirate-kit/structure-platform-dock.glb",
+"scale": 0.9,
+"h": 1.18
+},
+"pirate-kit/structure-platform-small": {
+"file": "models/pirate-kit/structure-platform-small.glb",
+"scale": 0.9,
+"h": 0.81
+},
+"pirate-kit/structure-platform": {
+"file": "models/pirate-kit/structure-platform.glb",
+"scale": 0.9,
+"h": 0.84
+},
+"pirate-kit/structure-roof": {
+"file": "models/pirate-kit/structure-roof.glb",
+"scale": 0.9,
+"h": 3.06
+},
+"pirate-kit/structure": {
+"file": "models/pirate-kit/structure.glb",
+"scale": 0.9,
+"h": 1.98
+},
+"pirate-kit/tool-paddle": {
+"file": "models/pirate-kit/tool-paddle.glb",
+"scale": 0.55,
+"h": 1.29
+},
+"pirate-kit/tool-shovel": {
+"file": "models/pirate-kit/tool-shovel.glb",
+"scale": 0.55,
+"h": 1.29
+},
+"pirate-kit/tower-base-door": {
+"file": "models/pirate-kit/tower-base-door.glb",
+"scale": 0.9,
+"h": 1.8
+},
+"pirate-kit/tower-base": {
+"file": "models/pirate-kit/tower-base.glb",
+"scale": 0.9,
+"h": 1.8
+},
+"pirate-kit/tower-complete-large": {
+"file": "models/pirate-kit/tower-complete-large.glb",
+"scale": 0.9,
+"h": 9.2
+},
+"pirate-kit/tower-complete-small": {
+"file": "models/pirate-kit/tower-complete-small.glb",
+"scale": 0.9,
+"h": 6.11
+},
+"pirate-kit/tower-middle-windows": {
+"file": "models/pirate-kit/tower-middle-windows.glb",
+"scale": 0.9,
+"h": 1.8
+},
+"pirate-kit/tower-middle": {
+"file": "models/pirate-kit/tower-middle.glb",
+"scale": 0.9,
+"h": 1.8
+},
+"pirate-kit/tower-roof": {
+"file": "models/pirate-kit/tower-roof.glb",
+"scale": 0.9,
+"h": 3.1
+},
+"pirate-kit/tower-top": {
+"file": "models/pirate-kit/tower-top.glb",
+"scale": 0.9,
+"h": 2.51
+},
+"pirate-kit/tower-watch": {
+"file": "models/pirate-kit/tower-watch.glb",
+"scale": 0.9,
+"h": 2.51
+},
+"castle-kit/bridge-draw": {
+"file": "models/castle-kit/bridge-draw.glb",
+"scale": 4.5,
+"h": 0.45
+},
+"castle-kit/bridge-straight-pillar": {
+"file": "models/castle-kit/bridge-straight-pillar.glb",
+"scale": 4.5,
+"h": 5.29
+},
+"castle-kit/bridge-straight": {
+"file": "models/castle-kit/bridge-straight.glb",
+"scale": 4.5,
+"h": 5.29
+},
+"castle-kit/door": {
+"file": "models/castle-kit/door.glb",
+"scale": 4.5,
+"h": 2.72
+},
+"castle-kit/flag-banner-long": {
+"file": "models/castle-kit/flag-banner-long.glb",
+"scale": 4.5,
+"h": 9.76
+},
+"castle-kit/flag-banner-short": {
+"file": "models/castle-kit/flag-banner-short.glb",
+"scale": 4.5,
+"h": 3.51
+},
+"castle-kit/flag-pennant": {
+"file": "models/castle-kit/flag-pennant.glb",
+"scale": 4.5,
+"h": 3.9
+},
+"castle-kit/flag-wide": {
+"file": "models/castle-kit/flag-wide.glb",
+"scale": 4.5,
+"h": 3.9
+},
+"castle-kit/flag": {
+"file": "models/castle-kit/flag.glb",
+"scale": 4.5,
+"h": 3.9
+},
+"castle-kit/gate": {
+"file": "models/castle-kit/gate.glb",
+"scale": 4.5,
+"h": 4.1
+},
+"castle-kit/metal-gate": {
+"file": "models/castle-kit/metal-gate.glb",
+"scale": 4.5,
+"h": 3.29
+},
+"castle-kit/rocks-large": {
+"file": "models/castle-kit/rocks-large.glb",
+"scale": 2.5,
+"h": 1.25
+},
+"castle-kit/rocks-small": {
+"file": "models/castle-kit/rocks-small.glb",
+"scale": 2.5,
+"h": 1.25
+},
+"castle-kit/siege-ballista-demolished": {
+"file": "models/castle-kit/siege-ballista-demolished.glb",
+"scale": 3.0,
+"h": 1.53
+},
+"castle-kit/siege-ballista": {
+"file": "models/castle-kit/siege-ballista.glb",
+"scale": 3.0,
+"h": 3.34
+},
+"castle-kit/siege-catapult-demolished": {
+"file": "models/castle-kit/siege-catapult-demolished.glb",
+"scale": 3.0,
+"h": 0.96
+},
+"castle-kit/siege-catapult": {
+"file": "models/castle-kit/siege-catapult.glb",
+"scale": 3.0,
+"h": 4.15
+},
+"castle-kit/siege-ram-demolished": {
+"file": "models/castle-kit/siege-ram-demolished.glb",
+"scale": 3.0,
+"h": 2.17
+},
+"castle-kit/siege-ram": {
+"file": "models/castle-kit/siege-ram.glb",
+"scale": 3.0,
+"h": 3.55
+},
+"castle-kit/siege-tower-demolished": {
+"file": "models/castle-kit/siege-tower-demolished.glb",
+"scale": 3.0,
+"h": 6.29
+},
+"castle-kit/siege-tower": {
+"file": "models/castle-kit/siege-tower.glb",
+"scale": 3.0,
+"h": 8.64
+},
+"castle-kit/siege-trebuchet-demolished": {
+"file": "models/castle-kit/siege-trebuchet-demolished.glb",
+"scale": 3.0,
+"h": 0.93
+},
+"castle-kit/siege-trebuchet": {
+"file": "models/castle-kit/siege-trebuchet.glb",
+"scale": 3.0,
+"h": 7.37
+},
+"castle-kit/tower-base": {
+"file": "models/castle-kit/tower-base.glb",
+"scale": 4.5,
+"h": 5.89
+},
+"castle-kit/tower-slant-roof": {
+"file": "models/castle-kit/tower-slant-roof.glb",
+"scale": 4.5,
+"h": 9.63
+},
+"castle-kit/tower-square": {
+"file": "models/castle-kit/tower-square.glb",
+"scale": 4.5,
+"h": 5.89
+},
+"castle-kit/tower-top": {
+"file": "models/castle-kit/tower-top.glb",
+"scale": 4.5,
+"h": 0.58
+},
+"castle-kit/tree-large": {
+"file": "models/castle-kit/tree-large.glb",
+"scale": 4.5,
+"h": 8.32
+},
+"castle-kit/tree-log": {
+"file": "models/castle-kit/tree-log.glb",
+"scale": 4.5,
+"h": 1.25
+},
+"castle-kit/tree-small": {
+"file": "models/castle-kit/tree-small.glb",
+"scale": 4.5,
+"h": 6.07
+},
+"castle-kit/tree-trunk": {
+"file": "models/castle-kit/tree-trunk.glb",
+"scale": 4.5,
+"h": 1.69
+},
+"castle-kit/wall-doorway": {
+"file": "models/castle-kit/wall-doorway.glb",
+"scale": 4.5,
+"h": 5.89
+},
+"castle-kit/wall": {
+"file": "models/castle-kit/wall.glb",
+"scale": 4.5,
+"h": 5.89
+},
+"car-kit/ambulance": {
+"file": "models/car-kit/ambulance.glb",
+"scale": 1.0,
+"h": 1.9
+},
+"car-kit/box": {
+"file": "models/car-kit/box.glb",
+"scale": 1.0,
+"h": 0.71
+},
+"car-kit/cone-flat": {
+"file": "models/car-kit/cone-flat.glb",
+"scale": 1.0,
+"h": 0.28
+},
+"car-kit/cone": {
+"file": "models/car-kit/cone.glb",
+"scale": 1.0,
+"h": 0.6
+},
+"car-kit/delivery-flat": {
+"file": "models/car-kit/delivery-flat.glb",
+"scale": 1.0,
+"h": 1.5
+},
+"car-kit/delivery": {
+"file": "models/car-kit/delivery.glb",
+"scale": 1.0,
+"h": 2.5
+},
+"car-kit/firetruck": {
+"file": "models/car-kit/firetruck.glb",
+"scale": 1.0,
+"h": 1.8
+},
+"car-kit/garbage-truck": {
+"file": "models/car-kit/garbage-truck.glb",
+"scale": 1.0,
+"h": 1.78
+},
+"car-kit/hatchback-sports": {
+"file": "models/car-kit/hatchback-sports.glb",
+"scale": 1.0,
+"h": 1.25
+},
+"car-kit/kart-oobi": {
+"file": "models/car-kit/kart-oobi.glb",
+"scale": 1.0,
+"h": 1.26
+},
+"car-kit/kart-oodi": {
+"file": "models/car-kit/kart-oodi.glb",
+"scale": 1.0,
+"h": 1.26
+},
+"car-kit/kart-ooli": {
+"file": "models/car-kit/kart-ooli.glb",
+"scale": 1.0,
+"h": 1.26
+},
+"car-kit/kart-oopi": {
+"file": "models/car-kit/kart-oopi.glb",
+"scale": 1.0,
+"h": 1.26
+},
+"car-kit/kart-oozi": {
+"file": "models/car-kit/kart-oozi.glb",
+"scale": 1.0,
+"h": 1.26
+},
+"car-kit/police": {
+"file": "models/car-kit/police.glb",
+"scale": 1.0,
+"h": 1.4
+},
+"car-kit/race-future": {
+"file": "models/car-kit/race-future.glb",
+"scale": 1.0,
+"h": 0.93
+},
+"car-kit/race": {
+"file": "models/car-kit/race.glb",
+"scale": 1.0,
+"h": 0.93
+},
+"car-kit/sedan-sports": {
+"file": "models/car-kit/sedan-sports.glb",
+"scale": 1.0,
+"h": 1.25
+},
+"car-kit/sedan": {
+"file": "models/car-kit/sedan.glb",
+"scale": 1.0,
+"h": 1.45
+},
+"car-kit/suv-luxury": {
+"file": "models/car-kit/suv-luxury.glb",
+"scale": 1.0,
+"h": 1.47
+},
+"car-kit/suv": {
+"file": "models/car-kit/suv.glb",
+"scale": 1.0,
+"h": 1.4
+},
+"car-kit/taxi": {
+"file": "models/car-kit/taxi.glb",
+"scale": 1.0,
+"h": 1.65
+},
+"car-kit/tractor-police": {
+"file": "models/car-kit/tractor-police.glb",
+"scale": 1.0,
+"h": 2.04
+},
+"car-kit/tractor-shovel": {
+"file": "models/car-kit/tractor-shovel.glb",
+"scale": 1.0,
+"h": 2.19
+},
+"car-kit/tractor": {
+"file": "models/car-kit/tractor.glb",
+"scale": 1.0,
+"h": 1.94
+},
+"car-kit/truck-flat": {
+"file": "models/car-kit/truck-flat.glb",
+"scale": 1.0,
+"h": 1.45
+},
+"car-kit/truck": {
+"file": "models/car-kit/truck.glb",
+"scale": 1.0,
+"h": 1.45
+},
+"car-kit/van": {
+"file": "models/car-kit/van.glb",
+"scale": 1.0,
+"h": 1.45
+}
+}
