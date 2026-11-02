@@ -57,11 +57,14 @@ class CastMember(Strict):
 
 
 class Part(Strict):
-    """one primitive of a custom object; size = [width, height, depth] in metres, pos = centre [x, y, z]"""
-    shape: Literal["box", "cylinder", "sphere", "cone"]
+    """one primitive of a custom object; size = [width, height, depth] in metres, pos = centre [x, y, z].
+    capsule = a pill (bodies, tanks, logs); torus = a ring (wheels, tyres, hoops) lying flat until tilted"""
+    shape: Literal["box", "cylinder", "sphere", "cone", "capsule", "torus"]
     size: tuple[float, float, float]
     pos: tuple[float, float, float] = (0, 0, 0)
     rot_y: float = 0
+    rot_x: float = 0  # tilt forward/back, degrees
+    rot_z: float = 0  # tilt sideways, degrees (90 lays a cylinder or capsule on its side)
     color: str = Color
     glow: bool = False  # lamp heads, lanterns, fires, signs: lit and casting light at night
 

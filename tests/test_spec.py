@@ -122,3 +122,16 @@ def test_custom_parts_can_glow(story_dict):
 def test_interior_settings(story_dict, setting):
     story_dict["scenes"][0]["setting"] = setting
     assert Story.model_validate(story_dict).scenes[0].setting == setting
+
+
+def test_custom_parts_have_organic_shapes_and_tilt(story_dict):
+    story_dict["scenes"][0]["props"].append({
+        "x": 6, "z": -16,
+        "parts": [
+            {"shape": "capsule", "size": [3, 8, 3], "pos": [0, 2, 0], "rot_z": 90, "color": "#4f6d8a"},
+            {"shape": "torus", "size": [2, 2, 0.3], "pos": [0, 1, 0], "rot_x": 90, "color": "#333333"},
+        ],
+    })
+    parts = Story.model_validate(story_dict).scenes[0].props[-1].parts
+    assert [p.shape for p in parts] == ["capsule", "torus"]
+    assert (parts[0].rot_z, parts[1].rot_x) == (90, 90)

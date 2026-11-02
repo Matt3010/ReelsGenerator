@@ -12,7 +12,7 @@ export type CastMember = {
   id: string; name: string; species?: Species; kind: "adult" | "kid" | "elder";
   skin: string | null; shirt: string | null; pants: string | null;
 };
-export type Part = { shape: "box" | "cylinder" | "sphere" | "cone"; size: [number, number, number]; pos: [number, number, number]; rot_y: number; color: string; glow?: boolean };
+export type Part = { shape: "box" | "cylinder" | "sphere" | "cone" | "capsule" | "torus"; size: [number, number, number]; pos: [number, number, number]; rot_y: number; rot_x?: number; rot_z?: number; color: string; glow?: boolean };
 /** a catalog model by key, or (model null) a custom object built from parts */
 export type Prop = { model: string | null; x: number; z: number; scale: number; rot_y: number; parts: Part[] };
 export type Actor = { id: string; x: number; z: number; action: Action; expression: Expression; to_x: number | null; count?: number };
