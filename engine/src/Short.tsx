@@ -23,7 +23,7 @@ export const Short: React.FC<RenderProps> = ({ story, timeline, captions, music,
       return a.setting !== b.setting || a.time !== b.time ? t.start : null;
     })
     .filter((x): x is number => x !== null);
-  const dip = Math.max(0, ...cuts.map((c) => interpolate(f - c, [-3, 0, 6], [0, 0.9, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })));
+  const dip = Math.max(0, ...cuts.map((c) => interpolate(f - c, [-2, 0, 4], [0, 0.55, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })));
   const speaking = (fr: number) =>
     timeline.scenes.some((s) => s.words.length > 0 && fr >= s.words[0].start - 6 && fr < s.words[s.words.length - 1].end + 6);
   return (

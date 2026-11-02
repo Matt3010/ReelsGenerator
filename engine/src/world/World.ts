@@ -18,7 +18,7 @@ const SHOT = {
   wide: { dist: 14, h: 2.8, look: 2.4, fov: 42 },
   medium: { dist: 5.6, h: 1.5, look: 1.65, fov: 38 },
   close: { dist: 2.6, h: 1.45, look: 1.45, fov: 34 },
-  aerial: { dist: 18, h: 15, look: 0, fov: 44 },
+  aerial: { dist: 12, h: 9, look: 0.5, fov: 44 },
   low: { dist: 4.2, h: 0.4, look: 2.0, fov: 46 },
 } as const;
 
@@ -399,6 +399,17 @@ export class World {
     return c.divideScalar(pts.length);
   }
 
+  /** 1 standing, less when the camera's subject is sitting or lying after a fall at frame f */
+  private subjectHeadFactor(f: number, who?: string | null) {
+    const id = who ?? this.cam.target ?? this.scene.actors[0]?.id;
+    const a = this.scene.actors.find((x) => x.id === id);
+    if (!a) return 1;
+    const b = [...(this.times.beats ?? [])].reverse().find((x) => x.frame <= f && x.actor === a.id && x.action);
+    const act = b?.action ?? a.action, from = b?.action ? b.frame : 0;
+    const p = poseAt({ ...a, action: act }, f - from, { ...this.actorTiming(), hit: from ? 0 : this.times.hit }, hashString(a.id));
+    return p.mode === "fall" ? 0.5 : p.mode === "sit" ? 0.72 : 1;
+  }
+
   private subjectIsAnimal() {
     const t = this.cam.target ?? this.scene.actors[0]?.id;
     const m = this.cast.find((c) => c.id === t);
@@ -438,9 +449,20 @@ export class World {
       case "static": dist *= 1 - 0.05 * u; break;
     }
     // the focus glides with walking actors, softened so the camera does not jitter
-    const target = this.focus(Math.min(frames - 1, f)).clone().lerp(this.focus(this.camStart), 0.35);
+    // close-up with a symbol popping: slide the subject to one third of the frame so the symbol has room beside it
+    if (cam.shot === "close") {
+      const subj = cam.target ?? this.scene.actors[0]?.id;
+      const room = this.symbols.filter((sy) => sy.beat.actor === subj)
+        .map((sy) => f - sy.beat.frame).filter((d) => d > -8 && d < 50)
+        .reduce((m, d) => Math.max(m, d < 0 ? 1 + d / 8 : d > 42 ? 1 - (d - 42) / 8 : 1), 0);
+      panX += 0.24 * smoother(room) * Math.max(0.5, Math.min(1.5, this.subjectHeight() / 1.7));
+    }
+    // wider shots glide behind a moving subject; a close-up must keep it in frame, so it tracks it exactly
+    const lag = cam.shot === "close" ? 0 : 0.35;
+    const target = this.focus(Math.min(frames - 1, f)).clone().lerp(this.focus(this.camStart), lag);
     target.y = 0;
-    const look = new THREE.Vector3(target.x + panX, S.look, target.z);
+    // aim at the head where it really is: lower when the subject sits or has fallen over
+    const look = new THREE.Vector3(target.x + panX, S.look * (cam.shot === "close" ? this.subjectHeadFactor(f) : 1), target.z);
     camera.position.set(
       look.x + Math.sin(rad(az)) * dist,
       S.h + (cam.shot === "aerial" ? 0 : 0),
@@ -575,12 +597,16 @@ export class World {
       const dcam = camera.position.distanceTo(at), tanH = Math.tan(rad(camera.fov / 2));
       const halfW = tanH * (camera.aspect || 9 / 16) * dcam, halfH = tanH * dcam;
       // never on the face: beside the head if the frame has room, otherwise just above it
-      const k = Math.min(1, halfW / 0.8), size = 0.75 * k, headHalf = Math.max(0.27, sy.h * 0.16);
-      sy.card.mesh.scale.multiplyScalar(k);
-      const besideX = at.x + side * (headHalf + size / 2 + 0.04);
-      const fits = Math.abs(besideX - look.x) + size / 2 < halfW * 0.95;
-      const x = fits ? besideX : at.x + side * 0.12;
-      const y = fits ? sy.h * 0.92 : Math.min(sy.h + size / 2 + 0.02, look.y + halfH * 0.95 - size / 2);
+      const headHalf = Math.max(0.27, sy.h * 0.16);
+      // room between the head and the frame edge: use it, shrinking the symbol to fit (never under 0.16 m)
+      const room = halfW * 0.95 - (side * (at.x - look.x) + headHalf + 0.04);
+      const fits = room >= 0.16;
+      const size = fits ? Math.min(0.75, room) : Math.min(0.75, halfW * 0.5);
+      sy.card.mesh.scale.multiplyScalar(size / 0.75);
+      const x = fits ? at.x + side * (headHalf + 0.04 + size / 2) : at.x + side * 0.12;
+      // above the head only when there is no room beside it, and below the caption band at the top of the frame
+      const headY = sy.h * 0.92 * this.subjectHeadFactor(f, sy.beat.actor);
+      const y = fits ? headY : Math.min(headY + sy.h * 0.1 + size / 2 + 0.02, look.y + halfH * 0.42 - size / 2);
       sy.card.mesh.position.set(x, y + 0.04 * Math.sin(d / 4), at.z + 0.05);
       sy.card.mesh.rotation.y = Math.atan2(camera.position.x - at.x, camera.position.z - at.z);
     }
