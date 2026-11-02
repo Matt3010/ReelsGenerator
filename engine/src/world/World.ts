@@ -1,14 +1,14 @@
 // One scene of the story as a three.js world, posed per frame: place, props, actors, camera and effects.
 import * as THREE from "three";
 import { NOINK } from "../vendor/ink";
-import { Pen, fxBurst, fxCloud, fxPuff, fxSplash } from "../vendor/toon";
-import type { CastMember, Scene } from "../types";
+import { Pen, fxBurst, fxCloud, fxPuff, fxSplash, fxStars } from "../vendor/toon";
+import type { Beat, Camera, CastMember, Scene, Symbol } from "../types";
 import { Card, contactShadow, heightOf, poseAt, type ActorTiming, type ActorView } from "./character";
 import { LIGHTS, PLACES, hashString, rng, scatter } from "./look";
 import { buildProp, propRadius } from "./props";
 import { AnimalModel, hasAnimal3D } from "./models";
 
-export type SceneTimes = { frames: number; talk: [number, number][]; hit: number | null };
+export type SceneTimes = { frames: number; talk: [number, number][]; hit: number | null; beats?: Beat[] };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const smoother = (x: number) => { const u = clamp01(x); return u * u * u * (u * (u * 6 - 15) + 10); };
@@ -101,6 +101,47 @@ const CROWD_SHIRTS = ["#c0392b", "#2c6fbb", "#2e8b57", "#8e44ad", "#d35400", "#1
 const CROWD_PANTS = ["#2c3e50", "#3b3f52", "#5a4632", "#4a4a4a"];
 const CROWD_SKINS = ["#ffe2c2", "#f5c9a0", "#ecd0b6", "#c99067", "#8d5a3b"];
 
+/** cartoon emotion symbols popping over a head, drawn on a 300 x 300 canvas */
+const drawSymbol = (p: Pen, sym: Symbol, t: number) => {
+  const g = p.g;
+  const text = (txt: string, col: string, size: number, x = 150, y = 170) => {
+    g.font = `900 ${size}px "Arial Black", Impact, sans-serif`;
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.lineWidth = 18; g.strokeStyle = "#241726"; g.lineJoin = "round"; g.strokeText(txt, x, y);
+    g.fillStyle = col; g.fillText(txt, x, y);
+  };
+  switch (sym) {
+    case "exclaim": text("!", "#ffd84a", 230); break;
+    case "question": text("?", "#ffffff", 220); break;
+    case "zzz": text("Z", "#cfe3ff", 90, 120, 200); text("z", "#cfe3ff", 70, 190, 130); break;
+    case "sweat":
+      p.poly([[150, 60], [200, 170], [150, 230], [100, 170]], "#8fd3ff", 10);
+      p.ell(150, 180, 50, 50, "#8fd3ff", 0);
+      break;
+    case "anger":
+      for (const [a, b] of [[0, 1], [1, 2], [2, 3], [3, 0]]) {
+        const ang = (k: number) => (k * Math.PI) / 2 + Math.PI / 4;
+        p.line([[150 + 28 * Math.cos(ang(a)), 150 + 28 * Math.sin(ang(a))], [150 + 95 * Math.cos(ang(a) + 0.35), 150 + 95 * Math.sin(ang(a) + 0.35)]], "#e0393b", 26);
+        void b;
+      }
+      break;
+    case "stars": fxStars(p, t); break;
+    case "hearts":
+      for (const [x, y, r] of [[110, 160, 40], [195, 110, 28]] as const) {
+        p.poly([[x, y + r * 1.4], [x - r * 1.3, y], [x - r * 0.65, y - r * 0.8], [x, y - r * 0.25], [x + r * 0.65, y - r * 0.8], [x + r * 1.3, y]], "#ff5d7a", 9);
+      }
+      break;
+    case "idea":
+      p.ell(150, 130, 70, 75, "#fff3a0", 12);
+      p.poly([[120, 195], [180, 195], [172, 245], [128, 245]], "#c9ccd2", 10);
+      for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + (i - 2.5) * 0.45; p.stroke([[150 + 95 * Math.cos(a), 130 + 95 * Math.sin(a)], [150 + 125 * Math.cos(a), 130 + 125 * Math.sin(a)]], 12, "#ffd84a"); }
+      break;
+  }
+};
+
+/** shot size that follows another one when a long scene needs an automatic cut */
+const NEXT_SHOT: Record<Camera["shot"], Camera["shot"]> = { wide: "medium", medium: "close", close: "medium", low: "medium", aerial: "wide" };
+
 export class World {
   readonly root = new THREE.Group();
   readonly light;
@@ -109,6 +150,12 @@ export class World {
   private sun = new THREE.DirectionalLight();
   private fx: FxCard[] = [];
   private confetti: THREE.InstancedMesh | null = null;
+  private symbols: { beat: Beat; card: FxCard; h: number }[] = [];
+  /** camera changes on beats (plus an automatic cut in long single-shot scenes), in frame order */
+  private camBeats: { frame: number; camera: Camera }[] = [];
+  /** the camera in use for the current frame and the frame it started on */
+  private cam: Camera;
+  private camStart = 0;
   private seed: number;
 
   /** every prop of a scene: background scatter for the setting + the story's own props */
@@ -206,6 +253,27 @@ export class World {
     }
     if (night) this.nightLights();
     this.effects();
+    this.cam = scene.camera;
+    const beats = times.beats ?? [];
+    for (const b of beats) {
+      if (b.camera) this.camBeats.push({ frame: b.frame, camera: { ...b.camera, target: b.camera.target ?? null } });
+      if (b.symbol) {
+        const who = b.actor ?? scene.camera.target ?? scene.actors[0]?.id;
+        const m = cast.find((c) => c.id === who);
+        const sym = b.symbol;
+        const card = new FxCard(300, 300, (p, t) => drawSymbol(p, sym, t), 0.75);
+        this.root.add(card.mesh);
+        this.symbols.push({ beat: { ...b, actor: who ?? null }, card, h: m ? heightOf(m) : 1.7 });
+      }
+    }
+    // rhythm: a scene that stays on one shot for more than ~2.5 s gets a cut to the next shot size mid-sentence
+    const talk = times.talk;
+    if (!this.camBeats.length && talk.length > 2 && talk[talk.length - 1][1] - talk[0][0] > 75 && scene.actors.length) {
+      const mid = talk[Math.floor(talk.length / 2)][0];
+      const shot = NEXT_SHOT[scene.camera.shot];
+      this.camBeats.push({ frame: mid, camera: { ...scene.camera, shot, move: "push", target: scene.camera.target ?? (shot === "close" ? scene.actors[0].id : null) } });
+    }
+    this.camBeats.sort((x, y) => x.frame - y.frame);
   }
 
   private ground(color: string, waterFrom: number | null, water: string, interior: boolean) {
@@ -321,7 +389,7 @@ export class World {
 
   /** where the camera looks: its target actor, else the middle of the actors, else the scene centre */
   private focus(f: number) {
-    const t = this.scene.camera.target;
+    const t = this.cam.target;
     const p = t ? this.actorPos(t, f) : null;
     if (p) return p;
     const pts = this.scene.actors.map((a) => this.actorPos(a.id, f)!).filter(Boolean);
@@ -332,13 +400,13 @@ export class World {
   }
 
   private subjectIsAnimal() {
-    const t = this.scene.camera.target ?? this.scene.actors[0]?.id;
+    const t = this.cam.target ?? this.scene.actors[0]?.id;
     const m = this.cast.find((c) => c.id === t);
     return !!m && !!m.species && m.species !== "human";
   }
 
   private subjectHeight() {
-    const t = this.scene.camera.target;
+    const t = this.cam.target;
     const ids = t ? [t] : this.scene.actors.map((a) => a.id);
     const hs = ids.map((id) => this.cast.find((c) => c.id === id)).filter(Boolean).map((m) => heightOf(m!));
     return hs.length ? Math.max(...hs) : 1.7;
@@ -346,7 +414,10 @@ export class World {
 
   update(f: number, camera: THREE.PerspectiveCamera) {
     const { frames, hit } = this.times;
-    const cam = this.scene.camera, r = rng(this.seed + 1);
+    const active = [...this.camBeats].reverse().find((b) => b.frame <= f);
+    this.cam = active ? active.camera : this.scene.camera;
+    this.camStart = active ? active.frame : 0;
+    const cam = this.cam, r = rng(this.seed + 1 + (active ? active.frame : 0));
     const empty = this.scene.actors.length === 0;
     const base = SHOT[empty && (cam.shot === "close" || cam.shot === "low") ? "medium" : cam.shot];
     // frame the subject by its size: a mouse close-up is much closer and lower than a horse close-up
@@ -356,7 +427,7 @@ export class World {
     const low = this.subjectIsAnimal() && cam.shot !== "wide" && cam.shot !== "aerial" ? 0.62 : 1;
     // animals are wider than tall: step back so the whole body fits the vertical frame
     const S = { dist: base.dist * k * (low < 1 ? 1.6 : 1), h: base.h * k * low, look: base.look * k * low, fov: base.fov };
-    const u = smoother(f / Math.max(1, frames - 1));
+    const u = smoother((f - this.camStart) / Math.max(1, frames - 1 - this.camStart));
     const az0 = (r() - 0.5) * 24, roll0 = (r() - 0.5) * 4;
     let dist: number = S.dist, az = az0, panX = 0;
     switch (cam.move) {
@@ -367,7 +438,7 @@ export class World {
       case "static": dist *= 1 - 0.05 * u; break;
     }
     // the focus glides with walking actors, softened so the camera does not jitter
-    const target = this.focus(Math.min(frames - 1, f)).clone().lerp(this.focus(0), 0.35);
+    const target = this.focus(Math.min(frames - 1, f)).clone().lerp(this.focus(this.camStart), 0.35);
     target.y = 0;
     const look = new THREE.Vector3(target.x + panX, S.look, target.z);
     camera.position.set(
@@ -377,14 +448,19 @@ export class World {
     );
     // impacts: a flip-sign kick that decays over 8 frames
     const kick = hit !== null && (this.scene.effect === "shake" || this.scene.effect === "explosion") ? f - hit : -1;
-    let roll = roll0;
+    let roll = roll0 + (cam.angle === "dutch" ? 10 : 0);
     if (kick >= 0 && kick < 8) {
       const a = 0.14 * (1 - kick / 8) * (kick % 2 ? -1 : 1);
       camera.position.x += a;
       camera.position.y += a * 0.6;
       roll += a * 30;
     }
-    camera.fov = S.fov;
+    // punch-in: a quick 12-frame zoom bump when something happens to the subject on a word
+    const subject = cam.target ?? this.scene.actors[0]?.id;
+    const punch = (this.times.beats ?? []).filter((b) => !b.camera && (b.symbol || b.expression || b.action) && (b.actor ?? subject) === subject)
+      .map((b) => f - b.frame).filter((d) => d >= 0 && d < 12)
+      .reduce((m, d) => Math.max(m, d < 3 ? d / 3 : 1 - (d - 3) / 9), 0);
+    camera.fov = S.fov * (1 - 0.12 * punch);
     camera.near = 0.1;
     camera.far = 2000;
     camera.up.set(0, 1, 0);
@@ -401,13 +477,47 @@ export class World {
     // actors
     const closeUp = this.subjectIsAnimal() && (cam.shot === "close" || cam.shot === "medium");
     const subjectId = cam.target ?? this.scene.actors[0]?.id;
+    const beats = this.times.beats ?? [];
+    const acted = (a: Scene["actors"][number]) => {
+      const b = [...beats].reverse().find((x) => x.frame <= f && x.actor === a.id && (x.expression || x.action));
+      return b ? { a: { ...a, expression: b.expression ?? a.expression, action: b.action ?? a.action }, from: b.action ? b.frame : 0 } : { a, from: 0 };
+    };
+    const speaker = this.scene.actors.map(acted).find((x) => x.a.action === "talk");
+    const speakerX = speaker ? poseAt(speaker.a, f, this.actorTiming(), hashString(speaker.a.id)).x : null;
     for (const c of this.copies) {
       if (c.view instanceof AnimalModel) c.view.closeUp = closeUp && c.a.id === subjectId && c.k === 0;
-      const pose = poseAt(c.a, f, this.actorTiming(), hashString(c.a.id) + c.k * 17);
+      const { a: who, from } = acted(c.a);
+      const tm = this.actorTiming();
+      const pose = from
+        ? poseAt(who, f - from, { frames: tm.frames - from, talk: tm.talk.map(([x, y]) => [x - from, y - from] as [number, number]), hit: 0 }, hashString(c.a.id) + c.k * 17)
+        : poseAt(who, f, tm, hashString(c.a.id) + c.k * 17);
+      if (from) { pose.x = poseAt(c.a, f, tm, hashString(c.a.id)).x + (pose.x - who.x * 0.55); }
+      if (speakerX !== null && who.action !== "talk") pose.look = Math.max(-1, Math.min(1, (speakerX - pose.x) * 0.8));
+      // close-up: neighbours step aside so their heads do not pile onto the subject's
+      if (cam.shot === "close" && c.a.id !== subjectId) {
+        const sub = this.copies.find((x) => x.a.id === subjectId && x.k === 0);
+        const sx = sub ? poseAt(sub.a, f, tm, hashString(sub.a.id)).x + sub.dx : pose.x;
+        const gap = pose.x - sx;
+        if (Math.abs(gap) < 0.9) pose.x = sx + (gap >= 0 ? 1 : -1) * 0.9;
+      }
       pose.x += c.dx;
       pose.z += c.dz;
       pose.phase += c.k * 0.31;
       c.view.update(pose, camera, f + c.k * 7);
+    }
+
+    // composition for a vertical frame: in wider shots put the ground line low (feet ~80 % down the frame) so the
+    // set fills the upper part instead of empty floor filling the lower half
+    if (cam.shot === "wide" || cam.shot === "medium" || cam.shot === "low") {
+      const d = camera.position.distanceTo(look), halfH = Math.tan(rad(camera.fov / 2)) * d;
+      const want = 0.6 * halfH;
+      if (look.y < want) {
+        look.y = want;
+        camera.position.y = Math.max(camera.position.y, want * 0.9);
+        camera.lookAt(look);
+        camera.rotateZ(rad(roll));
+        camera.updateMatrixWorld();
+      }
     }
 
     // framing: the 9:16 frame is narrow, so measure what is actually on stage (cards, 3D animals, herds) and back
@@ -440,20 +550,6 @@ export class World {
       }
     }
 
-    // composition for a vertical frame: in wider shots put the ground line low (feet ~80 % down the frame) so the
-    // set fills the upper part instead of empty floor filling the lower half
-    if (cam.shot === "wide" || cam.shot === "medium" || cam.shot === "low") {
-      const d = camera.position.distanceTo(look), halfH = Math.tan(rad(camera.fov / 2)) * d;
-      const want = 0.6 * halfH;
-      if (look.y < want) {
-        look.y = want;
-        camera.position.y = Math.max(camera.position.y, want * 0.9);
-        camera.lookAt(look);
-        camera.rotateZ(rad(roll));
-        camera.updateMatrixWorld();
-      }
-    }
-
     // line of sight: hide props standing between the camera and what it looks at
     const seg = new THREE.Line3(camera.position.clone().setY(0), look.clone().setY(0)), q = new THREE.Vector3();
     for (const p of this.props) {
@@ -461,6 +557,32 @@ export class World {
       seg.closestPointToPoint(pos, true, q);
       const between = q.distanceTo(pos) < p.r + 0.6 && q.distanceTo(look.clone().setY(0)) > 1.2;
       p.obj.visible = !between || pos.distanceTo(camera.position) > 60;
+    }
+
+    for (const sy of this.symbols) {
+      const d = f - sy.beat.frame;
+      // a newer symbol on the same actor replaces this one
+      const replaced = this.symbols.some((o) => o !== sy && o.beat.actor === sy.beat.actor && o.beat.frame > sy.beat.frame && o.beat.frame <= f);
+      const on = d >= 0 && d < 42 && !replaced;
+      sy.card.set(on ? (d % 30) / 30 : null);
+      if (!on) continue;
+      const c = this.copies.find((x) => x.a.id === sy.beat.actor && x.k === 0);
+      const at = c ? c.view.root.position : new THREE.Vector3();
+      const pop = d < 5 ? 0.3 + 0.9 * (d / 5) : d < 9 ? 1.2 - 0.2 * ((d - 5) / 4) : d > 34 ? 1 - (d - 34) / 8 : 1;
+      sy.card.mesh.scale.setScalar(Math.max(0.01, pop));
+      // beside the head on the side away from the frame edge, so close-ups never crop it
+      const side = at.x > look.x ? -1 : 1;
+      const dcam = camera.position.distanceTo(at), tanH = Math.tan(rad(camera.fov / 2));
+      const halfW = tanH * (camera.aspect || 9 / 16) * dcam, halfH = tanH * dcam;
+      // never on the face: beside the head if the frame has room, otherwise just above it
+      const k = Math.min(1, halfW / 0.8), size = 0.75 * k, headHalf = Math.max(0.27, sy.h * 0.16);
+      sy.card.mesh.scale.multiplyScalar(k);
+      const besideX = at.x + side * (headHalf + size / 2 + 0.04);
+      const fits = Math.abs(besideX - look.x) + size / 2 < halfW * 0.95;
+      const x = fits ? besideX : at.x + side * 0.12;
+      const y = fits ? sy.h * 0.92 : Math.min(sy.h + size / 2 + 0.02, look.y + halfH * 0.95 - size / 2);
+      sy.card.mesh.position.set(x, y + 0.04 * Math.sin(d / 4), at.z + 0.05);
+      sy.card.mesh.rotation.y = Math.atan2(camera.position.x - at.x, camera.position.z - at.z);
     }
 
     this.updateEffects(f, camera, look);

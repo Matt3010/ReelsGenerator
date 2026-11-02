@@ -24,6 +24,11 @@ Expression = Literal[
 ShotSize = Literal["wide", "medium", "close", "aerial", "low"]
 Move = Literal["push", "pull", "orbit", "pan", "static"]
 Effect = Literal["none", "shake", "flash", "explosion", "confetti", "smoke", "splash"]
+Symbol = Literal["exclaim", "question", "sweat", "anger", "stars", "hearts", "idea", "zzz"]
+Sfx = Literal[
+    "whoosh", "pop", "ding", "boing", "thud", "punch", "crash", "explosion", "splash", "footsteps", "bell", "click",
+    "buzz", "question", "creak", "door", "coins", "laser",
+]
 
 
 def norm(word: str) -> str:
@@ -101,6 +106,18 @@ class Camera(Strict):
     shot: ShotSize = "medium"
     move: Move = "push"
     target: Optional[str] = None
+    angle: Literal["level", "dutch"] = "level"  # dutch = tilted frame, for unease or chaos
+
+
+class Beat(Strict):
+    """something that happens ON a word of the narration: an actor reacts, a symbol pops, the camera cuts, a sound"""
+    word: str
+    actor: Optional[str] = None
+    expression: Optional[Expression] = None
+    action: Optional[Action] = None
+    symbol: Optional[Symbol] = None
+    camera: Optional[Camera] = None
+    sfx: Optional[Sfx] = None
 
 
 class Scene(Strict):
@@ -112,11 +129,16 @@ class Scene(Strict):
     camera: Camera = Field(default_factory=Camera)
     effect: Effect = "none"
     effect_word: Optional[str] = None
+    beats: list[Beat] = Field(default_factory=list, max_length=6)
 
     @model_validator(mode="after")
-    def effect_word_in_narration(self) -> "Scene":
-        if self.effect_word is not None and norm(self.effect_word) not in [norm(w) for w in self.narration.split()]:
+    def words_in_narration(self) -> "Scene":
+        words = [norm(w) for w in self.narration.split()]
+        if self.effect_word is not None and norm(self.effect_word) not in words:
             raise ValueError(f"effect_word '{self.effect_word}' is not a word of the narration")
+        for b in self.beats:
+            if norm(b.word) not in words:
+                raise ValueError(f"beat word '{b.word}' is not a word of the narration")
         return self
 
     @field_validator("narration")
@@ -146,4 +168,10 @@ class Story(Strict):
             t = scene.camera.target
             if t is not None and t not in known:
                 raise ValueError(f"scene {n}: camera target '{t}' is not in cast {sorted(known)}")
+            on_stage = {a.id for a in scene.actors}
+            for b in scene.beats:
+                if b.actor is not None and b.actor not in on_stage:
+                    raise ValueError(f"scene {n}: beat actor '{b.actor}' is not on stage {sorted(on_stage)}")
+                if b.camera and b.camera.target is not None and b.camera.target not in on_stage:
+                    raise ValueError(f"scene {n}: beat camera target '{b.camera.target}' is not on stage")
         return self

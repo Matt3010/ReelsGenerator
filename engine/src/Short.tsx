@@ -7,12 +7,13 @@ import { Captions } from "./Captions";
 import type { RenderProps } from "./types";
 import type { SceneTimes } from "./world/World";
 
-export const Short: React.FC<RenderProps> = ({ story, timeline, captions, music }) => {
+export const Short: React.FC<RenderProps> = ({ story, timeline, captions, music, sfx }) => {
   const f = useCurrentFrame();
   const times: SceneTimes[] = useMemo(() => timeline.scenes.map((t) => ({
     frames: t.frames,
     talk: t.words.map((w) => [w.start - t.start, w.end - t.start] as [number, number]),
     hit: t.effect_frame === null || t.effect_frame === undefined ? null : t.effect_frame - t.start,
+    beats: (t.beats ?? []).map((b) => ({ ...b, frame: b.frame - t.start })),
   })), [timeline]);
   const allWords = useMemo(() => timeline.scenes.flatMap((s) => s.words), [timeline]);
   const cuts = timeline.scenes
@@ -40,6 +41,11 @@ export const Short: React.FC<RenderProps> = ({ story, timeline, captions, music 
       {dip > 0 && <AbsoluteFill style={{ background: "#ffffff", opacity: dip }} />}
       {captions && <Captions words={allWords} />}
       {music && <Audio src={staticFile(music)} loop volume={(fr) => (speaking(fr) ? 0.12 : 0.3)} />}
+      {(sfx ?? []).map((e, i) => (
+        <Sequence key={`sfx${i}`} from={Math.max(0, e.frame - 1)} durationInFrames={90} name={`sfx ${e.sound}`}>
+          <Audio src={staticFile(`sfx/${e.sound}.wav`)} volume={e.volume * 0.7} />
+        </Sequence>
+      ))}
     </AbsoluteFill>
   );
 };

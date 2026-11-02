@@ -33,6 +33,8 @@ export type Pose = {
   x: number; y: number; z: number;
   side: boolean; flip: boolean; mode: "stand" | "sit" | "fall" | "stroll";
   phase: number; expr: Expr; wave?: number; tilt: number; headTilt: number; blink: number; stride: number;
+  /** eyes: -1 look left .. 1 look right (listeners look at whoever speaks) */
+  look?: number;
 };
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
@@ -141,7 +143,7 @@ export class Card implements ActorView {
     this.root.position.set(p.x, 0, p.z);
     this.card.position.y = p.y;
     this.card.rotation.y = Math.atan2(camera.position.x - p.x, camera.position.z - p.z);
-    const key = JSON.stringify([p.side, p.flip, p.mode, p.phase.toFixed(3), p.expr, p.wave?.toFixed(2), p.tilt, p.headTilt.toFixed(1), p.blink]);
+    const key = JSON.stringify([p.side, p.flip, p.mode, p.phase.toFixed(3), p.expr, p.wave?.toFixed(2), p.tilt, p.headTilt.toFixed(1), p.blink, p.look?.toFixed(1)]);
     if (key === this.last) return;
     this.last = key;
     const g = this.ctx;
@@ -156,7 +158,7 @@ export class Card implements ActorView {
       const o = this.elder ? 4 : 0; // elders stoop a little
       bodyFront(pen, this.outfit, {
         mode: p.mode, phase: p.phase, expr: p.expr, blink: p.blink, wave: p.wave, tilt: p.tilt + o,
-        headTilt: p.headTilt, seed: this.seed, facing: p.flip ? -1 : 0,
+        headTilt: p.headTilt, seed: this.seed, facing: p.flip ? -1 : p.look && Math.abs(p.look) > 0.4 ? (p.look > 0 ? 1 : -1) : 0, look: p.look ?? 0,
       });
     }
     this.tex.needsUpdate = true;

@@ -16,7 +16,9 @@ export type Part = { shape: "box" | "cylinder" | "sphere" | "cone"; size: [numbe
 /** a catalog model by key, or (model null) a custom object built from parts */
 export type Prop = { model: string | null; x: number; z: number; scale: number; rot_y: number; parts: Part[] };
 export type Actor = { id: string; x: number; z: number; action: Action; expression: Expression; to_x: number | null; count?: number };
-export type Camera = { shot: "wide" | "medium" | "close" | "aerial" | "low"; move: "push" | "pull" | "orbit" | "pan" | "static"; target: string | null };
+export type Camera = { shot: "wide" | "medium" | "close" | "aerial" | "low"; move: "push" | "pull" | "orbit" | "pan" | "static"; target: string | null; angle?: "level" | "dutch" };
+export type Symbol = "exclaim" | "question" | "sweat" | "anger" | "stars" | "hearts" | "idea" | "zzz";
+export type Beat = { word: string; frame: number; actor: string | null; expression: Expression | null; action: Action | null; symbol: Symbol | null; camera: Camera | null; sfx: string | null };
 export type Effect = "none" | "shake" | "flash" | "explosion" | "confetti" | "smoke" | "splash";
 export type Scene = {
   narration: string; setting: Setting; time: TimeOfDay; props: Prop[]; actors: Actor[];
@@ -25,7 +27,7 @@ export type Scene = {
 export type Story = { title: string; cast: CastMember[]; scenes: Scene[] };
 
 export type Word = { text: string; start: number; end: number };
-export type SceneTiming = { audio: string; start: number; frames: number; audio_start: number; words: Word[]; effect_frame: number | null; audio_trim?: number };
+export type SceneTiming = { audio: string; start: number; frames: number; audio_start: number; words: Word[]; effect_frame: number | null; audio_trim?: number; beats?: Beat[] };
 export type Timeline = { fps: number; total: number; scenes: SceneTiming[] };
 
 export type RenderProps = {
@@ -33,4 +35,5 @@ export type RenderProps = {
   timeline: Timeline;
   captions: boolean;
   music: string | null;
+  sfx?: { sound: string; frame: number; volume: number }[];
 };

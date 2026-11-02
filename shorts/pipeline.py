@@ -20,6 +20,7 @@ ENGINE = ROOT / "engine"
 JOBS = ROOT / "jobs"
 MUSIC = ROOT / "music"
 MODELS_DIR = ENGINE / "public" / "models"
+SFX_DIR = ENGINE / "public" / "sfx"
 REMOTION_TMP = Path(os.environ.get("REMOTION_TMP", Path.home() / "remotion-tmp"))
 
 
@@ -90,17 +91,62 @@ def hit_frames(story: Story, tl: Timeline) -> list[int]:
 def link_models(job_dir: Path) -> None:
     """the job folder is Remotion's public dir: give it the shared 3D models as hard links (no copy, no symlink,
     which Remotion cannot handle on Windows); falls back to a real copy across drives"""
-    for src in MODELS_DIR.rglob("*"):
-        if not src.is_file():
-            continue
-        dst = job_dir / "models" / src.relative_to(MODELS_DIR)
-        if dst.exists():
-            continue
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            os.link(src, dst)
-        except OSError:
-            shutil.copy2(src, dst)
+    for base, name in ((MODELS_DIR, "models"), (SFX_DIR, "sfx")):
+        for src in base.rglob("*"):
+            if not src.is_file():
+                continue
+            dst = job_dir / name / src.relative_to(base)
+            if dst.exists():
+                continue
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                os.link(src, dst)
+            except OSError:
+                shutil.copy2(src, dst)
+
+
+def resolve_beats(story: Story, tl: Timeline) -> list[list[int]]:
+    """frame of every beat: the first spoken occurrence of its word, else 40 % into the speech"""
+    out: list[list[int]] = []
+    for scene, t in zip(story.scenes, tl.scenes):
+        frames = []
+        for b in scene.beats:
+            target = norm(b.word)
+            f = next((w.start for w in t.words if norm(w.text) == target), None)
+            if f is None:
+                a, z = (t.words[0].start, t.words[-1].end) if t.words else (t.start, t.start + t.frames)
+                f = a + round(0.4 * (z - a))
+            frames.append(f)
+        out.append(frames)
+    return out
+
+
+EFFECT_SOUND = {"shake": "thud", "explosion": "explosion", "splash": "splash", "confetti": "pop", "smoke": "whoosh", "flash": "ding"}
+SYMBOL_SOUND = {"exclaim": "pop", "question": "question", "idea": "ding", "anger": "punch", "stars": "bell", "hearts": "pop", "sweat": "click"}
+ACTION_SOUND = {"jump": "boing", "fall": "thud", "run": "footsteps", "walk": "footsteps"}
+
+
+def sound_events(story: Story, tl: Timeline, beat_frames: list[list[int]], hits: list[int]) -> list[dict]:
+    """sound effects: explicit beat sfx, plus automatic ones for cuts, symbols, actions and scene effects"""
+    ev: dict[tuple[str, int], float] = {}
+
+    def add(sound: str, frame: int, volume: float) -> None:
+        key = (sound, frame)
+        ev[key] = max(volume, ev.get(key, 0))
+
+    for scene, frames, hit in zip(story.scenes, beat_frames, hits):
+        if scene.effect in EFFECT_SOUND:
+            add(EFFECT_SOUND[scene.effect], hit, 0.9)
+        for b, f in zip(scene.beats, frames):
+            if b.sfx:
+                add(b.sfx, f, 0.8)
+            elif b.symbol in SYMBOL_SOUND:
+                add(SYMBOL_SOUND[b.symbol], f, 0.6)
+            elif b.action in ACTION_SOUND:
+                add(ACTION_SOUND[b.action], f, 0.6)
+            if b.camera:
+                add("whoosh", f, 0.35)
+    return [{"sound": s, "frame": f, "volume": v} for (s, f), v in sorted(ev.items(), key=lambda kv: kv[0][1])]
 
 
 def pick_music() -> Path | None:
@@ -119,10 +165,24 @@ def cleanup_remotion_tmp(tmp: Path = REMOTION_TMP) -> None:
             shutil.rmtree(d, ignore_errors=True)
 
 
+def normalize_audio(src: Path, dst: Path, lufs: float = -14.0) -> None:
+    """two-pass EBU R128 loudness normalisation to the level short-video platforms play at; video is copied"""
+    import json as _json
+    import re as _re
+    probe = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(src), "-af", f"loudnorm=I={lufs}:TP=-1.5:LRA=11:print_format=json",
+                            "-f", "null", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace").stderr
+    m = _json.loads(_re.findall(r"\{[^{}]*\}", probe)[-1])
+    filt = (f"loudnorm=I={lufs}:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+            f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(src), "-af", filt, "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                    "-ar", "48000", str(dst)], check=True)
+
+
 def remotion_render(job_dir: Path, props_path: Path, out_path: Path, log: Callable[[str], None]) -> None:
     REMOTION_TMP.mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "TEMP": str(REMOTION_TMP), "TMP": str(REMOTION_TMP)}
-    cmd = ["npx", "remotion", "render", "src/index.ts", "Short", str(out_path.resolve()),
+    raw = out_path.with_name(out_path.stem + "_raw.mp4")
+    cmd = ["npx", "remotion", "render", "src/index.ts", "Short", str(raw.resolve()),
            f"--props={props_path.resolve()}", f"--public-dir={job_dir.resolve()}", "--codec=h264", "--crf=18",
            "--gl=angle", "--concurrency=4"]
     proc = subprocess.Popen(cmd, cwd=ENGINE, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -134,6 +194,9 @@ def remotion_render(job_dir: Path, props_path: Path, out_path: Path, log: Callab
     cleanup_remotion_tmp()  # one job renders at a time, so nothing else is using these bundles
     if code != 0:
         raise RuntimeError(f"remotion render failed (exit {code}), see log.txt")
+    log("normalising loudness to -14 LUFS")
+    normalize_audio(raw, out_path)
+    raw.unlink(missing_ok=True)
 
 
 def run_job(job: Job, generate: Callable[[str], Story], tts: Callable[[str, str, Path], SceneAudio],
@@ -155,15 +218,19 @@ def run_job(job: Job, generate: Callable[[str], Story], tts: Callable[[str, str,
             clips.append(tts(scene.narration, st["voice"], job.dir / f"s{i:02d}.mp3"))
         tl = build_timeline(clips)
         timeline = tl.to_dict()
-        for s, hit in zip(timeline["scenes"], hit_frames(story, tl)):
+        hits = hit_frames(story, tl)
+        beat_frames = resolve_beats(story, tl)
+        for s, hit, scene, frames in zip(timeline["scenes"], hits, story.scenes, beat_frames):
             s["effect_frame"] = hit
+            s["beats"] = [{**b.model_dump(), "frame": f} for b, f in zip(scene.beats, frames)]
 
         music = pick_music()
         if music:
             (job.dir / "music" ).mkdir(exist_ok=True)
             (job.dir / "music" / music.name).write_bytes(music.read_bytes())
         props = {"story": story.model_dump(), "timeline": timeline, "captions": st["captions"],
-                 "music": f"music/{music.name}" if music else None}
+                 "music": f"music/{music.name}" if music else None,
+                 "sfx": sound_events(story, tl, beat_frames, hits)}
         link_models(job.dir)
         props_path = job.dir / "render.json"
         props_path.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")

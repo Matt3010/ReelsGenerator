@@ -109,3 +109,48 @@ def test_cleanup_removes_remotion_bundles(tmp_path):
     (tmp_path / "keep-me").mkdir()
     cleanup_remotion_tmp(tmp_path)
     assert sorted(p.name for p in tmp_path.iterdir()) == ["keep-me"]
+
+
+def test_render_props_carry_beats_and_sounds(tmp_path, story_dict):
+    story_dict["scenes"][1]["beats"] = [{"word": "deck", "actor": "sam", "symbol": "exclaim"}]
+    rendered = {}
+
+    def render(job_dir, props_path, out_path, log):
+        rendered.update(json.loads(props_path.read_text()))
+        out_path.write_bytes(b"x")
+
+    job = Job.create(tmp_path, topic="x", voice="v", captions=False)
+    (job.dir / "story.json").write_text(json.dumps(story_dict))
+    run_job(job, generate=lambda t: None, tts=FakeTTS(), render=render)
+    beat = rendered["timeline"]["scenes"][1]["beats"][0]
+    assert beat["symbol"] == "exclaim" and isinstance(beat["frame"], int)
+    assert {"sound": "pop", "frame": beat["frame"], "volume": 0.6} in rendered["sfx"]
+    assert (job.dir / "sfx" / "pop.wav").exists()
+
+
+def test_sfx_library_covers_every_sound():
+    from typing import get_args
+    from shorts.spec import Sfx
+    from shorts.sfx import SFX_DIR
+    missing = [s for s in get_args(Sfx) if not (SFX_DIR / f"{s}.wav").exists()]
+    assert missing == []
+
+
+def _loudness(path):
+    import re
+    import subprocess
+    out = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(path), "-af", "ebur128", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    return float(re.findall(r"I:\s+(-?[\d.]+) LUFS", out)[-1])
+
+
+def test_normalize_audio_reaches_short_loudness(tmp_path):
+    import subprocess
+    from shorts.pipeline import normalize_audio
+    src, dst = tmp_path / "raw.mp4", tmp_path / "out.mp4"
+    subprocess.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "color=c=black:s=64x64:d=4", "-f", "lavfi",
+                    "-i", "sine=frequency=440:duration=4", "-af", "volume=0.05", "-shortest", "-c:v", "libx264",
+                    "-c:a", "aac", str(src)], check=True)
+    assert _loudness(src) < -25
+    normalize_audio(src, dst)
+    assert abs(_loudness(dst) + 14) < 1.5

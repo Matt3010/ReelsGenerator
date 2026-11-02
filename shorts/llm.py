@@ -49,6 +49,12 @@ Staging rules (the engine renders exactly this, so keep it physically sensible):
   Use as many cast members as the story needs (up to 30); up to 12 actors per scene.
 - For "walk"/"run" set to_x to where they end up. Use "close" shots with a camera target for emotional beats,
   "wide"/"aerial" to establish places. Vary shots; never three of the same shot size in a row.
+- Make the characters ACT. Give most scenes 1-3 "beats": moments pinned to an exact narration word where an actor
+  changes expression or action, a cartoon symbol pops over a head (exclaim, question, sweat, anger, stars, hearts,
+  idea, zzz), the camera cuts to a new shot (close-up on the reaction; "angle": "dutch" when things go wrong),
+  and/or a sound effect plays. Reactions land ON the punch word. Prefer reactions that show feeling: a smug grin
+  before the disaster, sweat when it starts, shock on the snap, a dazed fall after. Listeners automatically look at
+  whoever is talking, so give the explainer the "talk" action.
 - Use effects sparingly: at most 3 per short ("shake" for impacts, "explosion", "splash", "confetti", "smoke", "flash").
   Set "effect_word" to the exact narration word the effect (and any "fall"/"shocked" reaction) must land on.
 - When the story needs an object that is not in the catalog (a molasses tank, a printing press, a telescope...),
