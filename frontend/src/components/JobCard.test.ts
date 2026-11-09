@@ -45,13 +45,13 @@ describe('JobCard', () => {
   });
 
   it('plays and downloads a finished video, and names its source', () => {
-    const job: JobInfo = { ...base, state: 'done', step: 'Fatto', title: 'Pianist rescued', duration: 26.2,
+    const job: JobInfo = { ...base, state: 'done', step: 'Fatto', title: 'Pianist rescued', duration: 26.2, video: { url: '/reels-videos/j.mp4?X-Amz-Signature=s2', download: '/reels-videos/j.mp4?X-Amz-Signature=s3&response-content-disposition=x' },
       news: { title: 't', url: 'https://bbc.co.uk/a', published: '', outlet: 'BBC News', summary: '' } };
     const { container } = render(JobCard, { job, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
-    expect(container.querySelector('video')).toHaveAttribute('src', `/api/jobs/${base.id}/video`);
+    expect(container.querySelector('video')).toHaveAttribute('src', '/reels-videos/j.mp4?X-Amz-Signature=s2');
     expect(screen.getByText(/BBC News/)).toBeInTheDocument();
     expect(screen.getByText(/26 s/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /scarica/i })).toHaveAttribute('href', `/api/jobs/${base.id}/video?download`);
+    expect(screen.getByRole('link', { name: /scarica/i })).toHaveAttribute('href', '/reels-videos/j.mp4?X-Amz-Signature=s3&response-content-disposition=x');
   });
 
   it('tells the error and retries', async () => {

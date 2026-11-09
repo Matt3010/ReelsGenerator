@@ -62,7 +62,7 @@ it('shows videos under Video and pictures under Immagini, never mixed', async ()
     { id: '20261109-101021-61aa49', topic: 'Molasses', voice: 'v', captions: true, news: null, state: 'done', step: 'Fatto',
       title: 'The Great Molasses Flood', error: null, created: 2 },
     { id: '20261109-110000-bbbbbb', kind: 'photo', topic: 'a robot, golden hour', voice: '', captions: false, news: null, state: 'done',
-      step: 'Fatto', title: null, error: null, created: 1, images: [7], photo: { prompt: 'a robot, golden hour', negative: '', count: 1 } },
+      step: 'Fatto', title: null, error: null, created: 1, images: [{ id: 7, url: '/reels-images/abc.png?X-Amz-Signature=s1' }], photo: { prompt: 'a robot, golden hour', negative: '', count: 1 } },
   ]);
   render(App);
   expect(await screen.findByRole('button', { name: 'The Great Molasses Flood' })).toBeInTheDocument();
@@ -72,12 +72,12 @@ it('shows videos under Video and pictures under Immagini, never mixed', async ()
   const user = userEvent.setup();
   await user.click(screen.getByRole('link', { name: /immagini/i }));
   const gallery = screen.getByRole('list', { name: 'Le tue immagini' });
-  expect(gallery.querySelector('img')).toHaveAttribute('src', '/api/library/7/image');
+  expect(gallery.querySelector('img')).toHaveAttribute('src', '/reels-images/abc.png?X-Amz-Signature=s1');
   expect(screen.queryByRole('button', { name: 'The Great Molasses Flood' })).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: 'a robot, golden hour' }));
   const viewer = await screen.findByRole('dialog');
-  expect(within(viewer).getByRole('img', { name: 'a robot, golden hour' })).toHaveAttribute('src', '/api/library/7/image');
+  expect(within(viewer).getByRole('img', { name: 'a robot, golden hour' })).toHaveAttribute('src', '/reels-images/abc.png?X-Amz-Signature=s1');
 });
 
 it('invites to make the first pictures when there are none yet', async () => {
@@ -89,11 +89,12 @@ it('invites to make the first pictures when there are none yet', async () => {
 
 it('opens a video in a modal, with its player and script button', async () => {
   fakeServer([{ id: '20261109-101021-61aa49', topic: 'Molasses', voice: 'v', captions: true, news: null, state: 'done', step: 'Fatto',
-    title: 'The Great Molasses Flood', error: null, created: 2 }]);
+    title: 'The Great Molasses Flood', error: null, created: 2,
+    video: { url: '/reels-videos/j.mp4?X-Amz-Signature=s2', download: '/reels-videos/j.mp4?X-Amz-Signature=s3' } }]);
   render(App);
   await userEvent.setup().click(await screen.findByRole('button', { name: /The Great Molasses Flood/ }));
   const dialog = await screen.findByRole('dialog', { name: 'The Great Molasses Flood' });
-  expect(dialog.querySelector('video[controls]')).toHaveAttribute('src', '/api/jobs/20261109-101021-61aa49/video');
+  expect(dialog.querySelector('video[controls]')).toHaveAttribute('src', '/reels-videos/j.mp4?X-Amz-Signature=s2');
   expect(within(dialog).getByRole('button', { name: /copione/i })).toBeInTheDocument();
 });
 

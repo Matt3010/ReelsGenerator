@@ -21,6 +21,7 @@
     ['Prompt', photo.prompt],
     // un modello che ignora il negative prompt non ne ha uno
     ...(models.find((m) => m.id === modello)?.negative === false ? [] : [['Negative prompt', photo.negative || '—']]),
+    ...(photo.init ? [['Partenza', `una tua foto, cambiata al ${Math.round(photo.init.strength * 100)}%`]] : []),
     ['Formato', nomeDi(FORMATI, photo.format)],
     ['Risoluzione', nomeDi(RISOLUZIONI, photo.resolution ?? 'standard')],
     ...(seed === undefined ? [['Quante', String(photo.count)]] : []),

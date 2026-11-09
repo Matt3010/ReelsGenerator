@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { OPTIONS as options } from '../test/fixtures';
-import { api, imageUrl, videoUrl } from './api';
+import { api } from './api';
 
 const reply = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status }));
 
@@ -42,8 +42,6 @@ describe('api', () => {
     vi.stubGlobal('fetch', reply({ detail: 'topic is empty' }, 422));
     await expect(api.create({ topic: '', voice: 'v', captions: true, news: null, options })).rejects.toThrow('topic is empty');
   });
-
-  it('points at the video', () => expect(videoUrl('j1')).toBe('/api/jobs/j1/video'));
 });
 
 describe('api for pictures', () => {
@@ -54,7 +52,6 @@ describe('api for pictures', () => {
     const [url, init] = fetcher.mock.calls.at(-1) as unknown as [string, RequestInit];
     expect(url).toBe('/api/photos');
     expect(JSON.parse(init.body as string)).toEqual({ prompt: 'a cat', negative: 'dogs', count: 1, format: 'square', seed: 7, resolution: '4k' });
-    expect(imageUrl(7)).toBe('/api/library/7/image');
     await api.remove('j1');
     expect(fetcher).toHaveBeenLastCalledWith('/api/jobs/j1', expect.objectContaining({ method: 'DELETE' }));
     await api.picture(7);

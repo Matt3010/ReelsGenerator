@@ -82,6 +82,9 @@ export interface DrawRequest {
   size?: Size;
   /** a hires fix: drawn at `size`, then a second, light pass at about this larger size (real detail) */
   hires?: Size;
+  /** img2img: the picture to start from (already at `size`), and how much to change it (0.1 a touch, 0.95 almost new) */
+  init?: string;
+  strength?: number;
   /** each step as sd.cpp takes it */
   progress?: (p: SdProgress) => void;
 }
@@ -101,6 +104,7 @@ export function sdCommand(exe: string, dir: string, r: DrawRequest): string[] {
   return [exe, ...model.args(dir), "-p", positive ? `${positive}, ${r.prompt}` : r.prompt,
     ...(model.negative ? ["-n", r.negative ? `${negative}, ${r.negative}` : negative] : []),
     "-W", String(width), "-H", String(height), "--seed", String(r.seed), "-o", r.out,
+    ...(r.init ? ["-i", r.init, "--strength", String(r.strength ?? 0.6)] : []),
     ...(r.hires ? ["--hires", "--hires-width", String(up64(r.hires[0])), "--hires-height", String(up64(r.hires[1])), "--hires-upscaler", "Lanczos",
       "--hires-denoising-strength", HIRES_DENOISE, "--hires-steps", HIRES_STEPS] : [])];
 }

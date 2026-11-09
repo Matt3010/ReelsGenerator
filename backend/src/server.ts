@@ -52,6 +52,8 @@ const PhotoJob = z.object({
   seed: z.number().int().min(0).max(2 ** 31 - 5).nullable().default(null),
   resolution: z.enum(Object.keys(RESOLUTIONS) as [Resolution, ...Resolution[]]).default("standard"),
   model: Model,
+  // img2img: a picture uploaded to silo (the key /api/uploads gave), and how much to change it
+  init: z.object({ key: z.uuid(), strength: z.number().min(0.1).max(0.95) }).optional(),
 });
 
 export interface AppOptions {
@@ -122,7 +124,20 @@ export function createApp(o: AppOptions = {}) {
     }
   }));
 
-  app.get("/api/jobs", (c) => c.json(Job.list(root).map((j) => ({ id: j.id, ...j.status(), images: j.images() }))));
+  // the jobs, each with the links the page needs, signed for silo and for the host the page came from
+  app.get("/api/jobs", async (c) => {
+    const host = hostOf(c);
+    return c.json(await Promise.all(Job.list(root).map(async (j) => {
+      const st = j.status();
+      const images = await Promise.all(j.images().map((id) => library().get(id)).filter((a) => a !== null)
+        .map(async (a) => ({ id: a.id, url: await library().store.signedGet(a.key, host) })));
+      const video = st.state === "done" && st.kind !== "photo" ? {
+        url: await videos().signedGet(videoKey(j.id), host),
+        download: await videos().signedGet(videoKey(j.id), host, { filename: fileName(st.title ?? j.id) }),
+      } : undefined;
+      return { id: j.id, ...st, images, video };
+    })));
+  });
 
   // a job (a video, or a photo job with its pictures still listed) gone; not while it is at work
   app.delete("/api/jobs/:id", async (c) => {
@@ -140,6 +155,7 @@ export function createApp(o: AppOptions = {}) {
     const parsed = PhotoJob.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ detail: z.prettifyError(parsed.error) }, 422);
     const photo = parsed.data;
+    if (photo.init && !(await uploads().has(photo.init.key))) return c.json({ detail: "the starting picture is not there: upload it again" }, 422);
     const job = Job.create(root, { topic: photo.prompt, voice: "", captions: false, kind: "photo", photo });
     enqueue(job);
     return c.json({ id: job.id });
@@ -161,13 +177,6 @@ export function createApp(o: AppOptions = {}) {
     return c.json({ id: asset.id, prompt: asset.prompt, seed: asset.seed, width: asset.width, height: asset.height, model: asset.model });
   });
 
-  // a picture: a link signed for silo (the same all hour long, so the browser keeps it)
-  app.get("/api/library/:id/image", async (c) => {
-    const id = Number(c.req.param("id"));
-    const asset = Number.isInteger(id) ? library().get(id) : null;
-    if (!asset) return c.json({ detail: "no such picture" }, 404);
-    return c.redirect(await library().store.signedGet(asset.key, hostOf(c)), 302);
-  });
 
   // a signed form post for one picture: the page sends it straight to silo, never through here
   app.post("/api/uploads", async (c) => {
@@ -199,15 +208,6 @@ export function createApp(o: AppOptions = {}) {
     return c.json(JSON.parse(readFileSync(file, "utf8")));
   });
 
-  // a video: a link signed for silo, which answers the ranges the player asks to seek; ?download names the file
-  app.get("/api/jobs/:id/video", async (c) => {
-    const dir = jobDir(c.req.param("id"));
-    if (!dir) return c.json({ detail: "no video yet" }, 404);
-    const job = new Job(dir);
-    if (!(await videos().has(videoKey(job.id)))) return c.json({ detail: "no video yet" }, 404);
-    const name = c.req.query("download") === undefined ? undefined : fileName(job.status().title ?? job.id);
-    return c.redirect(await videos().signedGet(videoKey(job.id), hostOf(c), { filename: name }), 302);
-  });
 
   return app;
 }

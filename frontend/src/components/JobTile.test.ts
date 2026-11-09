@@ -7,14 +7,14 @@ import JobTile from './JobTile.svelte';
 
 const base: JobInfo = {
   id: '20261109-104755-a5b477', topic: 'Cruise ship pianist rescued', voice: 'en-US-GuyNeural', captions: true, news: null,
-  state: 'done', step: 'Fatto', title: 'Pianist rescued', error: null, created: 1, options: OPTIONS, duration: 26.2,
+  state: 'done', step: 'Fatto', title: 'Pianist rescued', error: null, created: 1, options: OPTIONS, duration: 26.2, video: { url: '/reels-videos/j.mp4?X-Amz-Signature=s2', download: '/reels-videos/j.mp4?X-Amz-Signature=s3&response-content-disposition=x' },
 };
 
 describe('JobTile', () => {
   it('is a square with a frame of the finished video, named by its title, and opens it', async () => {
     const onopen = vi.fn();
     const { container } = render(JobTile, { job: base, onopen });
-    expect(container.querySelector('video')).toHaveAttribute('src', `/api/jobs/${base.id}/video#t=1`);
+    expect(container.querySelector('video')).toHaveAttribute('src', '/reels-videos/j.mp4?X-Amz-Signature=s2#t=1');
     await userEvent.setup().click(screen.getByRole('button', { name: 'Pianist rescued' }));
     expect(onopen).toHaveBeenCalledWith(base);
   });

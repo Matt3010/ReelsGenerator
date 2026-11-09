@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { imageUrl, type ImageModel, type PhotoRequest, type PictureInfo } from '../lib/api';
+  import type { ImageModel, PhotoRequest, PictureInfo } from '../lib/api';
   import PhotoProperties from './PhotoProperties.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
@@ -8,6 +8,7 @@
   /** Un'immagine aperta: grande, il prompt da cui è nata, i tasti per scaricarla e per eliminarla. */
   let {
     id,
+    url,
     prompt,
     photo,
     took,
@@ -16,6 +17,8 @@
     loadInfo,
   }: {
     id: number;
+    /** il suo link firmato (silo) */
+    url: string;
     prompt: string;
     /** con cosa è stata chiesta (null: un'immagine di un video) */
     photo: PhotoRequest | null;
@@ -41,11 +44,11 @@
   }
 </script>
 
-<img src={imageUrl(id)} alt={prompt} />
+<img src={url} alt={prompt} />
 <PhotoProperties photo={photo ?? { prompt, negative: '', count: 1, format: 'portrait', seed: null, resolution: 'standard' }}
   seed={info?.seed} size={info ? [info.width, info.height] : undefined} model={info?.model} {models} {took} />
 <div class="azioni">
-  <Button look="ghost" size="sm" href={imageUrl(id)} download><Icon name="download" />Scarica</Button>
+  <Button look="ghost" size="sm" href={url} download><Icon name="download" />Scarica</Button>
   <span class="spazio"></span>
   <Button look="ghost" size="sm" tone="danger" onclick={elimina}><Icon name="trash" />Elimina</Button>
 </div>

@@ -45,18 +45,12 @@ it("creates a job, runs it and lists it", async () => {
   expect(jobs[0].id).toBe(id);
   expect(jobs[0].topic).toBe("bridges");
   expect(await waitFor(async () => (await (await app.request("/api/jobs")).json())[0].state === "done")).toBe(true);
-  // the video comes from silo: a link signed for the host the page came from (silo answers the ranges to seek)
-  const v = await app.request(`/api/jobs/${id}/video`, { headers: { host: "gen.example.work" } });
-  expect(v.status).toBe(302);
-  expect(v.headers.get("location")).toBe(`/reels-videos/${id}.mp4?host=gen.example.work`);
-});
-
-it("the download link names the file after the video", async () => {
-  const { app, ran, post } = make();
-  const { id } = await (await post({ topic: "x", voice: "en-US-GuyNeural", captions: true })).json();
-  await waitFor(async () => ran.length === 1 && (await (await app.request("/api/jobs")).json())[0].state === "done");
-  const r = await app.request(`/api/jobs/${id}/video?download`, { headers: { host: "h" } });
-  expect(r.headers.get("location")).toBe(`/reels-videos/${id}.mp4?host=h&name=The Bridge That Fell.mp4`);
+  // the finished video: links signed for silo and for the host the page came from, one to play, one to download by name
+  const [done] = await (await app.request("/api/jobs", { headers: { host: "gen.example.work" } })).json();
+  expect(done.video).toEqual({
+    url: `/reels-videos/${id}.mp4?host=gen.example.work`,
+    download: `/reels-videos/${id}.mp4?host=gen.example.work&name=The Bridge That Fell.mp4`,
+  });
 });
 
 it("hands out a signed upload for one picture, straight to silo", async () => {
@@ -78,9 +72,9 @@ it("rejects a blank topic, an unknown voice and a non-web news link", async () =
 
 it("answers 404 for unknown jobs and path tricks", async () => {
   const { app } = make();
-  expect((await app.request("/api/jobs/nope/video")).status).toBe(404);
-  expect((await app.request("/api/jobs/20261109-120000-abcdef/video")).status).toBe(404);
-  expect((await app.request("/api/jobs/..%2F..%2Fsecret/video")).status).toBe(404);
+  expect((await app.request("/api/jobs/nope/story")).status).toBe(404);
+  expect((await app.request("/api/jobs/20261109-120000-abcdef/story")).status).toBe(404);
+  expect((await app.request("/api/jobs/..%2F..%2Fsecret/story")).status).toBe(404);
 });
 
 it("requeues on retry", async () => {
@@ -122,8 +116,10 @@ describe("photos", () => {
     const root = tmp();
     const ran: string[] = [];
     const library = new Library(join(root, "lib"), new DirStore(join(root, "store")));
-    const app = createApp({ root, runner: async (job) => { ran.push(job.id); job.update({ state: "done" }); }, news: async () => [], library: () => library });
-    return { app, ran, library, root };
+    const uploads = new DirStore(join(root, "uploads"), "reels-uploads");
+    const app = createApp({ root, runner: async (job) => { ran.push(job.id); job.update({ state: "done" }); }, news: async () => [], library: () => library,
+      uploads });
+    return { app, ran, library, root, uploads };
   };
   const postPhotos = (app: ReturnType<typeof createApp>, body: object) =>
     app.request("/api/photos", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -140,7 +136,7 @@ describe("photos", () => {
   });
 
   it("refuses an empty prompt and too many pictures, and takes a long prompt", async () => {
-    const { app } = withLibrary();
+    const { app, root, uploads } = withLibrary();
     expect((await postPhotos(app, { prompt: " " })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat", count: 9 })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat, ".repeat(250) })).status).toBe(200);
@@ -152,6 +148,13 @@ describe("photos", () => {
     expect((await postPhotos(app, { prompt: "a cat", model: "midjourney" })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat", model: "krea2" })).status).toBe(200);
     expect((await postPhotos(app, { prompt: "a cat", format: "square", seed: 42, count: 4 })).status).toBe(200);
+    // a starting picture: one uploaded, changed by 0.1-0.95
+    await uploads.put("2b1e7c1a-0000-4000-8000-000000000001", await png(join(root, "u.png")), "image/png");
+    const init = (key: string, strength: number) => postPhotos(app, { prompt: "a cat", init: { key, strength } });
+    expect((await init("2b1e7c1a-0000-4000-8000-000000000001", 0.6)).status).toBe(200);
+    expect((await init("2b1e7c1a-0000-4000-8000-000000000002", 0.6)).status).toBe(422);
+    expect((await init("2b1e7c1a-0000-4000-8000-000000000001", 1.5)).status).toBe(422);
+    expect((await init("../secret", 0.6)).status).toBe(422);
   });
 
   it("lists the pictures of a job and serves them", async () => {
@@ -159,12 +162,9 @@ describe("photos", () => {
     const a = await library.add(await png(join(root, "x.png")), { prompt: "a cat", style: "toon", seed: 1, model: "m" });
     const { id } = await (await postPhotos(app, { prompt: "a cat" })).json();
     writeFileSync(join(root, id, "images.json"), JSON.stringify([a.id]));
-    expect((await (await app.request("/api/jobs")).json())[0].images).toEqual([a.id]);
-    // the picture comes from silo: a link signed for the page's host
-    const img = await app.request(`/api/library/${a.id}/image`, { headers: { host: "gen.example.work" } });
-    expect(img.status).toBe(302);
-    expect(img.headers.get("location")).toBe(`/reels-test/${a.key}?host=gen.example.work`);
-    expect((await app.request("/api/library/999/image")).status).toBe(404);
+    // each picture with its link, signed for silo and for the page's host
+    const [job] = await (await app.request("/api/jobs", { headers: { host: "gen.example.work" } })).json();
+    expect(job.images).toEqual([{ id: a.id, url: `/reels-test/${a.key}?host=gen.example.work` }]);
     expect(await (await app.request(`/api/library/${a.id}`)).json()).toEqual({ id: a.id, prompt: "a cat", seed: 1, width: 8, height: 14, model: "m" });
     expect((await app.request("/api/library/999")).status).toBe(404);
   });

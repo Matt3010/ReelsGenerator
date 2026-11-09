@@ -29,6 +29,11 @@ it('leaves out the negative prompt of a model that ignores it', () => {
   expect(screen.queryByText('Negative prompt', { selector: 'dt' })).not.toBeInTheDocument();
 });
 
+it('says when the pictures started from a photo of mine, and how much they changed it', () => {
+  render(PhotoProperties, { photo: { ...photo, init: { key: 'k', strength: 0.6 } } });
+  expect(value('Partenza')).toBe('una tua foto, cambiata al 60%');
+});
+
 it('says how long the pictures took', () => {
   render(PhotoProperties, { photo, took: 92 });
   expect(value('Tempo')).toBe('1 min 32 s per 2 immagini');

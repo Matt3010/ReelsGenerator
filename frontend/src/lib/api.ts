@@ -1,4 +1,5 @@
 /* The API behind nginx's /api: news, jobs, their scripts and videos. */
+import type { SignedUpload } from './upload';
 
 export interface NewsItem { title: string; url: string; published: string; outlet: string; summary: string }
 
@@ -21,6 +22,8 @@ export type Format = 'portrait' | 'square' | 'landscape';
 export type Resolution = 'standard' | 'fullhd' | '4k';
 export interface PhotoRequest {
   prompt: string; negative: string; count: number; format: Format; seed: number | null; resolution: Resolution; model?: string;
+  /** partire da una foto propria: la sua chiave in silo, e quanto cambiarla (0,1-0,95) */
+  init?: { key: string; strength: number };
 }
 /** cos'è un'immagine della libreria: il seed per rifarla, la misura, il modello che l'ha disegnata */
 export interface PictureInfo { id: number; prompt: string; seed: number; width: number; height: number; model: string }
@@ -28,7 +31,10 @@ export interface PictureInfo { id: number; prompt: string; seed: number; width: 
 export interface JobInfo extends NewJob {
   kind?: 'video' | 'photo';
   photo?: PhotoRequest;
-  images?: number[];
+  /** le immagini, ognuna con il suo link firmato (silo) */
+  images?: { id: number; url: string }[];
+  /** un video finito: i link firmati per guardarlo e per scaricarlo col suo nome */
+  video?: { url: string; download: string };
   id: string;
   state: 'queued' | 'running' | 'done' | 'error';
   step: string;
@@ -70,8 +76,8 @@ export const api = {
   remove: (id: string) => call<{ ok: true }>(`/api/jobs/${id}`, { method: 'DELETE' }),
   picture: (id: number) => call<PictureInfo>(`/api/library/${id}`),
   removePicture: (id: number) => call<{ ok: true }>(`/api/library/${id}`, { method: 'DELETE' }),
+  /** un modulo firmato per mandare una foto direttamente a silo */
+  uploads: () => call<SignedUpload>('/api/uploads', { method: 'POST' }),
   photos: (req: PhotoRequest) => call<{ id: string }>('/api/photos', { method: 'POST', body: JSON.stringify(req) }),
 };
 
-export const videoUrl = (id: string) => `/api/jobs/${id}/video`;
-export const imageUrl = (id: number) => `/api/library/${id}/image`;

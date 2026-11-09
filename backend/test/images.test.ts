@@ -92,6 +92,12 @@ it("runs the chosen model with its own weights, and no negative prompt where the
   expect(at(d, "-m")).toBe("/m/DreamShaperXL_Turbo_v2_1.safetensors");
 });
 
+it("starts from a picture when asked: sd.cpp's init image and how much to change it", () => {
+  const cmd = cmdOf(req("a barn at night", 1, "o.png", "free", "", { init: "/w/init.png", strength: 0.55 }));
+  expect([at(cmd, "-i"), at(cmd, "--strength")]).toEqual(["/w/init.png", "0.55"]);
+  expect(cmdOf(req("a barn", 1, "o.png", "free", ""))).not.toContain("--strength");
+});
+
 it("draws the size it is asked for", () => {
   expect(FORMATS).toEqual({ portrait: [768, 1344], square: [1024, 1024], landscape: [1344, 768] });
   const cmd = cmdOf(req("a barn", 1, "o.png", "free", "", { size: FORMATS.landscape }));

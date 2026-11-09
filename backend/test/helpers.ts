@@ -16,7 +16,7 @@ export async function png(path: string, color: [number, number, number] = [200, 
 export class DirStore implements Store {
   constructor(readonly dir: string, readonly bucket = "reels-test") { mkdirSync(dir, { recursive: true }); }
   keys() { return readdirSync(this.dir).sort(); }
-  async put(key: string, file: string) { copyFileSync(file, join(this.dir, key)); }
+  async put(key: string, file: string, _type?: string) { copyFileSync(file, join(this.dir, key)); }
   async download(key: string, dst: string) { mkdirSync(dirname(dst), { recursive: true }); copyFileSync(join(this.dir, key), dst); }
   async has(key: string) { return existsSync(join(this.dir, key)); }
   async remove(key: string) { rmSync(join(this.dir, key), { force: true }); }

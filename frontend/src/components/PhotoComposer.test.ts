@@ -4,9 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { PALETTE } from '../test/fixtures';
 import PhotoComposer from './PhotoComposer.svelte';
 
-function setup(onCreate = vi.fn(async () => {})) {
-  render(PhotoComposer, { onCreate, models: PALETTE.models });
-  return { onCreate, user: userEvent.setup() };
+function setup(onCreate = vi.fn(async () => {}), upload = vi.fn(async () => 'k-1')) {
+  render(PhotoComposer, { onCreate, models: PALETTE.models, upload });
+  return { onCreate, upload, user: userEvent.setup() };
 }
 
 describe('PhotoComposer', () => {
@@ -55,6 +55,26 @@ describe('PhotoComposer', () => {
     await user.click(screen.getByRole('button', { name: /^risoluzione/i }));
     expect(await screen.findByText('2,5 min circa')).toBeInTheDocument();
     expect(screen.getByText('6 min circa')).toBeInTheDocument();
+  });
+
+  it('can start from a picture of mine: uploaded as soon as chosen, then changed by how much I say', async () => {
+    const { user, onCreate, upload } = setup();
+    globalThis.URL.createObjectURL ??= () => 'blob:preview';
+    await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'the same street at night');
+    const file = new File([new Uint8Array(8)], 'street.png', { type: 'image/png' });
+    await user.upload(screen.getByLabelText(/parti da un'immagine/i), file);
+    expect(upload).toHaveBeenCalledWith(file);
+    const howMuch = await screen.findByRole('slider', { name: /quanto cambiarla/i });
+    expect(howMuch).toHaveValue('0.6');
+    await user.click(screen.getByRole('button', { name: /genera/i }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ init: { key: 'k-1', strength: 0.6 } }));
+  });
+
+  it('without a picture of mine, starts from nothing', async () => {
+    const { user, onCreate } = setup();
+    await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'a fox');
+    await user.click(screen.getByRole('button', { name: /genera/i }));
+    expect(onCreate).toHaveBeenCalledWith(expect.not.objectContaining({ init: expect.anything() }));
   });
 
   it('takes a long prompt', () => {

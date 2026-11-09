@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 import { Library } from "../src/library.js";
 import type { Runner } from "../src/llm.js";
@@ -25,6 +26,7 @@ function engines(root: string, story = storyDict(), opts: { llmCalls?: string[];
     },
     library: new Library(join(root, "lib"), new DirStore(join(root, "store"))),
     videos: new DirStore(join(root, "videos")),
+    uploads: new DirStore(join(root, "uploads")),
     render: opts.render ?? (async (_dir, tl, images, motions, captions, out) => {
       Object.assign(rendered, { images, motions, captions, total: tl.total, onDisk: images.every((p) => existsSync(p)) });
       writeFileSync(out, "mp4");
@@ -241,6 +243,25 @@ it("shows the model's step and speed while it draws, for pictures and for videos
   expect(steps.slice(0, 2)).toEqual(["Disegno l'immagine 1/1 | passo 3/8 · 2.51 s/it", "Disegno l'immagine 1/1 | decodifica 10/45 · 2.20 it/s"]);
   expect(steps[2]).toBe("Disegno l'immagine 1/2 | passo 3/8 · 2.51 s/it");
   expect(job.status().detail).toBeUndefined();               // a new step: the model's detail goes with the old one
+});
+
+it("a photo job can start from an uploaded picture, brought to the size it draws at", async () => {
+  const root = tmp();
+  const { eng } = engines(root);
+  await png(join(root, "mine.png"), [9, 9, 9], [600, 400]);
+  await eng.uploads.put("u-1", join(root, "mine.png"), "image/png");
+  const seen: unknown[] = [];
+  eng.generate = async ({ out, init, strength, size }) => {
+    const meta = await sharp(init!).metadata();
+    seen.push([[meta.width, meta.height], size, strength]);
+    await png(out, [1, 2, 3], [1344, 768]);
+    return out;
+  };
+  const job = Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
+    photo: { prompt: "a cat", negative: "", count: 1, format: "landscape", seed: 1, init: { key: "u-1", strength: 0.6 } } });
+  await runJob(job, eng);
+  expect(job.status().state, job.status().error ?? "").toBe("done");
+  expect(seen).toEqual([[[1344, 768], [1344, 768], 0.6]]);
 });
 
 it("a photo job at 4K draws at Full HD with the hires fix, then ESRGAN takes it to 4K", async () => {

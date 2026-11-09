@@ -25,6 +25,8 @@ export interface PhotoRequest {
   resolution?: Resolution;
   /** the image model (MODELS); none, the default */
   model?: string;
+  /** img2img: a picture the page uploaded (its key in the uploads bucket), and how much to change it */
+  init?: { key: string; strength: number };
 }
 /** the job's choices: the picture style, the image model and which limits apply (both kinds of job) */
 export interface JobOptions { style: StyleId; realPeople: boolean; avoid: boolean; model?: string }
@@ -128,6 +130,8 @@ export interface Engines {
   library: Library;
   /** where the finished videos go (silo) */
   videos: Store;
+  /** the pictures the pages upload, to start from (silo) */
+  uploads: Store;
   render: typeof renderVideo;
   normalize: (src: string, dst: string) => Promise<void>;
   upscale: Upscaler;
@@ -159,11 +163,18 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   const first = req.seed ?? randomInt(2 ** 31 - 4);
   const ids: number[] = [];
   mkdirSync(join(job.dir, "work"), { recursive: true });
+  // the starting picture, from silo, cut to the size the model draws at
+  let init: string | undefined;
+  if (req.init) {
+    init = join(job.dir, "work", "init.png");
+    await eng.uploads.download(req.init.key, init);
+    await fitTo(init, plan.size);
+  }
   for (let i = 1; i <= req.count; i++) {
     job.update({ state: "running", step: `Disegno l'immagine ${i}/${req.count}` });
     const seed = first + i - 1;
     const file = await eng.generate({ prompt: req.prompt, seed, out: join(job.dir, "work", `img${i}.png`), style, negative: req.negative,
-      model, size: plan.size, hires: plan.hires, progress: (p) => job.update({ detail: modelDetail(p) }) });
+      model, size: plan.size, hires: plan.hires, init, strength: req.init?.strength, progress: (p) => job.update({ detail: modelDetail(p) }) });
     if (plan.upscale) {
       job.update({ step: `Ingrandisco l'immagine ${i}/${req.count}` });
       await eng.upscale(file, plan.exact);
@@ -263,6 +274,7 @@ export function defaultEngines(): Engines {
     tts: (text, voice, out) => synthesize(text, voice, out),
     library: new Library(LIBRARY, stores().images),
     videos: stores().videos,
+    uploads: stores().uploads,
     render: renderVideo,
     normalize: normalizeAudio,
     upscale: sdUpscaler(),

@@ -16,7 +16,8 @@
   import SurePopover from './components/SurePopover.svelte';
   import SystemPage from './components/SystemPage.svelte';
   import TabBar from './components/TabBar.svelte';
-  import { api, imageUrl, type JobInfo, type NewJob, type Palette, type PhotoRequest } from './lib/api';
+  import { uploadPhoto } from './lib/upload';
+  import { api, type JobInfo, type NewJob, type Palette, type PhotoRequest } from './lib/api';
   import { follow } from './lib/events';
   import { nav } from './lib/nav.svelte';
   import { ui } from './lib/ui.svelte';
@@ -46,7 +47,8 @@
   function nuovo() {
     if (!palette) return;
     if (tab === 'video') ui.openModal({ title: 'Nuovo video', view: Composer, props: { voices, palette, loadNews: api.news, onCreate: create } });
-    else ui.openModal({ title: 'Nuova immagine', view: PhotoComposer, props: { onCreate: createPhotos, models: palette.models } });
+    else ui.openModal({ title: 'Nuova immagine', view: PhotoComposer, props: { onCreate: createPhotos, models: palette.models,
+      upload: (file: File) => uploadPhoto(file, api.uploads) } });
   }
 
   const apri = (job: JobInfo) =>
@@ -60,7 +62,7 @@
   function apriFoto(id: number) {
     const picture = pictures.find((p) => p.id === id);
     ui.openModal({ title: 'Immagine', view: PhotoViewer,
-      props: { id, prompt: picture?.alt ?? '', photo: picture?.photo ?? null, took: picture?.took, models: palette?.models ?? [],
+      props: { id, url: picture?.url ?? '', prompt: picture?.alt ?? '', photo: picture?.photo ?? null, took: picture?.took, models: palette?.models ?? [],
         onDelete: removePicture, loadInfo: api.picture } });
   }
 
@@ -71,7 +73,7 @@
   // le immagini finite nella galleria, le più nuove prima; i lavori ancora aperti restano riquadri sopra
   const tiles = $derived(tab === 'photo' ? shown?.filter((j) => j.state !== 'done') ?? [] : shown ?? []);
   const pictures = $derived(tab === 'photo'
-    ? (shown ?? []).filter((j) => j.state === 'done').flatMap((j) => (j.images ?? []).map((id) => ({ id, url: imageUrl(id), alt: j.topic, photo: j.photo ?? null,
+    ? (shown ?? []).filter((j) => j.state === 'done').flatMap((j) => (j.images ?? []).map(({ id, url }) => ({ id, url, alt: j.topic, photo: j.photo ?? null,
         took: j.started !== undefined && j.finished !== undefined ? j.finished - j.started : undefined })))
     : []);
 

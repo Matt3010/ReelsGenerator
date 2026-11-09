@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { videoUrl, type ImageModel, type JobInfo, type Story } from '../lib/api';
+  import type { ImageModel, JobInfo, Story } from '../lib/api';
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
@@ -57,7 +57,7 @@
 <article class="job">
   {#if job.state === 'done'}
     <!-- svelte-ignore a11y_media_has_caption -->
-    <video src={videoUrl(job.id)} controls preload="metadata" playsinline></video>
+    <video src={job.video?.url} controls preload="metadata" playsinline></video>
   {:else if job.state !== 'error'}
     <!-- fallito, basta l'avviso qui sotto con Riprova -->
     <div class="attesa">
@@ -90,7 +90,7 @@
     {#if job.state === 'done' || job.state === 'error'}
       <div class="azioni">
         {#if job.state === 'done'}
-          <Button look="ghost" size="sm" href={`${videoUrl(job.id)}?download`} download><Icon name="download" />Scarica</Button>
+          <Button look="ghost" size="sm" href={job.video?.download} download><Icon name="download" />Scarica</Button>
           <Button look="ghost" size="sm" onclick={apriCopione}><Icon name="script" />Copione</Button>
         {/if}
         <span class="spazio"></span>

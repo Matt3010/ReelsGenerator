@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { videoUrl, type JobInfo } from '../lib/api';
+  import type { JobInfo } from '../lib/api';
   import Icon from './Icon.svelte';
 
   /**
@@ -13,9 +13,9 @@
 </script>
 
 <button type="button" class="tile" aria-label={detto} title={detto} onclick={() => onopen(job)}>
-  {#if job.state === 'done'}
+  {#if job.state === 'done' && job.video}
     <!-- un fotogramma a un secondo: il primo è spesso nero -->
-    <video src={`${videoUrl(job.id)}#t=1`} muted preload="metadata" playsinline tabindex="-1"></video>
+    <video src={`${job.video?.url}#t=1`} muted preload="metadata" playsinline tabindex="-1"></video>
   {:else}
     <span class="segno" aria-hidden="true">
       {#if job.state === 'error'}
