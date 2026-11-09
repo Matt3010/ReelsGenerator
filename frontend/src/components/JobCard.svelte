@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { videoUrl, type JobInfo, type Story } from '../lib/api';
+  import { videoUrl, type ImageModel, type JobInfo, type Story } from '../lib/api';
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
@@ -13,11 +13,14 @@
     onRetry,
     onDelete,
     loadStory,
+    models = [],
   }: {
     job: JobInfo;
     onRetry: (id: string) => void;
     onDelete: (id: string) => void;
     loadStory: (id: string) => Promise<Story>;
+    /** per dire il nome del modello delle immagini */
+    models?: ImageModel[];
   } = $props();
 
   let copione = $state<string[] | null>(null);
@@ -53,12 +56,14 @@
 
   <div class="meta">
     {#if job.kind === 'photo' && job.photo}
-      <PhotoProperties photo={job.photo} />
+      <PhotoProperties photo={job.photo} {models} />
     {:else}
-      <p class="sotto">
-        {#if job.news}<Icon name="news" size="sm" tone="muted" /> {job.news.outlet} · {/if}{job.topic}
-        {#if job.duration}· {Math.round(job.duration)} s{/if}
-      </p>
+      <!-- la modale ha già il titolo (o l'argomento, finché il titolo non c'è): qui solo quel che manca -->
+      <p class="sotto">{[
+        job.news?.outlet,
+        job.title && job.title !== job.topic ? job.topic : null,
+        job.duration ? `${Math.round(job.duration)} s` : null,
+      ].filter(Boolean).join(' · ')}</p>
     {/if}
 
     {#if job.state === 'error' && job.error}

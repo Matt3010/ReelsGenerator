@@ -18,6 +18,12 @@ describe('JobCard', () => {
     expect(screen.queryByRole('link', { name: /scarica/i })).not.toBeInTheDocument();
   });
 
+  it('does not repeat the topic the modal already has as its title', () => {
+    const job: JobInfo = { ...base, news: { title: 't', url: 'u', published: '', outlet: 'CBS News', summary: '' } };
+    const { container } = render(JobCard, { job, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
+    expect(container.querySelector('.sotto')).toHaveTextContent(/^CBS News$/);
+  });
+
   it('plays and downloads a finished video, and names its source', () => {
     const job: JobInfo = { ...base, state: 'done', step: 'Fatto', title: 'Pianist rescued', duration: 26.2,
       news: { title: 't', url: 'https://bbc.co.uk/a', published: '', outlet: 'BBC News', summary: '' } };
