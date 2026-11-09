@@ -16,6 +16,8 @@ services:
       SILO_URL: http://silo:9000
       SILO_ACCESS_KEY: ${SILO_ACCESS_KEY:?set SILO_ACCESS_KEY in .env}
       SILO_SECRET_KEY: ${SILO_SECRET_KEY:?set SILO_SECRET_KEY in .env}
+      # setup downloads the Civitai models with it, when they are missing
+      CIVITAI_TOKEN: ${CIVITAI_TOKEN:-}
     depends_on:
       - silo
     healthcheck:

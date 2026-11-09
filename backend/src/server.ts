@@ -10,7 +10,7 @@ import { z } from "zod";
 import { Library } from "./library.js";
 import { fetchNews, type NewsItem } from "./news.js";
 import { STYLES, type StyleId } from "./images.js";
-import { DEFAULT_MODEL, FORMATS, MODELS, RESOLUTIONS, type Format, type Resolution } from "./models.js";
+import { DEFAULT_MODEL, FORMATS, MODELS, modelById, RESOLUTIONS, type Format, type Resolution } from "./models.js";
 import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
 import { moveToStores } from "./move.js";
@@ -101,7 +101,7 @@ export function createApp(o: AppOptions = {}) {
   // the app shows what the server knows: the palette and what a new job starts with
   app.get("/api/styles", (c) => c.json({
     styles: Object.entries(STYLES).map(([id, s]) => ({ id, label: s.label })), defaults: DEFAULT_OPTIONS,
-    models: MODELS.map(({ id, label, note, negative, minutes }) => ({ id, label, note, negative, minutes })) }));
+    models: MODELS.map(({ id, label, note, negative, img2img, minutes }) => ({ id, label, note, negative, img2img, minutes })) }));
   app.get("/api/news", async (c) => c.json(await news()));
   // the pages follow this: "changed" whenever a job does (they read /api/jobs again), a ping every 25 s
   // so a quiet stream is not taken for a dead one
@@ -157,6 +157,7 @@ export function createApp(o: AppOptions = {}) {
     const parsed = PhotoJob.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ detail: z.prettifyError(parsed.error) }, 422);
     const photo = parsed.data;
+    if (photo.init && !modelById(photo.model).img2img) return c.json({ detail: "this model draws only from text" }, 422);
     if (photo.init && !(await uploads().has(photo.init.key))) return c.json({ detail: "the starting picture is not there: upload it again" }, 422);
     const job = Job.create(root, { topic: photo.prompt, voice: "", captions: false, kind: "photo", photo });
     enqueue(job);

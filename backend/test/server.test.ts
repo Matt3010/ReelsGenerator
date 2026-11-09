@@ -155,6 +155,10 @@ describe("photos", () => {
     expect((await init("2b1e7c1a-0000-4000-8000-000000000002", 0.6)).status).toBe(422);
     expect((await init("2b1e7c1a-0000-4000-8000-000000000001", 1.5)).status).toBe(422);
     expect((await init("../secret", 0.6)).status).toBe(422);
+    // an NSFW model draws only from text
+    const nsfw = await postPhotos(app, { prompt: "a cat", model: "lustify", init: { key: "2b1e7c1a-0000-4000-8000-000000000001", strength: 0.6 } });
+    expect(nsfw.status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", model: "lustify" })).status).toBe(200);
   });
 
   it("lists the pictures of a job and serves them", async () => {
@@ -185,8 +189,8 @@ describe("options", () => {
     expect(body.styles[0]).toEqual({ id: "toon", label: "Cartoon" });
     expect(body.styles.length).toBeGreaterThanOrEqual(18);
     expect(body.defaults).toEqual({ style: "toon", realPeople: false, avoid: true, model: "dreamshaper" });
-    expect(body.models.map((m: { id: string }) => m.id)).toEqual(["dreamshaper", "zimage", "krea2"]);
-    expect(body.models[1]).toEqual({ id: "zimage", label: "Z-Image Turbo", note: expect.any(String), negative: false,
+    expect(body.models.map((m: { id: string }) => m.id)).toEqual(["dreamshaper", "zimage", "krea2", "juggernaut", "lustify"]);
+    expect(body.models[1]).toEqual({ id: "zimage", label: "Z-Image Turbo", note: expect.any(String), negative: false, img2img: true,
       minutes: { standard: expect.any(Number), fullhd: expect.any(Number), "4k": expect.any(Number) } });
   });
 

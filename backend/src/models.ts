@@ -12,6 +12,8 @@ export interface Item {
   check: string;       // the file, relative to MODELS_DIR
   urls: string[];
   size?: number;       // expected bytes, to catch interrupted downloads
+  /** whose key the download needs (from the environment) */
+  auth?: "civitai";
 }
 
 export type Size = readonly [number, number];
@@ -32,8 +34,25 @@ export interface ImageModel {
   hiresFix: boolean;
   /** run without guidance, a model ignores the negative prompt */
   negative: boolean;
+  /** may start from an uploaded photo; never the NSFW ones: no real person's photo made explicit */
+  img2img: boolean;
   /** about how long one picture takes on the GTX 1060, by resolution (measured), for the menu */
   minutes: Record<Resolution, number>;
+}
+
+/**
+ * An SDXL checkpoint from Civitai, as its authors suggest it: no turbo, so 30 steps at a guidance of 4.5 (slower than
+ * DreamShaper's 8). NSFW-capable: text only.
+ */
+function sdxlFromCivitai(m: { id: string; label: string; note: string; file: string; download: string; size?: number }): ImageModel {
+  return {
+    id: m.id, label: m.label, note: m.note,
+    files: [{ name: m.label, check: m.file, size: m.size, auth: "civitai", urls: [`https://civitai.com/api/download/models/${m.download}`] }, VAE_SDXL],
+    args: (dir) => ["-m", join(dir, m.file), "--vae", join(dir, "sdxl.vae.safetensors"), "--steps", "30", "--cfg-scale", "4.5",
+      "--sampling-method", "dpm++2m", "--scheduler", "karras", "--vae-tiling"],
+    maxSide: 1344, hiresFix: true, negative: true, img2img: false,
+    minutes: { standard: 4, fullhd: 10, "4k": 15 },
+  };
 }
 
 const VAE_SDXL: Item = { name: "SDXL VAE fp16-fix", check: "sdxl.vae.safetensors", size: 334641162,
@@ -56,6 +75,7 @@ export const MODELS: ImageModel[] = [
     maxSide: 1344,
     hiresFix: true,
     negative: true,
+    img2img: true,
     minutes: { standard: 1.5, fullhd: 5, "4k": 10 },
   },
   {
@@ -76,6 +96,7 @@ export const MODELS: ImageModel[] = [
     maxSide: 2048,
     hiresFix: false,
     negative: false,
+    img2img: true,
   },
   {
     id: "krea2",
@@ -95,7 +116,16 @@ export const MODELS: ImageModel[] = [
     maxSide: 2048,
     hiresFix: false,
     negative: false,
+    img2img: true,
   },
+  sdxlFromCivitai({
+    id: "juggernaut", label: "Juggernaut XL", note: "SDXL fotorealistico, anche NSFW (solo da testo)",
+    file: "JuggernautXL_Ragnarok_ByRunDiffusion.safetensors", download: "1759168?fileId=1659952", size: 7105350162,
+  }),
+  sdxlFromCivitai({
+    id: "lustify", label: "LUSTIFY! v9", note: "SDXL NSFW fotorealistico (solo da testo)",
+    file: "lustify_v9_finalsdxl_.safetensors", download: "3045803?fileId=2924520",
+  }),
 ];
 
 export const DEFAULT_MODEL = "dreamshaper";

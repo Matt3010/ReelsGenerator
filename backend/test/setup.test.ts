@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, it } from "vitest";
-import { ITEMS, missing } from "../src/setup.js";
+import { ITEMS, authHeaders, missing } from "../src/setup.js";
 import { MODELS, type Item } from "../src/models.js";
 import { tmp } from "./helpers.js";
 
@@ -12,6 +12,13 @@ const FAKE: Item[] = [
 
 it("everything is missing in an empty folder", () => {
   expect(missing(tmp()).map((i) => i.name)).toEqual(ITEMS.map((i) => i.name));
+});
+
+it("asks Civitai with the key from the environment, and nobody else", () => {
+  const civitai: Item = { name: "c", check: "c.bin", urls: ["https://civitai.com/api/download/models/1"], auth: "civitai" };
+  expect(authHeaders(civitai, { CIVITAI_TOKEN: "k" })).toEqual({ authorization: "Bearer k" });
+  expect(authHeaders(FAKE[0], { CIVITAI_TOKEN: "k" })).toEqual({});
+  expect(() => authHeaders(civitai, {})).toThrow(/CIVITAI_TOKEN/);
 });
 
 it("present files are not downloaded again", () => {

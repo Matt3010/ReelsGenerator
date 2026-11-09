@@ -48,7 +48,7 @@
     problem = '';
     try {
       await onCreate({ prompt: prompt.trim(), negative: scelto?.negative === false ? '' : negative.trim(), count, format, seed: seedValue,
-        resolution, model, ...(start ? { init: { key: start.key, strength } } : {}) });
+        resolution, model, ...(start && scelto?.img2img !== false ? { init: { key: start.key, strength } } : {}) });
       prompt = '';
       negative = '';
     } catch (e) {
@@ -69,10 +69,13 @@
       placeholder="Cosa deve mostrare l'immagine: soggetto, luogo, luce, stile…" />
   </Field>
 
-  <Field label="Parti da un'immagine">
-    <PhotoField label="Parti da un'immagine" picked={start} {upload} onpick={(photo) => (start = photo)} />
-  </Field>
-  {#if start}
+  <!-- i modelli NSFW disegnano solo da testo: niente foto di persone vere da cui partire -->
+  {#if scelto?.img2img !== false}
+    <Field label="Parti da un'immagine">
+      <PhotoField label="Parti da un'immagine" picked={start} {upload} onpick={(photo) => (start = photo)} />
+    </Field>
+  {/if}
+  {#if start && scelto?.img2img !== false}
     <label class="quanto">
       <span>Quanto cambiarla <b>{Math.round(strength * 100)}%</b></span>
       <input type="range" min="0.1" max="0.95" step="0.05" bind:value={strength} aria-label="Quanto cambiarla" />

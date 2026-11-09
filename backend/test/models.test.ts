@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_MODEL, MODELS, drawPlan, modelById } from "../src/models.js";
 
 describe("models", () => {
-  it("offers DreamShaper, Z-Image Turbo and Krea 2 Turbo, DreamShaper first", () => {
-    expect(MODELS.map((m) => m.id)).toEqual(["dreamshaper", "zimage", "krea2"]);
+  it("offers DreamShaper, Z-Image Turbo, Krea 2 Turbo, Juggernaut XL and LUSTIFY, DreamShaper first", () => {
+    expect(MODELS.map((m) => m.id)).toEqual(["dreamshaper", "zimage", "krea2", "juggernaut", "lustify"]);
     expect(DEFAULT_MODEL).toBe("dreamshaper");
     for (const m of MODELS) {
       expect(m.label.length).toBeGreaterThan(0);
@@ -28,6 +28,16 @@ describe("models", () => {
     expect([at(plain, "--sampling-method"), at(plain, "--scheduler")]).toEqual(["dpm++2m", "karras"]);
     const fromPhoto = modelById("dreamshaper").args("/m", { init: true });
     expect([at(fromPhoto, "--sampling-method"), at(fromPhoto, "--scheduler")]).toEqual(["euler_a", "discrete"]);
+  });
+
+  it("the NSFW models draw only from text: no photo of a real person to start from", () => {
+    expect(MODELS.filter((m) => !m.img2img).map((m) => m.id)).toEqual(["juggernaut", "lustify"]);
+  });
+
+  it("downloads the Civitai models with the account's key", () => {
+    const lustify = modelById("lustify").files[0];
+    expect(lustify.urls[0]).toMatch(/^https:\/\/civitai\.com\/api\/download\/models\//);
+    expect(lustify.auth).toBe("civitai");
   });
 
   it("says which models listen to a negative prompt", () => {

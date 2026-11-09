@@ -18,6 +18,13 @@ export const ITEMS: Item[] = [
     urls: ["https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth"] },
 ];
 
+/** the headers a download needs: Civitai wants the account's key */
+export function authHeaders(item: Item, env: NodeJS.ProcessEnv = process.env): Record<string, string> {
+  if (item.auth !== "civitai") return {};
+  if (!env.CIVITAI_TOKEN) throw new Error(`${item.name}: set CIVITAI_TOKEN in .env to download it from Civitai`);
+  return { authorization: `Bearer ${env.CIVITAI_TOKEN}` };
+}
+
 export function missing(root = CONFIG.models, items = ITEMS): Item[] {
   return items.filter((i) => {
     const p = join(root, i.check);
@@ -26,10 +33,10 @@ export function missing(root = CONFIG.models, items = ITEMS): Item[] {
 }
 
 /** resumable: a partial file continues where it stopped */
-async function download(url: string, dst: string): Promise<void> {
+async function download(url: string, dst: string, auth: Record<string, string> = {}): Promise<void> {
   mkdirSync(dirname(dst), { recursive: true });
   const have = existsSync(dst) ? statSync(dst).size : 0;
-  const r = await fetch(url, { headers: have ? { range: `bytes=${have}-` } : {}, redirect: "follow" });
+  const r = await fetch(url, { headers: { ...auth, ...(have ? { range: `bytes=${have}-` } : {}) }, redirect: "follow" });
   if (r.status === 416) return;
   if (!r.ok || !r.body) throw new Error(`${url}: HTTP ${r.status}`);
   await pipeline(Readable.fromWeb(r.body as never), createWriteStream(dst, { flags: r.status === 206 ? "a" : "w" }));
@@ -38,7 +45,7 @@ async function download(url: string, dst: string): Promise<void> {
 async function install(item: Item, root = CONFIG.models): Promise<void> {
   for (const url of item.urls) {
     console.log(`  ${url.split("/").at(-1)}`);
-    await download(url, join(root, item.check));
+    await download(url, join(root, item.check), authHeaders(item));
   }
 }
 

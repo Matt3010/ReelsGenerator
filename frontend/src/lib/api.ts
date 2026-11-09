@@ -8,6 +8,8 @@ export interface JobOptions { style: string; realPeople: boolean; avoid: boolean
 /** un modello di immagini; `negative`: se ascolta il negative prompt */
 export interface ImageModel {
   id: string; label: string; note: string; negative: boolean;
+  /** può partire da una foto caricata (i modelli NSFW no) */
+  img2img: boolean;
   /** quanto ci mette più o meno un'immagine, per risoluzione */
   minutes: Record<Resolution, number>;
 }

@@ -70,6 +70,16 @@ describe('PhotoComposer', () => {
     expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ init: { key: 'k-1', strength: 0.6 } }));
   });
 
+  it('a model that draws only from text does not offer a picture to start from', async () => {
+    const { user, onCreate } = setup();
+    await user.click(screen.getByRole('button', { name: /^modello/i }));
+    await user.click(await screen.findByRole('button', { name: /lustify/i }));
+    expect(screen.queryByLabelText(/parti da un'immagine/i)).not.toBeInTheDocument();
+    await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'a fox');
+    await user.click(screen.getByRole('button', { name: /genera/i }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ model: 'lustify' }));
+  });
+
   it('without a picture of mine, starts from nothing', async () => {
     const { user, onCreate } = setup();
     await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'a fox');
