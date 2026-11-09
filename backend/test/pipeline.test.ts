@@ -225,6 +225,26 @@ it("a photo job with a newer model draws Full HD directly, with no hires fix, an
   expect([eng.library.get(id)!.width, eng.library.get(id)!.height]).toEqual([1920, 1080]);
 });
 
+it("shows the model's step and speed while it draws, for pictures and for videos", async () => {
+  const root = tmp();
+  const { eng } = engines(root);
+  const steps: string[] = [];
+  const draw = eng.generate;
+  let job: Job;
+  eng.generate = async (r) => {
+    r.progress?.({ step: 3, steps: 8, rate: "2.51 s/it" });
+    steps.push(job.status().step);
+    return draw(r);
+  };
+  job = Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
+    photo: { prompt: "a cat", negative: "", count: 1 } });
+  await runJob(job, eng);
+  job = Job.create(join(root, "jobs"), { topic: "x", voice: "v", captions: false });
+  await runJob(job, eng);
+  expect(steps[0]).toBe("Disegno l'immagine 1/1 · passo 3/8 · 2.51 s/it");
+  expect(steps[1]).toBe("Disegno l'immagine 1/2 · passo 3/8 · 2.51 s/it");
+});
+
 it("a photo job at 4K draws at Full HD with the hires fix, then ESRGAN takes it to 4K", async () => {
   const root = tmp();
   const { eng } = engines(root);

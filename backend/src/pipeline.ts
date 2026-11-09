@@ -3,7 +3,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { fitTo, planImages, produceImages, sdGenerator, sdUpscaler, type Generator, type StyleId, type Upscaler } from "./images.js";
+import { fitTo, planImages, produceImages, sdGenerator, sdUpscaler, type Generator, type SdProgress, type StyleId, type Upscaler } from "./images.js";
 import { DEFAULT_MODEL, drawPlan, modelById, type Format, type Resolution } from "./models.js";
 import { Library } from "./library.js";
 import { chooseImage, generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
@@ -129,6 +129,9 @@ export interface Engines {
   article: (item: NewsItem) => Promise<string>;
 }
 
+/** "Disegno l'immagine 1/2" followed by the model's step and speed */
+const withStep = (base: string, p: SdProgress) => `${base} · passo ${p.step}/${p.steps} · ${p.rate}`;
+
 /** every failure reaches the UI (and the full trace the job log) */
 function fail(job: Job, e: unknown): void {
   job.log(e instanceof Error ? e.stack ?? e.message : String(e));
@@ -153,10 +156,11 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   const ids: number[] = [];
   mkdirSync(join(job.dir, "work"), { recursive: true });
   for (let i = 1; i <= req.count; i++) {
-    job.update({ state: "running", step: `Disegno l'immagine ${i}/${req.count}` });
+    const base = `Disegno l'immagine ${i}/${req.count}`;
+    job.update({ state: "running", step: base });
     const seed = first + i - 1;
     const file = await eng.generate({ prompt: req.prompt, seed, out: join(job.dir, "work", `img${i}.png`), style, negative: req.negative,
-      model, size: plan.size, hires: plan.hires });
+      model, size: plan.size, hires: plan.hires, progress: (p) => job.update({ step: withStep(base, p) }) });
     if (plan.upscale) {
       job.update({ step: `Ingrandisco l'immagine ${i}/${req.count}` });
       await eng.upscale(file, plan.exact);
@@ -212,9 +216,11 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
     plan ??= await planImages(story, lib, opts.style, model, null);
     job.update({ state: "running", title: story.title, step: "Immagini" });
 
+    let base = "";
     const assets = await produceImages(story, lib, plan, eng.generate, {
       style: opts.style, limits, seed: topicSeed(st.topic), model, work: at("work"),
-      progress: (i, n) => job.update({ step: `Disegno l'immagine ${i}/${n}` }),
+      progress: (i, n) => job.update({ step: (base = `Disegno l'immagine ${i}/${n}`) }),
+      step: (p) => job.update({ step: withStep(base, p) }),
     });
     writeFileSync(at("images.json"), JSON.stringify(assets.map((a) => a.id)), "utf8");
     rmSync(at("work"), { recursive: true, force: true });

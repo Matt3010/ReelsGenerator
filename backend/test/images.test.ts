@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import sharp from "sharp";
-import { STYLES, planImages, produceImages, sdCommand, sdGenerator, sdUpscaler, fitTo, type DrawRequest } from "../src/images.js";
+import { STYLES, planImages, produceImages, sdCommand, sdGenerator, sdProgress, sdUpscaler, fitTo, type DrawRequest } from "../src/images.js";
 import { FORMATS, targetSize as targetSizeOf } from "../src/models.js";
 import { Library } from "../src/library.js";
 import { imagePrompt, parseStory } from "../src/spec.js";
@@ -181,4 +181,28 @@ it("cuts a picture to an exact size", async () => {
   await fitTo(file, [1920, 1080]);
   const { width, height } = await sharp(file).metadata();
   expect([width, height]).toEqual([1920, 1080]);
+});
+
+describe("progress", () => {
+  it("reads sd.cpp's step and speed from its progress bar", () => {
+    expect(sdProgress("\r  |=========>          | 3/8 - 2.51s/it")).toEqual({ step: 3, steps: 8, rate: "2.51 s/it" });
+    expect(sdProgress("\r  |====| 7/8 - 1.20it/s\x1b[K\r  |=====| 8/8 - 1.31it/s\x1b[K")).toEqual({ step: 8, steps: 8, rate: "1.31 it/s" });
+    expect(sdProgress("[INFO ] loading tensors")).toBeNull();
+    // as sd.cpp really prints them: padded numbers, an ETA, and a bar for loading the weights that is no step
+    expect(sdProgress("\r  |============>    | 1/4 -  27.93s/it - ETA 01:23\x1b[K")).toEqual({ step: 1, steps: 4, rate: "27.93 s/it" });
+    expect(sdProgress("\r  |##########| 4/4 -  11.60MB/s\x1b[K")).toBeNull();
+  });
+
+  it("the generator passes each step on as sd.cpp draws", async () => {
+    const seen: string[] = [];
+    const gen = sdGenerator("sd-cli.exe", "/m", async (cmd, opts) => {
+      opts?.onOutput?.("[INFO ] loading model\n");
+      opts?.onOutput?.("\r  |==>   | 1/8 - 3.00s/it");
+      opts?.onOutput?.("\r  |====> | 2/8 - 2.90s/it");
+      await png(at(cmd, "-o"));
+      return { code: 0, output: "" };
+    });
+    await gen(req("a barn", 1, join(tmp(), "a.png"), "free", "", { progress: (p) => seen.push(`${p.step}/${p.steps} ${p.rate}`) }));
+    expect(seen).toEqual(["1/8 3.00 s/it", "2/8 2.90 s/it"]);
+  });
 });

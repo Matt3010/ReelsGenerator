@@ -62,7 +62,7 @@
     <!-- fallito, basta l'avviso qui sotto con Riprova -->
     <div class="attesa">
       <Loader delay={0} />
-      <p>{job.step}{#if job.state === 'running' && trascorso !== null} · {durata(trascorso)}{/if}</p>
+      <p>{job.step}{#if job.state === 'running' && trascorso !== null}{` · ${durata(trascorso)}`}{/if}</p>
     </div>
   {/if}
 

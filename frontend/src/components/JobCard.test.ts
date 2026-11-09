@@ -21,7 +21,7 @@ describe('JobCard', () => {
   it('counts the time while it works, and says how long it took', () => {
     const now = Date.now() / 1000;
     const { unmount } = render(JobCard, { job: { ...base, started: now - 75 }, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
-    expect(screen.getByText(/1 min 15 s/)).toBeInTheDocument();
+    expect(screen.getByText("Disegno l'immagine 3/8 · 1 min 15 s")).toBeInTheDocument();
     unmount();
     render(JobCard, { job: { ...base, state: 'done', step: 'Fatto', started: now - 1200, finished: now - 100 },
       onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
