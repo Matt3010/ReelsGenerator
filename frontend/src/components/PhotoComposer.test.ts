@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { PALETTE } from '../test/fixtures';
 import PhotoComposer from './PhotoComposer.svelte';
 
 function setup(onCreate = vi.fn(async () => {})) {
-  render(PhotoComposer, { onCreate });
+  render(PhotoComposer, { onCreate, models: PALETTE.models });
   return { onCreate, user: userEvent.setup() };
 }
 
@@ -15,7 +16,7 @@ describe('PhotoComposer', () => {
     await user.type(screen.getByRole('textbox', { name: /negative prompt/i }), 'blurry, extra fingers');
     await user.click(screen.getByRole('button', { name: /genera/i }));
     expect(onCreate).toHaveBeenCalledWith({ prompt: 'a cybergirl, neon rain, 8k', negative: 'blurry, extra fingers', count: 1,
-      format: 'portrait', seed: null, resolution: 'standard' });
+      format: 'portrait', seed: null, resolution: 'standard', model: 'dreamshaper' });
     expect(screen.getByRole('textbox', { name: /^prompt/i })).toHaveValue('');
   });
 
@@ -31,6 +32,17 @@ describe('PhotoComposer', () => {
     await user.type(screen.getByRole('textbox', { name: /seed/i }), '42');
     await user.click(screen.getByRole('button', { name: /genera/i }));
     expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ format: 'landscape', count: 4, seed: 42, resolution: 'fullhd' }));
+  });
+
+  it('lets me pick the model, and drops the negative prompt for a model that ignores it', async () => {
+    const { user, onCreate } = setup();
+    await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'a fox');
+    await user.type(screen.getByRole('textbox', { name: /negative prompt/i }), 'blurry');
+    await user.click(screen.getByRole('button', { name: /^modello/i }));
+    await user.click(await screen.findByRole('button', { name: /z-image turbo/i }));
+    expect(screen.queryByRole('textbox', { name: /negative prompt/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /genera/i }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ model: 'zimage', negative: '' }));
   });
 
   it('takes a long prompt', () => {

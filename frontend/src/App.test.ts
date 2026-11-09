@@ -35,7 +35,7 @@ it('lists the videos and adds a new one at the top', async () => {
   await user.click(within(dialog).getByRole('button', { name: /genera video/i }));
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   expect(posted).toEqual([{ topic: 'New one', voice: 'en-US-GuyNeural', captions: true, news: null,
-    options: { style: 'toon', realPeople: false, avoid: true } }]);
+    options: { style: 'toon', realPeople: false, avoid: true, model: 'dreamshaper' } }]);
   expect(await screen.findByRole('button', { name: 'New one · In coda' })).toBeInTheDocument();
 });
 

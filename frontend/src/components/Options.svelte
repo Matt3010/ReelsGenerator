@@ -8,9 +8,11 @@
 
   /**
    * Le scelte di un lavoro, in un foglietto aperto da un tasto (il modulo resta corto): lo stile delle immagini e,
-   * per i video, quali limiti valgono. Il tasto dice lo stile scelto.
+   * il modello che le disegna e, per i video, quali limiti valgono. Il tasto dice lo stile scelto.
    */
-  let { options = $bindable(), styles, video = false }: { options: JobOptions; styles: Palette['styles']; video?: boolean } = $props();
+  let { options = $bindable(), styles, models, video = false }: {
+    options: JobOptions; styles: Palette['styles']; models: Palette['models']; video?: boolean;
+  } = $props();
 
   let open = $state(false);
   let anchor = $state<HTMLElement | null>(null);
@@ -26,6 +28,9 @@
     <div class="dentro">
       <Field label="Stile">
         <PickField label="Stile" value={options.style} options={styles} drop onpick={(id) => (options.style = id)} />
+      </Field>
+      <Field label="Modello">
+        <PickField label="Modello" value={options.model ?? ''} options={models} drop onpick={(id) => (options.model = id)} />
       </Field>
       {#if video}
         <Switch checked={options.realPeople} label="Persone reali"

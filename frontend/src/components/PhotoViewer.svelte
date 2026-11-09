@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { imageUrl, type PhotoRequest, type PictureInfo } from '../lib/api';
+  import { imageUrl, type ImageModel, type PhotoRequest, type PictureInfo } from '../lib/api';
   import PhotoProperties from './PhotoProperties.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
@@ -10,6 +10,7 @@
     id,
     prompt,
     photo,
+    models,
     onDelete,
     loadInfo,
   }: {
@@ -17,6 +18,7 @@
     prompt: string;
     /** con cosa è stata chiesta (null: un'immagine di un video) */
     photo: PhotoRequest | null;
+    models: ImageModel[];
     onDelete: (id: number) => void;
     loadInfo: (id: number) => Promise<PictureInfo | null>;
   } = $props();
@@ -38,7 +40,7 @@
 
 <img src={imageUrl(id)} alt={prompt} />
 <PhotoProperties photo={photo ?? { prompt, negative: '', count: 1, format: 'portrait', seed: null, resolution: 'standard' }}
-  seed={info?.seed} size={info ? [info.width, info.height] : undefined} />
+  seed={info?.seed} size={info ? [info.width, info.height] : undefined} model={info?.model} {models} />
 <div class="azioni">
   <Button look="ghost" size="sm" href={imageUrl(id)} download><Icon name="download" />Scarica</Button>
   <span class="spazio"></span>

@@ -1,14 +1,20 @@
 <script lang="ts">
-  import type { PhotoRequest } from '../lib/api';
+  import type { ImageModel, PhotoRequest } from '../lib/api';
   import { FORMATI, RISOLUZIONI, nomeDi } from '../lib/photo';
 
   /**
    * Con cosa sono state chieste le immagini: prompt, negative prompt, formato, risoluzione, quante, seed.
-   * Per un'immagine sola (`seed`, `size`): il suo seed vero e la sua misura, al posto di quante.
+   * Per un'immagine sola (`seed`, `size`, `model`): il suo seed vero, la sua misura e il suo modello, al posto di quante.
    */
-  let { photo, seed, size }: { photo: PhotoRequest; seed?: number; size?: readonly [number, number] } = $props();
+  let { photo, seed, size, model, models = [] }: {
+    photo: PhotoRequest; seed?: number; size?: readonly [number, number]; model?: string; models?: ImageModel[];
+  } = $props();
+
+  /** prima della scelta del modello c'era solo DreamShaper */
+  const modello = $derived(model ?? photo.model ?? 'dreamshaper');
 
   const righe = $derived([
+    ['Modello', models.find((m) => m.id === modello)?.label ?? modello],
     ['Prompt', photo.prompt],
     ['Negative prompt', photo.negative || '—'],
     ['Formato', nomeDi(FORMATI, photo.format)],

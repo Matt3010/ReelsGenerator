@@ -123,7 +123,7 @@ describe("photos", () => {
     expect(await waitFor(() => ran[0] === id)).toBe(true);
     const job = (await (await app.request("/api/jobs")).json())[0];
     expect(job).toMatchObject({ kind: "photo", topic: "a cat, 1920s, smiling",
-      photo: { prompt: "a cat, 1920s, smiling", negative: "dogs", count: 1, format: "portrait", seed: null, resolution: "standard" } });
+      photo: { prompt: "a cat, 1920s, smiling", negative: "dogs", count: 1, format: "portrait", seed: null, resolution: "standard", model: "dreamshaper" } });
   });
 
   it("refuses an empty prompt and too many pictures, and takes a long prompt", async () => {
@@ -136,6 +136,8 @@ describe("photos", () => {
     expect((await postPhotos(app, { prompt: "a cat", seed: -1 })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat", resolution: "8k" })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat", resolution: "4k" })).status).toBe(200);
+    expect((await postPhotos(app, { prompt: "a cat", model: "midjourney" })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", model: "krea2" })).status).toBe(200);
     expect((await postPhotos(app, { prompt: "a cat", format: "square", seed: 42, count: 4 })).status).toBe(200);
   });
 
@@ -149,7 +151,7 @@ describe("photos", () => {
     expect(img.status).toBe(200);
     expect(img.headers.get("content-type")).toBe("image/png");
     expect((await app.request("/api/library/999/image")).status).toBe(404);
-    expect(await (await app.request(`/api/library/${a.id}`)).json()).toEqual({ id: a.id, prompt: "a cat", seed: 1, width: 8, height: 14 });
+    expect(await (await app.request(`/api/library/${a.id}`)).json()).toEqual({ id: a.id, prompt: "a cat", seed: 1, width: 8, height: 14, model: "m" });
     expect((await app.request("/api/library/999")).status).toBe(404);
   });
 });
@@ -159,7 +161,9 @@ describe("options", () => {
     const body = await (await make().app.request("/api/styles")).json();
     expect(body.styles[0]).toEqual({ id: "toon", label: "Cartoon" });
     expect(body.styles.length).toBeGreaterThanOrEqual(18);
-    expect(body.defaults).toEqual({ style: "toon", realPeople: false, avoid: true });
+    expect(body.defaults).toEqual({ style: "toon", realPeople: false, avoid: true, model: "dreamshaper" });
+    expect(body.models.map((m: { id: string }) => m.id)).toEqual(["dreamshaper", "zimage", "krea2"]);
+    expect(body.models[1]).toEqual({ id: "zimage", label: "Z-Image Turbo", note: expect.any(String), negative: false });
   });
 
   it("keeps the job's style and limits, with today's behaviour by default", async () => {
@@ -167,8 +171,8 @@ describe("options", () => {
     await post({ topic: "x", voice: "en-US-GuyNeural", captions: true });
     await post({ topic: "y", voice: "en-US-GuyNeural", captions: true, options: { style: "realistic", realPeople: true, avoid: false } });
     const [second, first] = await (await app.request("/api/jobs")).json();
-    expect(first.options).toEqual({ style: "toon", realPeople: false, avoid: true });
-    expect(second.options).toEqual({ style: "realistic", realPeople: true, avoid: false });
+    expect(first.options).toEqual({ style: "toon", realPeople: false, avoid: true, model: "dreamshaper" });
+    expect(second.options).toEqual({ style: "realistic", realPeople: true, avoid: false, model: "dreamshaper" });
   });
 
   it("refuses an unknown style", async () => {

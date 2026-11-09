@@ -50,7 +50,7 @@ describe('Composer', () => {
     await user.click(screen.getByRole('switch', { name: /sottotitoli/i }));
     await user.click(screen.getByRole('button', { name: /genera video/i }));
     expect(onCreate).toHaveBeenCalledWith({ topic: 'Rocket lands on a barge', voice: 'en-GB-RyanNeural', captions: false, news: NEWS[1],
-      options: { style: 'toon', realPeople: false, avoid: true } });
+      options: { style: 'toon', realPeople: false, avoid: true, model: 'dreamshaper' } });
     expect(screen.getByRole('textbox', { name: /argomento/i })).toHaveValue('');
   });
 
@@ -59,19 +59,21 @@ describe('Composer', () => {
     await user.type(screen.getByRole('textbox', { name: /argomento/i }), 'The Great Molasses Flood');
     await user.click(screen.getByRole('button', { name: /genera video/i }));
     expect(onCreate).toHaveBeenCalledWith({ topic: 'The Great Molasses Flood', voice: 'en-US-GuyNeural', captions: true, news: null,
-      options: { style: 'toon', realPeople: false, avoid: true } });
+      options: { style: 'toon', realPeople: false, avoid: true, model: 'dreamshaper' } });
   });
 
-  it('lets me pick the style and lift the limits', async () => {
+  it('lets me pick the style, the model and lift the limits', async () => {
     const { user, onCreate } = setup();
     await user.type(screen.getByRole('textbox', { name: /argomento/i }), 'x');
     await user.click(screen.getByRole('button', { name: /opzioni/i }));
     await user.click(screen.getByRole('button', { name: /^stile/i }));
     await user.click(await screen.findByRole('button', { name: 'Realistico' }));
+    await user.click(screen.getByRole('button', { name: /^modello/i }));
+    await user.click(await screen.findByRole('button', { name: /z-image turbo/i }));
     await user.click(screen.getByRole('switch', { name: /persone reali/i }));
     await user.click(screen.getByRole('switch', { name: /anacronismi/i }));
     await user.click(screen.getByRole('button', { name: /genera video/i }));
-    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ options: { style: 'realistic', realPeople: true, avoid: false } }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ options: { style: 'realistic', realPeople: true, avoid: false, model: 'zimage' } }));
   });
 
   it('cannot generate without a topic', () => {

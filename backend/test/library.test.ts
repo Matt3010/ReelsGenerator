@@ -32,13 +32,14 @@ it("stores the same pixels once", async () => {
   expect(readdirSync(lib.imagesDir)).toHaveLength(1);
 });
 
-it("finds exact prompts ignoring case and spaces but not style", async () => {
+it("finds exact prompts ignoring case and spaces but not style or model", async () => {
   const d = tmp();
   const lib = new Library(join(d, "lib"));
   await lib.add(await png(join(d, "x.png")), { prompt: "A red  barn", tags: ["barn"], ...meta });
-  expect(lib.findExact("a red barn", "toon")).not.toBeNull();
-  expect(lib.findExact("a red barn", "photo")).toBeNull();
-  expect(lib.findExact("a blue barn", "toon")).toBeNull();
+  expect(lib.findExact("a red barn", "toon", "m")).not.toBeNull();
+  expect(lib.findExact("a red barn", "photo", "m")).toBeNull();
+  expect(lib.findExact("a red barn", "toon", "zimage")).toBeNull();
+  expect(lib.findExact("a blue barn", "toon", "m")).toBeNull();
 });
 
 it("ranks candidates by tag overlap", async () => {
@@ -48,7 +49,8 @@ it("ranks candidates by tag overlap", async () => {
   const farm = await lib.add(await png(join(d, "2.png"), [2, 2, 2]), { prompt: "farm", tags: ["farm", "cows", "field", "day"], ...meta });
   await lib.add(await png(join(d, "3.png"), [3, 3, 3]), { prompt: "ship", tags: ["ship", "sea"], ...meta });
   await lib.add(await png(join(d, "4.png"), [4, 4, 4]), { prompt: "barn", tags: ["barn", "farm", "day"], ...meta, style: "photo" });
-  expect(lib.candidates(["barn", "farm", "day"], "toon", 0.4).map((a) => a.id)).toEqual([barn.id, farm.id]);
+  await lib.add(await png(join(d, "5.png"), [5, 5, 5]), { prompt: "barn", tags: ["barn", "farm", "day"], ...meta, model: "zimage" });
+  expect(lib.candidates(["barn", "farm", "day"], "toon", "m", 0.4).map((a) => a.id)).toEqual([barn.id, farm.id]);
 });
 
 it("counts uses", async () => {
@@ -73,6 +75,17 @@ it("removes a picture: its file, its row and its tags", async () => {
   expect(lib.remove(a.id)).toBe(true);
   expect(lib.get(a.id)).toBeNull();
   expect(readdirSync(lib.imagesDir)).toHaveLength(0);
-  expect(lib.candidates(["barn"], "toon", 0)).toEqual([]);
+  expect(lib.candidates(["barn"], "toon", "m", 0)).toEqual([]);
   expect(lib.remove(a.id)).toBe(false);
+});
+
+it("pictures drawn before the model choice are recorded as DreamShaper's", async () => {
+  const d = tmp();
+  const lib = new Library(join(d, "lib"));
+  const a = await lib.add(await png(join(d, "x.png")), { prompt: "barn", tags: ["barn"], ...meta, model: "DreamShaperXL_Turbo_v2_1" });
+  // as if the last migration had not run yet
+  const db = new Database(lib.dbPath);
+  db.prepare("delete from __drizzle_migrations where created_at = (select max(created_at) from __drizzle_migrations)").run();
+  db.close();
+  expect(new Library(join(d, "lib")).get(a.id)!.model).toBe("dreamshaper");
 });

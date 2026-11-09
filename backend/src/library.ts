@@ -66,18 +66,20 @@ export class Library {
     return row ? this.toAsset(row) : null;
   }
 
-  findExact(prompt: string, style: string): Asset | null {
-    const row = this.db.select().from(assets).where(and(eq(assets.promptKey, promptKey(prompt)), eq(assets.style, style)))
+  /** the same prompt in the same style, drawn by the same model */
+  findExact(prompt: string, style: string, model: string): Asset | null {
+    const row = this.db.select().from(assets)
+      .where(and(eq(assets.promptKey, promptKey(prompt)), eq(assets.style, style), eq(assets.model, model)))
       .orderBy(asc(assets.id)).get();
     return row ? this.toAsset(row) : null;
   }
 
-  /** assets in the same style ranked by tag overlap (Jaccard), best first */
-  candidates(tags: string[], style: string, minOverlap = 0.5, limit = 5): Asset[] {
+  /** assets in the same style and by the same model, ranked by tag overlap (Jaccard), best first */
+  candidates(tags: string[], style: string, model: string, minOverlap = 0.5, limit = 5): Asset[] {
     const want = new Set(cleanTags(tags));
     if (!want.size) return [];
     const rows = this.db.selectDistinct({ id: assets.id }).from(assets).innerJoin(assetTags, eq(assetTags.assetId, assets.id))
-      .where(and(inArray(assetTags.tag, [...want]), eq(assets.style, style))).all();
+      .where(and(inArray(assetTags.tag, [...want]), eq(assets.style, style), eq(assets.model, model))).all();
     return rows.map((r) => this.get(r.id)!)
       .map((a) => {
         const have = new Set(a.tags);

@@ -1,9 +1,10 @@
 // Still pictures with stable-diffusion.cpp, reused from the library whenever a fitting one is already there.
 import { existsSync, mkdirSync, renameSync } from "node:fs";
-import { basename, dirname, extname, join } from "node:path";
+import { dirname, join } from "node:path";
 import sharp from "sharp";
 import type { Asset, Library } from "./library.js";
 import { CONFIG } from "./config.js";
+import { FORMATS, modelById, type Size } from "./models.js";
 import { run as runProcess, type Run } from "./proc.js";
 import { DEFAULT_LIMITS, imagePrompt, negativeExtra, type Limits, type Story } from "./spec.js";
 
@@ -41,70 +42,44 @@ export const STYLES = {
 
 export type StyleId = keyof typeof STYLES;
 
-/** the picture sizes on offer: vertical like the shorts, square, horizontal (SDXL's own shapes) */
-export const FORMATS = { portrait: [768, 1344], square: [1024, 1024], landscape: [1344, 768] } as const satisfies Record<string, readonly [number, number]>;
-export type Format = keyof typeof FORMATS;
-type Size = readonly [number, number];
-
-/** past SDXL's own size: drawn at its size, then enlarged (ESRGAN x4) and cut to the exact one; the long side */
-export const RESOLUTIONS = { standard: null, fullhd: 1920, "4k": 3840 } as const;
-export type Resolution = keyof typeof RESOLUTIONS;
-const RATIOS: Record<Format, number> = { portrait: 9 / 16, square: 1, landscape: 16 / 9 };
-
-/** the size a picture comes out at: SDXL's own for standard, else the exact aspect with the given long side */
-export function targetSize(format: Format, resolution: Resolution): Size {
-  const long = RESOLUTIONS[resolution];
-  if (long === null) return FORMATS[format];
-  const r = RATIOS[format];
-  return r >= 1 ? [long, Math.round(long / r)] : [Math.round(long * r), long];
+/** one picture to draw: what, in which style, with which model, how big (and, for SDXL, a hires fix to a larger size) */
+export interface DrawRequest {
+  prompt: string; seed: number; out: string; style: string;
+  /** added to the style's negative words (only models that use guidance listen to it) */
+  negative: string;
+  model: string;
+  /** without one, the shorts' 9:16 */
+  size?: Size;
+  /** a hires fix: drawn at `size`, then a second, light pass at about this larger size (real detail) */
+  hires?: Size;
 }
 
-/**
- * (prompt, seed, out, style, negative, size, hires) -> the image; without a size, the config's (the shorts' 9:16).
- * With `hires`, a hires fix: drawn at `size`, then a second, light pass at about that larger size (real detail).
- */
-export type Generator = (prompt: string, seed: number, out: string, style: string, negativeExtra: string, size?: Size,
-  hires?: Size) => Promise<string>;
+export type Generator = (req: DrawRequest) => Promise<string>;
 
 /** the hires fix's second pass: Lanczos up, then SDXL again with a light hand, at a size SDXL takes (multiples of 64) */
 const HIRES_DENOISE = "0.35";
+const HIRES_STEPS = "8";
 const up64 = (n: number) => Math.ceil(n / 64) * 64;
 export type Chooser = (prompt: string, candidates: Asset[]) => Promise<number | null>;
 
-export interface SdConfig {
-  exe: string; model: string; vae: string; width: number; height: number; steps: number; cfg: number;
-  sampler: string; scheduler: string;
-  /** the ESRGAN model that enlarges a picture past SDXL's own size */
-  esrgan?: string;
+/** sd-cli's arguments: the model's weights and settings from MODELS_DIR (`dir`), then the picture itself */
+export function sdCommand(exe: string, dir: string, r: DrawRequest): string[] {
+  const model = modelById(r.model);
+  const [width, height] = r.size ?? FORMATS.portrait;
+  const { positive, negative } = STYLES[r.style as StyleId];
+  return [exe, ...model.args(dir), "-p", positive ? `${positive}, ${r.prompt}` : r.prompt,
+    ...(model.negative ? ["-n", r.negative ? `${negative}, ${r.negative}` : negative] : []),
+    "-W", String(width), "-H", String(height), "--seed", String(r.seed), "-o", r.out,
+    ...(r.hires ? ["--hires", "--hires-width", String(up64(r.hires[0])), "--hires-height", String(up64(r.hires[1])), "--hires-upscaler", "Lanczos",
+      "--hires-denoising-strength", HIRES_DENOISE, "--hires-steps", HIRES_STEPS] : [])];
 }
 
-export const DEFAULT_SD: SdConfig = {
-  exe: CONFIG.sdCli,
-  model: join(CONFIG.models, "DreamShaperXL_Turbo_v2_1.safetensors"),
-  vae: join(CONFIG.models, "sdxl.vae.safetensors"),
-  esrgan: join(CONFIG.models, "RealESRGAN_x4plus.pth"),
-  width: 768, height: 1344, steps: 8, cfg: 2, sampler: "dpm++2m", scheduler: "karras",
-};
-
-export const modelName = (cfg: SdConfig) => basename(cfg.model, extname(cfg.model));
-
-export function sdCommand(cfg: SdConfig, prompt: string, seed: number, out: string, style: string, negExtra = "", size?: Size,
-  hires?: Size): string[] {
-  const [width, height] = size ?? [cfg.width, cfg.height];
-  const { positive, negative } = STYLES[style as StyleId];
-  return [cfg.exe, "-m", cfg.model, "--vae", cfg.vae, "-p", positive ? `${positive}, ${prompt}` : prompt, "-n", negExtra ? `${negative}, ${negExtra}` : negative,
-    "-W", String(width), "-H", String(height), "--steps", String(cfg.steps), "--cfg-scale", String(cfg.cfg),
-    "--sampling-method", cfg.sampler, "--scheduler", cfg.scheduler, "--seed", String(seed), "--vae-tiling", "-o", out,
-    ...(hires ? ["--hires", "--hires-width", String(up64(hires[0])), "--hires-height", String(up64(hires[1])), "--hires-upscaler", "Lanczos",
-      "--hires-denoising-strength", HIRES_DENOISE, "--hires-steps", String(cfg.steps)] : [])];
-}
-
-export function sdGenerator(cfg: SdConfig = DEFAULT_SD, run: Run = runProcess): Generator {
-  return async (prompt, seed, out, style, negExtra, size, hires) => {
-    mkdirSync(dirname(out), { recursive: true });
-    const r = await run(sdCommand(cfg, prompt, seed, out, style, negExtra, size, hires));
-    if (r.code !== 0 || !existsSync(out)) throw new Error(`sd.cpp exited ${r.code}: ${r.output.slice(-1500)}`);
-    return out;
+export function sdGenerator(exe = CONFIG.sdCli, dir = CONFIG.models, run: Run = runProcess): Generator {
+  return async (r) => {
+    mkdirSync(dirname(r.out), { recursive: true });
+    const res = await run(sdCommand(exe, dir, r));
+    if (res.code !== 0 || !existsSync(r.out)) throw new Error(`sd.cpp exited ${res.code}: ${res.output.slice(-1500)}`);
+    return r.out;
   };
 }
 
@@ -118,10 +93,10 @@ export async function fitTo(file: string, [width, height]: Size): Promise<void> 
 /** enlarges a picture in place to an exact size: ESRGAN x4 with sd.cpp, then a cut (cover) to the size */
 export type Upscaler = (file: string, size: Size) => Promise<void>;
 
-export function sdUpscaler(cfg: SdConfig = DEFAULT_SD, run: Run = runProcess): Upscaler {
+export function sdUpscaler(exe = CONFIG.sdCli, esrgan = join(CONFIG.models, "RealESRGAN_x4plus.pth"), run: Run = runProcess): Upscaler {
   return async (file, [width, height]) => {
     const big = file.replace(/\.png$/i, "") + ".x4.png";
-    const r = await run([cfg.exe, "-M", "upscale", "-i", file, "--upscale-model", cfg.esrgan ?? "", "-o", big]);
+    const r = await run([exe, "-M", "upscale", "-i", file, "--upscale-model", esrgan, "-o", big]);
     if (r.code !== 0 || !existsSync(big)) throw new Error(`ESRGAN exited ${r.code}: ${r.output.slice(-1500)}`);
     renameSync(big, file);
     await fitTo(file, [width, height]);
@@ -129,13 +104,14 @@ export function sdUpscaler(cfg: SdConfig = DEFAULT_SD, run: Run = runProcess): U
 }
 
 /** for every scene, the id of a library picture to reuse, or null when a new one must be drawn */
-export async function planImages(story: Story, lib: Library, style: string, choose: Chooser | null, minOverlap = 0.5) {
+/** only pictures in the same style and by the same model are reused */
+export async function planImages(story: Story, lib: Library, style: string, model: string, choose: Chooser | null, minOverlap = 0.5) {
   const plan: (number | null)[] = [];
   for (const scene of story.scenes) {
     const prompt = imagePrompt(story, scene);
-    const exact = lib.findExact(prompt, style);
+    const exact = lib.findExact(prompt, style, model);
     if (exact) { plan.push(exact.id); continue; }
-    const found = lib.candidates(scene.tags, style, minOverlap);
+    const found = lib.candidates(scene.tags, style, model, minOverlap);
     const pick = found.length && choose ? await choose(prompt, found) : null;
     plan.push(pick !== null && found.some((a) => a.id === pick) ? pick : null);
   }
@@ -154,10 +130,11 @@ export async function produceImages(story: Story, lib: Library, plan: (number | 
   let done = 0;
   for (const [i, scene] of story.scenes.entries()) {
     const prompt = imagePrompt(story, scene);
-    let asset = plan[i] !== null ? lib.get(plan[i]!) : lib.findExact(prompt, o.style);
+    let asset = plan[i] !== null ? lib.get(plan[i]!) : lib.findExact(prompt, o.style, o.model);
     if (!asset) {
       o.progress?.(++done, todo);
-      const file = await generate(prompt, o.seed, join(o.work, `img${String(i + 1).padStart(2, "0")}.png`), o.style, negativeExtra(story, o.limits ?? DEFAULT_LIMITS));
+      const file = await generate({ prompt, seed: o.seed, out: join(o.work, `img${String(i + 1).padStart(2, "0")}.png`), style: o.style,
+        negative: negativeExtra(story, o.limits ?? DEFAULT_LIMITS), model: o.model });
       asset = await lib.add(file, { prompt, tags: scene.tags, style: o.style, seed: o.seed, model: o.model });
     }
     lib.markUsed(asset.id);

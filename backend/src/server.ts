@@ -9,7 +9,8 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { Library } from "./library.js";
 import { fetchNews, type NewsItem } from "./news.js";
-import { FORMATS, RESOLUTIONS, STYLES, type Format, type Resolution, type StyleId } from "./images.js";
+import { STYLES, type StyleId } from "./images.js";
+import { DEFAULT_MODEL, FORMATS, MODELS, RESOLUTIONS, type Format, type Resolution } from "./models.js";
 import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
 import { VOICES } from "./tts.js";
@@ -22,10 +23,13 @@ const NewsRef = z.object({
   summary: z.string().default(""),
 });
 
+const Model = z.enum(MODELS.map((m) => m.id) as [string, ...string[]]).default(DEFAULT_MODEL);
+
 const Options = z.object({
   style: z.enum(Object.keys(STYLES) as [StyleId, ...StyleId[]]).default(DEFAULT_OPTIONS.style),
   realPeople: z.boolean().default(DEFAULT_OPTIONS.realPeople),
   avoid: z.boolean().default(DEFAULT_OPTIONS.avoid),
+  model: Model,
 }).prefault({});
 
 const NewJob = z.object({
@@ -44,6 +48,7 @@ const PhotoJob = z.object({
   format: z.enum(Object.keys(FORMATS) as [Format, ...Format[]]).default("portrait"),
   seed: z.number().int().min(0).max(2 ** 31 - 5).nullable().default(null),
   resolution: z.enum(Object.keys(RESOLUTIONS) as [Resolution, ...Resolution[]]).default("standard"),
+  model: Model,
 });
 
 export interface AppOptions {
@@ -78,7 +83,8 @@ export function createApp(o: AppOptions = {}) {
   app.get("/api/voices", (c) => c.json(VOICES));
   // the app shows what the server knows: the palette and what a new job starts with
   app.get("/api/styles", (c) => c.json({
-    styles: Object.entries(STYLES).map(([id, s]) => ({ id, label: s.label })), defaults: DEFAULT_OPTIONS }));
+    styles: Object.entries(STYLES).map(([id, s]) => ({ id, label: s.label })), defaults: DEFAULT_OPTIONS,
+    models: MODELS.map(({ id, label, note, negative }) => ({ id, label, note, negative })) }));
   app.get("/api/news", async (c) => c.json(await news()));
   // the pages follow this: "changed" whenever a job does (they read /api/jobs again), a ping every 25 s
   // so a quiet stream is not taken for a dead one
@@ -125,7 +131,7 @@ export function createApp(o: AppOptions = {}) {
     const id = Number(c.req.param("id"));
     const asset = Number.isInteger(id) ? library().get(id) : null;
     if (!asset) return c.json({ detail: "no such picture" }, 404);
-    return c.json({ id: asset.id, prompt: asset.prompt, seed: asset.seed, width: asset.width, height: asset.height });
+    return c.json({ id: asset.id, prompt: asset.prompt, seed: asset.seed, width: asset.width, height: asset.height, model: asset.model });
   });
 
   app.get("/api/library/:id/image", (c) => {

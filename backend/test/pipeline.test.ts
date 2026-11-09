@@ -17,14 +17,13 @@ function engines(root: string, story = storyDict(), opts: { llmCalls?: string[];
   const run: Runner = async (prompt, _schema, think) => { llmCalls.push(prompt); return think ? "Facts: the bridge fell in 1831." : JSON.stringify(story); };
   const eng: Engines = {
     llm: (fn) => fn(run),
-    generate: async (prompt, _seed, out) => { prompts.push(prompt); await png(out, [prompts.length * 50, 0, 0]); return out; },
+    generate: async ({ prompt, out }) => { prompts.push(prompt); await png(out, [prompts.length * 50, 0, 0]); return out; },
     tts: async (text, _voice, out): Promise<SceneAudio> => {
       voices.push(out.split(/[\\/]/).at(-1)!);
       writeFileSync(out, "mp3");
       return { audio: out.split(/[\\/]/).at(-1)!, duration: 1, words: text.split(" ").map((w, i) => ({ text: w, start: i * 0.2, end: i * 0.2 + 0.15 })) };
     },
     library: new Library(join(root, "lib")),
-    modelName: "fake",
     render: opts.render ?? (async (_dir, tl, images, motions, captions, out) => {
       Object.assign(rendered, { images, motions, captions, total: tl.total });
       writeFileSync(out, "mp4");
@@ -132,14 +131,17 @@ it("draws in the style the job asks for, and drops the anachronism list when tol
   const styles: string[] = [];
   const { eng } = engines(root);
   const draw = eng.generate;
-  eng.generate = async (p, seed, out, style, neg) => { styles.push(style); negatives.push(neg); return draw(p, seed, out, style, neg); };
+  const models: string[] = [];
+  eng.generate = async (r) => { styles.push(r.style); negatives.push(r.negative); models.push(r.model); return draw(r); };
   const job = Job.create(join(root, "jobs"), { topic: "x", voice: "v", captions: false,
-    options: { style: "realistic", realPeople: false, avoid: false } });
+    options: { style: "realistic", realPeople: false, avoid: false, model: "krea2" } });
   await runJob(job, eng);
   expect(job.status().state).toBe("done");
   expect(styles).toEqual(["realistic", "realistic"]);
   expect(negatives).toEqual(["", ""]);
+  expect(models).toEqual(["krea2", "krea2"]);
   expect(eng.library.get(1)!.style).toBe("realistic");
+  expect(eng.library.get(1)!.model).toBe("krea2");
 });
 
 
@@ -148,13 +150,13 @@ it("a photo job draws the prompt as written, with its negative prompt, and keeps
   const calls: string[][] = [];
   const { eng } = engines(root);
   const draw = eng.generate;
-  eng.generate = async (prompt, seed, out, style, negative, size) => { calls.push([prompt, style, negative]); return draw(prompt, seed, out, style, negative, size); };
+  eng.generate = async (r) => { calls.push([r.prompt, r.style, r.negative, r.model]); return draw(r); };
   const prompt = "An old fisherman mending nets at golden hour, 1920s harbour, cinematic";
   const job = Job.create(join(root, "jobs"), { topic: prompt, voice: "", captions: false, kind: "photo",
     photo: { prompt, negative: "blurry, extra fingers", count: 2 } });
   await runJob(job, eng);
   expect(job.status().state, job.status().error ?? "").toBe("done");
-  expect(calls).toEqual([[prompt, "free", "blurry, extra fingers"], [prompt, "free", "blurry, extra fingers"]]);
+  expect(calls).toEqual([[prompt, "free", "blurry, extra fingers", "dreamshaper"], [prompt, "free", "blurry, extra fingers", "dreamshaper"]]);
   const ids: number[] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
   expect(ids).toHaveLength(2);
   expect(eng.library.get(ids[0])!.tags).toEqual(["old", "fisherman", "mending", "nets", "golden", "hour", "1920s", "harbour"]);
@@ -165,7 +167,7 @@ it("a photo job draws its format, and from a given seed the next ones (the same 
   const calls: [number, readonly number[] | undefined][] = [];
   const { eng } = engines(root);
   const draw = eng.generate;
-  eng.generate = async (prompt, seed, out, style, negative, size) => { calls.push([seed, size]); return draw(prompt, seed, out, style, negative, size); };
+  eng.generate = async (r) => { calls.push([r.seed, r.size]); return draw(r); };
   const job = Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
     photo: { prompt: "a cat", negative: "", count: 3, format: "square", seed: 42 } });
   await runJob(job, eng);
@@ -178,7 +180,7 @@ it("a photo job at Full HD draws with a hires fix and cuts to the exact size, wi
   const root = tmp();
   const { eng } = engines(root);
   const hires: unknown[] = [];
-  eng.generate = async (prompt, seed, out, style, negative, size, h) => {
+  eng.generate = async ({ out, hires: h }) => {
     hires.push(h);
     await png(out, [1, 2, 3], [1920, 1088]);
     return out;
@@ -194,12 +196,26 @@ it("a photo job at Full HD draws with a hires fix and cuts to the exact size, wi
   expect([eng.library.get(id)!.width, eng.library.get(id)!.height]).toEqual([1920, 1080]);
 });
 
+it("a photo job with a newer model draws Full HD directly, with no hires fix, and says which model drew it", async () => {
+  const root = tmp();
+  const { eng } = engines(root);
+  const calls: unknown[] = [];
+  eng.generate = async ({ out, size, hires, model }) => { calls.push([model, size, hires]); await png(out, [1, 2, 3], [1920, 1088]); return out; };
+  const job = Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
+    photo: { prompt: "a cat", negative: "", count: 1, format: "landscape", seed: 1, resolution: "fullhd", model: "zimage" } });
+  await runJob(job, eng);
+  expect(calls).toEqual([["zimage", [1920, 1088], undefined]]);
+  const [id] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
+  expect(eng.library.get(id)!.model).toBe("zimage");
+  expect([eng.library.get(id)!.width, eng.library.get(id)!.height]).toEqual([1920, 1080]);
+});
+
 it("a photo job at 4K draws at Full HD with the hires fix, then ESRGAN takes it to 4K", async () => {
   const root = tmp();
   const { eng } = engines(root);
   const hires: unknown[] = [];
   const sizes: unknown[] = [];
-  eng.generate = async (prompt, seed, out, style, negative, size, h) => { hires.push(h); await png(out, [1, 2, 3], [64, 36]); return out; };
+  eng.generate = async ({ out, hires: h }) => { hires.push(h); await png(out, [1, 2, 3], [64, 36]); return out; };
   eng.upscale = async (file, size) => { sizes.push(size); };
   await runJob(Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
     photo: { prompt: "a cat", negative: "", count: 1, format: "landscape", seed: 1, resolution: "4k" } }), eng);

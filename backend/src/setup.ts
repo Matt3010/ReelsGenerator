@@ -5,26 +5,18 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
 import { CONFIG } from "./config.js";
+import { MODELS, type Item } from "./models.js";
 
 const HF = "https://huggingface.co";
 
-export interface Item {
-  name: string;
-  check: string;       // the file, relative to MODELS_DIR
-  urls: string[];
-  size?: number;       // expected bytes, to catch interrupted downloads
-}
-
+/** the story model, then every image model's files (shared ones once), then ESRGAN for 4K */
 export const ITEMS: Item[] = [
   { name: "Qwen3-8B Q4_K_M", check: "Qwen3-8B-Q4_K_M.gguf", size: 5027783488,
     urls: [`${HF}/Qwen/Qwen3-8B-GGUF/resolve/main/Qwen3-8B-Q4_K_M.gguf`] },
-  { name: "DreamShaper XL Turbo v2.1", check: "DreamShaperXL_Turbo_v2_1.safetensors", size: 6939220250,
-    urls: [`${HF}/Lykon/dreamshaper-xl-v2-turbo/resolve/main/DreamShaperXL_Turbo_v2_1.safetensors`] },
-  { name: "SDXL VAE fp16-fix", check: "sdxl.vae.safetensors", size: 334641162,
-    urls: [`${HF}/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl.vae.safetensors`] },
+  ...[...new Map(MODELS.flatMap((m) => m.files).map((f) => [f.check, f])).values()],
   { name: "RealESRGAN x4plus", check: "RealESRGAN_x4plus.pth", size: 67040989,
     urls: ["https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth"] },
-]
+];
 
 export function missing(root = CONFIG.models, items = ITEMS): Item[] {
   return items.filter((i) => {

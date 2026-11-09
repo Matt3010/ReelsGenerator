@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Format, PhotoRequest, Resolution } from '../lib/api';
+  import type { Format, ImageModel, PhotoRequest, Resolution } from '../lib/api';
   import { FORMATI, RISOLUZIONI } from '../lib/photo';
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
@@ -10,12 +10,17 @@
 
   /**
    * Un'immagine: il prompt e il negative prompt, passati al modello così come sono; sotto il formato, la risoluzione,
-   * quante, e il seed (vuoto: a caso; scritto: le stesse immagini di nuovo, per ritoccare solo il prompt).
+   * quante, e il seed (vuoto: a caso; scritto: le stesse immagini di nuovo, per ritoccare solo il prompt). In cima il modello:
+   * chi non ascolta il negative prompt non lo chiede nemmeno.
    */
-  let { onCreate }: { onCreate: (req: PhotoRequest) => Promise<void> } = $props();
+  let { onCreate, models }: { onCreate: (req: PhotoRequest) => Promise<void>; models: ImageModel[] } = $props();
 
   const QUANTE = [1, 2, 3, 4].map((n) => ({ id: String(n), label: String(n) }));
 
+  // il primo della lista: il server mette in cima quello predefinito
+  // svelte-ignore state_referenced_locally
+  let model = $state(models[0]?.id ?? '');
+  const scelto = $derived(models.find((m) => m.id === model));
   let prompt = $state('');
   let negative = $state('');
   let format = $state<Format>('portrait');
@@ -32,7 +37,8 @@
     sending = true;
     problem = '';
     try {
-      await onCreate({ prompt: prompt.trim(), negative: negative.trim(), count, format, seed: seedValue, resolution });
+      await onCreate({ prompt: prompt.trim(), negative: scelto?.negative === false ? '' : negative.trim(), count, format, seed: seedValue,
+        resolution, model });
       prompt = '';
       negative = '';
     } catch (e) {
@@ -44,15 +50,21 @@
 </script>
 
 <div class="modulo">
+  <Field label="Modello">
+    <PickField label="Modello" value={model} options={models} drop onpick={(id) => (model = id)} />
+  </Field>
+
   <Field label="Prompt">
     <TextField kind="multiline" label="Prompt" maxlength={2000} rows="6" bind:value={prompt}
       placeholder="Cosa deve mostrare l'immagine: soggetto, luogo, luce, stile…" />
   </Field>
 
-  <Field label="Negative prompt">
-    <TextField kind="multiline" label="Negative prompt" maxlength={2000} rows="3" bind:value={negative}
-      placeholder="Cosa non deve esserci: blurry, extra fingers, text…" />
-  </Field>
+  {#if scelto?.negative !== false}
+    <Field label="Negative prompt">
+      <TextField kind="multiline" label="Negative prompt" maxlength={2000} rows="3" bind:value={negative}
+        placeholder="Cosa non deve esserci: blurry, extra fingers, text…" />
+    </Field>
+  {/if}
 
   <div class="riga">
     <Field label="Formato">

@@ -2,10 +2,12 @@
 
 export interface NewsItem { title: string; url: string; published: string; outlet: string; summary: string }
 
-/** lo stile delle immagini e quali limiti valgono: per video e immagini */
-export interface JobOptions { style: string; realPeople: boolean; avoid: boolean }
-/** gli stili che il server sa disegnare e le scelte con cui parte un lavoro: li decide lui */
-export interface Palette { styles: { id: string; label: string }[]; defaults: JobOptions }
+/** lo stile delle immagini, il modello che le disegna e quali limiti valgono: per video e immagini */
+export interface JobOptions { style: string; realPeople: boolean; avoid: boolean; model?: string }
+/** un modello di immagini; `negative`: se ascolta il negative prompt */
+export interface ImageModel { id: string; label: string; note: string; negative: boolean }
+/** gli stili e i modelli che il server sa usare e le scelte con cui parte un lavoro: li decide lui */
+export interface Palette { styles: { id: string; label: string }[]; defaults: JobOptions; models: ImageModel[] }
 
 export interface NewJob { topic: string; voice: string; captions: boolean; news: NewsItem | null; options: JobOptions }
 
@@ -13,9 +15,11 @@ export interface NewJob { topic: string; voice: string; captions: boolean; news:
 export type Format = 'portrait' | 'square' | 'landscape';
 /** oltre la misura del modello: disegnata e poi ingrandita (lato lungo 1920 o 3840) */
 export type Resolution = 'standard' | 'fullhd' | '4k';
-export interface PhotoRequest { prompt: string; negative: string; count: number; format: Format; seed: number | null; resolution: Resolution }
-/** cos'è un'immagine della libreria: il seed per rifarla, la misura */
-export interface PictureInfo { id: number; prompt: string; seed: number; width: number; height: number }
+export interface PhotoRequest {
+  prompt: string; negative: string; count: number; format: Format; seed: number | null; resolution: Resolution; model?: string;
+}
+/** cos'è un'immagine della libreria: il seed per rifarla, la misura, il modello che l'ha disegnata */
+export interface PictureInfo { id: number; prompt: string; seed: number; width: number; height: number; model: string }
 
 export interface JobInfo extends NewJob {
   kind?: 'video' | 'photo';

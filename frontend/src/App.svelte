@@ -45,17 +45,19 @@
   function nuovo() {
     if (!palette) return;
     if (tab === 'video') ui.openModal({ title: 'Nuovo video', view: Composer, props: { voices, palette, loadNews: api.news, onCreate: create } });
-    else ui.openModal({ title: 'Nuova immagine', view: PhotoComposer, props: { onCreate: createPhotos } });
+    else ui.openModal({ title: 'Nuova immagine', view: PhotoComposer, props: { onCreate: createPhotos, models: palette.models } });
   }
 
   const apri = (job: JobInfo) =>
     // un lavoro di immagini si chiama così: il suo prompt intero non sta in una testata
-    ui.openModal({ title: job.kind === 'photo' ? 'Immagini' : job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story } });
+    ui.openModal({ title: job.kind === 'photo' ? 'Immagini' : job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story,
+      models: palette?.models ?? [] } });
 
   function apriFoto(id: number) {
     const picture = pictures.find((p) => p.id === id);
     ui.openModal({ title: 'Immagine', view: PhotoViewer,
-      props: { id, prompt: picture?.alt ?? '', photo: picture?.photo ?? null, onDelete: removePicture, loadInfo: api.picture } });
+      props: { id, prompt: picture?.alt ?? '', photo: picture?.photo ?? null, models: palette?.models ?? [],
+        onDelete: removePicture, loadInfo: api.picture } });
   }
 
   /** la pagina la dice l'indirizzo: / i video, /immagini le immagini */

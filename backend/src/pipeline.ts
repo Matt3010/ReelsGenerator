@@ -3,8 +3,8 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { DEFAULT_SD, FORMATS, fitTo, modelName, planImages, produceImages, sdGenerator, sdUpscaler, targetSize, type Format, type Generator,
-  type Resolution, type StyleId, type Upscaler } from "./images.js";
+import { fitTo, planImages, produceImages, sdGenerator, sdUpscaler, type Generator, type StyleId, type Upscaler } from "./images.js";
+import { DEFAULT_MODEL, drawPlan, modelById, type Format, type Resolution } from "./models.js";
 import { Library } from "./library.js";
 import { chooseImage, generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
 import { articleText, type NewsItem } from "./news.js";
@@ -20,12 +20,14 @@ const LIBRARY = CONFIG.library;
 /** a photo job: the prompt and the negative prompt as written, drawn count times in a format; from a seed, the next ones */
 export interface PhotoRequest {
   prompt: string; negative: string; count: number; format?: Format; seed?: number | null;
-  /** past SDXL's own size (Full HD, 4K): enlarged after drawing */
+  /** past the native size (Full HD, 4K): see drawPlan */
   resolution?: Resolution;
+  /** the image model (MODELS); none, the default */
+  model?: string;
 }
-/** the job's choices: the picture style and which limits apply (both kinds of job) */
-export interface JobOptions { style: StyleId; realPeople: boolean; avoid: boolean }
-export const DEFAULT_OPTIONS: JobOptions = { style: "toon", realPeople: false, avoid: true };
+/** the job's choices: the picture style, the image model and which limits apply (both kinds of job) */
+export interface JobOptions { style: StyleId; realPeople: boolean; avoid: boolean; model?: string }
+export const DEFAULT_OPTIONS: JobOptions = { style: "toon", realPeople: false, avoid: true, model: DEFAULT_MODEL };
 export interface NewJob {
   topic: string; voice: string; captions: boolean; news?: NewsItem | null;
   kind?: "video" | "photo"; photo?: PhotoRequest; // a photo job: only pictures
@@ -111,7 +113,6 @@ export interface Engines {
   generate: Generator;
   tts: (text: string, voice: string, out: string) => Promise<SceneAudio>;
   library: Library;
-  modelName: string;
   render: typeof renderVideo;
   normalize: (src: string, dst: string) => Promise<void>;
   upscale: Upscaler;
@@ -135,11 +136,9 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   const st = job.status();
   const req = st.photo!;
   const style = "free";
-  const size = FORMATS[req.format ?? "portrait"];
-  const resolution = req.resolution ?? "standard";
-  const exact = targetSize(req.format ?? "portrait", resolution);
-  // past SDXL's size: a hires fix to Full HD (real detail); 4K then goes up the last step with ESRGAN
-  const hires = resolution === "standard" ? undefined : targetSize(req.format ?? "portrait", "fullhd");
+  const model = req.model ?? DEFAULT_MODEL;
+  // past the native size: SDXL a hires fix to Full HD, the newer models Full HD directly; 4K then ESRGAN
+  const plan = drawPlan(modelById(model), req.format ?? "portrait", req.resolution ?? "standard");
   // a given seed makes the same pictures again; none, a random start
   const first = req.seed ?? randomInt(2 ** 31 - 4);
   const ids: number[] = [];
@@ -147,13 +146,13 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   for (let i = 1; i <= req.count; i++) {
     job.update({ state: "running", step: `Disegno l'immagine ${i}/${req.count}` });
     const seed = first + i - 1;
-    const file = await eng.generate(req.prompt, seed, join(job.dir, "work", `img${i}.png`), style, req.negative, size, hires);
-    if (resolution === "fullhd") await fitTo(file, exact);
-    if (resolution === "4k") {
+    const file = await eng.generate({ prompt: req.prompt, seed, out: join(job.dir, "work", `img${i}.png`), style, negative: req.negative,
+      model, size: plan.size, hires: plan.hires });
+    if (plan.upscale) {
       job.update({ step: `Ingrandisco l'immagine ${i}/${req.count}` });
-      await eng.upscale(file, exact);
-    }
-    ids.push((await eng.library.add(file, { prompt: req.prompt, tags: promptTags(req.prompt), style, seed, model: eng.modelName })).id);
+      await eng.upscale(file, plan.exact);
+    } else if (plan.exact !== plan.size) await fitTo(file, plan.exact);
+    ids.push((await eng.library.add(file, { prompt: req.prompt, tags: promptTags(req.prompt), style, seed, model })).id);
   }
   writeFileSync(join(job.dir, "images.json"), JSON.stringify(ids), "utf8");
   rmSync(join(job.dir, "work"), { recursive: true, force: true });
@@ -172,6 +171,7 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
   const at = (name: string) => join(job.dir, name);
   const opts = st.options ?? DEFAULT_OPTIONS;
   const limits = { avoid: opts.avoid, realPeople: opts.realPeople };
+  const model = opts.model ?? DEFAULT_MODEL;
   try {
     const lib = eng.library;
     let story: Story;
@@ -195,16 +195,16 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
         if (st.news) s.source = { outlet: st.news.outlet, title: st.news.title, url: st.news.url, published: st.news.published };
         writeFileSync(at("story.json"), JSON.stringify(s, null, 1), "utf8");
         job.update({ step: "Cerco immagini riusabili" });
-        const p = await planImages(s, lib, opts.style, (prompt, c) => chooseImage(prompt, c, run));
+        const p = await planImages(s, lib, opts.style, model, (prompt, c) => chooseImage(prompt, c, run));
         writeFileSync(at("plan.json"), JSON.stringify(p), "utf8");
         return [s, p] as const;
       });
     }
-    plan ??= await planImages(story, lib, opts.style, null);
+    plan ??= await planImages(story, lib, opts.style, model, null);
     job.update({ state: "running", title: story.title, step: "Immagini" });
 
     const assets = await produceImages(story, lib, plan, eng.generate, {
-      style: opts.style, limits, seed: topicSeed(st.topic), model: eng.modelName, work: at("work"),
+      style: opts.style, limits, seed: topicSeed(st.topic), model, work: at("work"),
       progress: (i, n) => job.update({ step: `Disegno l'immagine ${i}/${n}` }),
     });
     writeFileSync(at("images.json"), JSON.stringify(assets.map((a) => a.id)), "utf8");
@@ -246,13 +246,12 @@ export function markInterrupted(root: string): number {
 export function defaultEngines(): Engines {
   return {
     llm: (fn) => withLlama(fn, { log: join(JOBS, "llama-server.log") }),
-    generate: sdGenerator(DEFAULT_SD),
+    generate: sdGenerator(),
     tts: (text, voice, out) => synthesize(text, voice, out),
     library: new Library(LIBRARY),
-    modelName: modelName(DEFAULT_SD),
     render: renderVideo,
     normalize: normalizeAudio,
-    upscale: sdUpscaler(DEFAULT_SD),
+    upscale: sdUpscaler(),
     maxSeconds: 30,
     article: (item) => articleText(item),
   };

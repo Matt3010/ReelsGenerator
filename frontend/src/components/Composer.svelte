@@ -86,7 +86,7 @@
     </div>
   </div>
 
-  <Options bind:options styles={palette.styles} video />
+  <Options bind:options styles={palette.styles} models={palette.models} video />
 
   <Switch checked={captions} label="Sottotitoli" hint="Le parole a schermo mentre la voce le dice" onchange={(v) => (captions = v)} />
 
