@@ -102,7 +102,7 @@ export function sdCommand(exe: string, dir: string, r: DrawRequest): string[] {
   const model = modelById(r.model);
   const [width, height] = r.size ?? FORMATS.portrait;
   const { positive, negative } = STYLES[r.style as StyleId];
-  return [exe, ...model.args(dir), "-p", positive ? `${positive}, ${r.prompt}` : r.prompt,
+  return [exe, ...model.args(dir, { init: Boolean(r.init) }), "-p", positive ? `${positive}, ${r.prompt}` : r.prompt,
     ...(model.negative ? ["-n", r.negative ? `${negative}, ${r.negative}` : negative] : []),
     "-W", String(width), "-H", String(height), "--seed", String(r.seed), "-o", r.out,
     ...(r.init ? ["-i", r.init, "--strength", String(r.strength ?? 0.6)] : []),

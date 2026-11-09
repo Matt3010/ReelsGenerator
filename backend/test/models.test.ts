@@ -22,6 +22,14 @@ describe("models", () => {
       "--vae", "/m/wan_2.1_vae.safetensors"]));
   });
 
+  it("DreamShaper starts from a photo with euler_a: dpm++2m karras overcooks an img2img", () => {
+    const at = (args: string[], flag: string) => args[args.indexOf(flag) + 1];
+    const plain = modelById("dreamshaper").args("/m");
+    expect([at(plain, "--sampling-method"), at(plain, "--scheduler")]).toEqual(["dpm++2m", "karras"]);
+    const fromPhoto = modelById("dreamshaper").args("/m", { init: true });
+    expect([at(fromPhoto, "--sampling-method"), at(fromPhoto, "--scheduler")]).toEqual(["euler_a", "discrete"]);
+  });
+
   it("says which models listen to a negative prompt", () => {
     expect(modelById("dreamshaper").negative).toBe(true);
     expect(modelById("zimage").negative).toBe(false);

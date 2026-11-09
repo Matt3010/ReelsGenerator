@@ -24,8 +24,8 @@ export interface ImageModel {
   /** a line for the menu: what it is good at, how long it takes */
   note: string;
   files: Item[];
-  /** the weights and its own settings (steps, guidance, sampler), as sd-cli arguments */
-  args: (dir: string) => string[];
+  /** the weights and its own settings (steps, guidance, sampler), as sd-cli arguments; `init`: starting from a photo */
+  args: (dir: string, o?: { init?: boolean }) => string[];
   /** the longest side it draws well by itself; past it, the hires fix (SDXL) or ESRGAN */
   maxSide: number;
   /** SDXL's way past its size: a second, light pass at the larger size */
@@ -49,8 +49,10 @@ export const MODELS: ImageModel[] = [
         urls: [`${HF}/Lykon/dreamshaper-xl-v2-turbo/resolve/main/DreamShaperXL_Turbo_v2_1.safetensors`] },
       VAE_SDXL,
     ],
-    args: (dir) => ["-m", join(dir, "DreamShaperXL_Turbo_v2_1.safetensors"), "--vae", join(dir, "sdxl.vae.safetensors"),
-      "--steps", "8", "--cfg-scale", "2", "--sampling-method", "dpm++2m", "--scheduler", "karras", "--vae-tiling"],
+    // from a photo, euler_a: dpm++2m karras overcooks an img2img at so few steps (tried on the lighthouse)
+    args: (dir, o = {}) => ["-m", join(dir, "DreamShaperXL_Turbo_v2_1.safetensors"), "--vae", join(dir, "sdxl.vae.safetensors"),
+      "--steps", "8", "--cfg-scale", "2", "--sampling-method", o.init ? "euler_a" : "dpm++2m", "--scheduler", o.init ? "discrete" : "karras",
+      "--vae-tiling"],
     maxSide: 1344,
     hiresFix: true,
     negative: true,

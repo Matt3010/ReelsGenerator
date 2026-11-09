@@ -95,6 +95,7 @@ it("runs the chosen model with its own weights, and no negative prompt where the
 it("starts from a picture when asked: sd.cpp's init image and how much to change it", () => {
   const cmd = cmdOf(req("a barn at night", 1, "o.png", "free", "", { init: "/w/init.png", strength: 0.55 }));
   expect([at(cmd, "-i"), at(cmd, "--strength")]).toEqual(["/w/init.png", "0.55"]);
+  expect(at(cmd, "--sampling-method")).toBe("euler_a"); // the model's own way to start from a photo
   expect(cmdOf(req("a barn", 1, "o.png", "free", ""))).not.toContain("--strength");
 });
 
