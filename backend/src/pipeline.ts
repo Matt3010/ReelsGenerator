@@ -140,7 +140,7 @@ export interface Engines {
 }
 
 /** "Disegno l'immagine 1/2" followed by the model's step and speed */
-const PHASE_NAMES = { steps: "passo", hires: "rifinitura", decode: "decodifica" } as const;
+const PHASE_NAMES = { encode: "preparo la foto", steps: "passo", hires: "rifinitura", decode: "decodifica" } as const;
 /** the model's step and speed, under the job's step: "passo 3/8 · 2.51 s/it" */
 const modelDetail = (p: SdProgress) => `${PHASE_NAMES[p.phase]} ${p.step}/${p.steps} · ${p.rate}`;
 

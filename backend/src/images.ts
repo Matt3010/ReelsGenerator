@@ -45,7 +45,7 @@ export type StyleId = keyof typeof STYLES;
  * where sd.cpp is: the step it is on and its speed, as it prints them ("2.51 s/it", or "1.31 it/s" when fast); the
  * phase: the steps of the drawing, the hires fix's second pass (SDXL), or the decoding to pixels (tile by tile)
  */
-export type SdPhase = "steps" | "hires" | "decode";
+export type SdPhase = "encode" | "steps" | "hires" | "decode";
 export interface SdProgress { step: number; steps: number; rate: string; phase: SdPhase }
 
 // "  |=====>   | 1/4 -  27.93s/it - ETA 01:23": the number is padded; loading the weights prints MB/s, no step
@@ -61,7 +61,8 @@ export function sdProgress(chunk: string, phase: SdPhase = "steps"): SdProgress 
 
 /** follows sd.cpp's output piece by piece: each bar with the phase the log last announced */
 function phaseReader(report: (p: SdProgress) => void): (chunk: string) => void {
-  let phase: SdPhase = "steps";
+  // before "generating image": the starting picture (img2img) encoded to the model's space
+  let phase: SdPhase = "encode";
   return (chunk) => {
     for (const piece of chunk.split(/\r|\n/)) {
       const marked = PHASES.find(([re]) => re.test(piece));
