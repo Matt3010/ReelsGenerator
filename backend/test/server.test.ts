@@ -115,36 +115,28 @@ describe("photos", () => {
   const postPhotos = (app: ReturnType<typeof createApp>, body: object) =>
     app.request("/api/photos", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
 
-  it("suggests tags per category and the recent combinations", async () => {
-    const { app, library } = withLibrary();
-    library.recordTags({ subject: ["a robot"] });
-    const body = await (await app.request("/api/tags")).json();
-    expect(body.categories.map((c: { id: string }) => c.id)).toEqual(["subject", "place", "era", "light", "framing"]);
-    expect(body.categories[0].tags[0]).toBe("a robot");
-    expect(body.recent).toEqual([{ subject: ["a robot"] }]);
-  });
-
-  it("queues a photo job with the composed prompt", async () => {
+  it("queues a photo job with the prompt as written", async () => {
     const { app, ran } = withLibrary();
-    const r = await postPhotos(app, { tags: { subject: ["a cat"], era: ["1920s"] }, extra: "smiling", count: 2 });
+    const r = await postPhotos(app, { prompt: " a cat, 1920s, smiling ", negative: "dogs" });
     expect(r.status).toBe(200);
     const { id } = await r.json();
     expect(await waitFor(() => ran[0] === id)).toBe(true);
     const job = (await (await app.request("/api/jobs")).json())[0];
-    expect(job).toMatchObject({ kind: "photo", topic: "a cat, 1920s, smiling", photo: { tags: { subject: ["a cat"], era: ["1920s"] }, extra: "smiling", count: 2 } });
+    expect(job).toMatchObject({ kind: "photo", topic: "a cat, 1920s, smiling", photo: { prompt: "a cat, 1920s, smiling", negative: "dogs", count: 1 } });
   });
 
-  it("refuses an empty prompt, unknown categories and too many pictures", async () => {
+  it("refuses an empty prompt and too many pictures, and takes a long prompt", async () => {
     const { app } = withLibrary();
-    expect((await postPhotos(app, { tags: {}, extra: " ", count: 1 })).status).toBe(422);
-    expect((await postPhotos(app, { tags: { colour: ["red"] }, extra: "", count: 1 })).status).toBe(422);
-    expect((await postPhotos(app, { tags: { subject: ["a cat"] }, extra: "", count: 9 })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: " " })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", count: 9 })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat, ".repeat(250) })).status).toBe(200);
+    expect((await postPhotos(app, { prompt: "x".repeat(2001) })).status).toBe(422);
   });
 
   it("lists the pictures of a job and serves them", async () => {
     const { app, library, root } = withLibrary();
     const a = await library.add(await png(join(root, "x.png")), { prompt: "a cat", tags: ["a cat"], style: "toon", seed: 1, model: "m" });
-    const { id } = await (await postPhotos(app, { tags: { subject: ["a cat"] }, extra: "", count: 1 })).json();
+    const { id } = await (await postPhotos(app, { prompt: "a cat" })).json();
     writeFileSync(join(root, id, "images.json"), JSON.stringify([a.id]));
     expect((await (await app.request("/api/jobs")).json())[0].images).toEqual([a.id]);
     const img = await app.request(`/api/library/${a.id}/image`);
@@ -235,7 +227,7 @@ describe("deleting", () => {
     const { app, library, root } = withLibrary();
     const a = await library.add(await png(join(root, "a.png"), [1, 1, 1]), { prompt: "a", tags: ["a"], style: "toon", seed: 1, model: "m" });
     const b = await library.add(await png(join(root, "b.png"), [2, 2, 2]), { prompt: "b", tags: ["b"], style: "toon", seed: 1, model: "m" });
-    const job = Job.create(root, { topic: "a cat", voice: "", captions: false, kind: "photo", photo: { tags: {}, extra: "a cat", count: 2 } });
+    const job = Job.create(root, { topic: "a cat", voice: "", captions: false, kind: "photo", photo: { prompt: "a cat", negative: "", count: 2 } });
     job.update({ state: "done" });
     writeFileSync(join(job.dir, "images.json"), JSON.stringify([a.id, b.id]));
     expect((await del(app, `/api/library/${a.id}`)).status).toBe(200);

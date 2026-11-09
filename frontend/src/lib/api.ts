@@ -9,11 +9,8 @@ export interface Palette { styles: { id: string; label: string }[]; defaults: Jo
 
 export interface NewJob { topic: string; voice: string; captions: boolean; news: NewsItem | null; options: JobOptions }
 
-export type TagSet = Record<string, string[]>;
-export interface PhotoRequest { tags: TagSet; extra: string; count: number }
-/** quello che il compositore manda: le foto chieste e le scelte */
-export type NewPhotos = PhotoRequest & { options: JobOptions };
-export interface TagSuggestions { categories: { id: string; label: string; tags: string[] }[]; recent: TagSet[] }
+/** un'immagine: il prompt e il negative prompt come scritti */
+export interface PhotoRequest { prompt: string; negative: string; count: number }
 
 export interface JobInfo extends NewJob {
   kind?: 'video' | 'photo';
@@ -45,10 +42,9 @@ export const api = {
   create: (job: NewJob) => call<{ id: string }>('/api/jobs', { method: 'POST', body: JSON.stringify(job) }),
   retry: (id: string) => call<{ id: string }>(`/api/jobs/${id}/retry`, { method: 'POST' }),
   story: (id: string) => call<Story>(`/api/jobs/${id}/story`),
-  tags: () => call<TagSuggestions>('/api/tags'),
   remove: (id: string) => call<{ ok: true }>(`/api/jobs/${id}`, { method: 'DELETE' }),
   removePicture: (id: number) => call<{ ok: true }>(`/api/library/${id}`, { method: 'DELETE' }),
-  photos: (req: NewPhotos) => call<{ id: string }>('/api/photos', { method: 'POST', body: JSON.stringify(req) }),
+  photos: (req: PhotoRequest) => call<{ id: string }>('/api/photos', { method: 'POST', body: JSON.stringify(req) }),
 };
 
 export const videoUrl = (id: string) => `/api/jobs/${id}/video`;

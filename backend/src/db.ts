@@ -22,17 +22,3 @@ export const assetTags = sqliteTable("asset_tags", {
   position: integer("position").notNull().default(0),
 }, (t) => [primaryKey({ columns: [t.assetId, t.tag] }), index("asset_tags_tag").on(t.tag)]);
 
-/** how often and when each tag of the photo composer was used: the composer puts the favourites first */
-export const tagUses = sqliteTable("tag_uses", {
-  category: text("category").notNull(),
-  tag: text("tag").notNull(),
-  uses: integer("uses").notNull().default(0),
-  lastUsed: integer("last_used", { mode: "timestamp_ms" }).notNull(),
-}, (t) => [primaryKey({ columns: [t.category, t.tag] })]);
-
-/** the latest tag combinations, to make one again with a click */
-export const recentPrompts = sqliteTable("recent_prompts", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  tags: text("tags", { mode: "json" }).notNull().$type<Record<string, string[]>>(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-});

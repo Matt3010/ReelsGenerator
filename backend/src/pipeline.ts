@@ -4,11 +4,10 @@ import { createHash, randomBytes, randomInt } from "node:crypto";
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 import { DEFAULT_SD, modelName, planImages, produceImages, sdGenerator, type Generator, type StyleId } from "./images.js";
-import { Library, type TagSet } from "./library.js";
+import { Library } from "./library.js";
 import { chooseImage, generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
 import { articleText, type NewsItem } from "./news.js";
 import { CONFIG } from "./config.js";
-import { tagsOf } from "./photos.js";
 import { normalizeAudio, renderVideo } from "./render.js";
 import { parseStory, type Story } from "./spec.js";
 import { buildTimeline, type SceneAudio } from "./timeline.js";
@@ -17,13 +16,14 @@ import { synthesize } from "./tts.js";
 export const JOBS = CONFIG.jobs;
 const LIBRARY = CONFIG.library;
 
-export interface PhotoRequest { tags: TagSet; extra: string; count: number }
+/** a photo job: the prompt and the negative prompt as written, drawn count times */
+export interface PhotoRequest { prompt: string; negative: string; count: number }
 /** the job's choices: the picture style and which limits apply (both kinds of job) */
 export interface JobOptions { style: StyleId; realPeople: boolean; avoid: boolean }
 export const DEFAULT_OPTIONS: JobOptions = { style: "toon", realPeople: false, avoid: true };
 export interface NewJob {
   topic: string; voice: string; captions: boolean; news?: NewsItem | null;
-  kind?: "video" | "photo"; photo?: PhotoRequest; // a photo job: only pictures, from the composer's tags
+  kind?: "video" | "photo"; photo?: PhotoRequest; // a photo job: only pictures
   options?: JobOptions;
 }
 export interface JobStatus extends NewJob {
@@ -119,19 +119,23 @@ function fail(job: Job, e: unknown): void {
   job.update({ state: "error", step: "Errore", error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) });
 }
 
-/** only pictures: the composer's prompt drawn count times (each with its own seed), kept in the library with its tags */
+const STOP = new Set(["the", "and", "with", "for", "from", "into", "onto", "over", "under"]);
+/** the words of a prompt, as tags for the library (so a short can reuse the picture) */
+export const promptTags = (prompt: string) =>
+  [...new Set((prompt.toLowerCase().match(/[a-z0-9']+/g) ?? []).filter((w) => w.length >= 3 && !STOP.has(w)))].slice(0, 8);
+
+/** only pictures: the prompt drawn count times as written (no style added, each with its own seed), kept in the library */
 async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   const st = job.status();
   const req = st.photo!;
-  const { style } = st.options ?? DEFAULT_OPTIONS;
-  eng.library.recordTags(req.tags);
+  const style = "free";
   const ids: number[] = [];
   mkdirSync(join(job.dir, "work"), { recursive: true });
   for (let i = 1; i <= req.count; i++) {
     job.update({ state: "running", step: `Disegno l'immagine ${i}/${req.count}` });
     const seed = randomInt(2 ** 31);
-    const file = await eng.generate(st.topic, seed, join(job.dir, "work", `img${i}.png`), style, "");
-    ids.push((await eng.library.add(file, { prompt: st.topic, tags: tagsOf(req.tags), style, seed, model: eng.modelName })).id);
+    const file = await eng.generate(req.prompt, seed, join(job.dir, "work", `img${i}.png`), style, req.negative);
+    ids.push((await eng.library.add(file, { prompt: req.prompt, tags: promptTags(req.prompt), style, seed, model: eng.modelName })).id);
   }
   writeFileSync(join(job.dir, "images.json"), JSON.stringify(ids), "utf8");
   rmSync(join(job.dir, "work"), { recursive: true, force: true });

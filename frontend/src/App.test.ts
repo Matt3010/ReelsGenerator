@@ -17,7 +17,6 @@ function fakeServer(jobs: unknown[]) {
       return json({ id: '20261109-120000-aaaaaa' });
     }
     if (url === '/api/jobs') return json(jobs);
-    if (url === '/api/tags') return json({ categories: [], recent: [] });
     if (url === '/api/styles') return json(PALETTE);
     return json([]);
   }));
@@ -53,9 +52,9 @@ it('switches to pictures, whose composer opens in a modal', async () => {
   await user.click(await screen.findByRole('link', { name: /immagini/i }));
   expect(screen.getByRole('link', { name: /immagini/i })).toHaveAttribute('aria-current', 'page');
   expect(screen.queryByRole('button', { name: /nuovo video/i })).not.toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: /nuove immagini/i }));
-  const dialog = await screen.findByRole('dialog', { name: /nuove immagini/i });
-  expect(within(dialog).getByRole('button', { name: /genera immagini/i })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /nuova immagine/i }));
+  const dialog = await screen.findByRole('dialog', { name: /nuova immagine/i });
+  expect(within(dialog).getByRole('button', { name: /genera immagine/i })).toBeInTheDocument();
 });
 
 it('shows videos under Video and pictures under Immagini, never mixed', async () => {
@@ -63,7 +62,7 @@ it('shows videos under Video and pictures under Immagini, never mixed', async ()
     { id: '20261109-101021-61aa49', topic: 'Molasses', voice: 'v', captions: true, news: null, state: 'done', step: 'Fatto',
       title: 'The Great Molasses Flood', error: null, created: 2 },
     { id: '20261109-110000-bbbbbb', kind: 'photo', topic: 'a robot, golden hour', voice: '', captions: false, news: null, state: 'done',
-      step: 'Fatto', title: null, error: null, created: 1, images: [7], photo: { tags: { subject: ['a robot'] }, extra: '', count: 1 } },
+      step: 'Fatto', title: null, error: null, created: 1, images: [7], photo: { prompt: 'a robot, golden hour', negative: '', count: 1 } },
   ]);
   render(App);
   expect(await screen.findByRole('button', { name: 'The Great Molasses Flood' })).toBeInTheDocument();
@@ -100,7 +99,7 @@ it('opens a video in a modal, with its player and script button', async () => {
 
 it('keeps a picture job still at work as a tile above the gallery', async () => {
   fakeServer([{ id: '20261109-110000-cccccc', kind: 'photo', topic: 'a fox', voice: '', captions: false, news: null, state: 'running',
-    step: "Disegno l'immagine 1/2", title: null, error: null, created: 1, photo: { tags: { subject: ['a fox'] }, extra: '', count: 2 } }]);
+    step: "Disegno l'immagine 1/2", title: null, error: null, created: 1, photo: { prompt: 'a fox', negative: '', count: 2 } }]);
   render(App);
   await userEvent.setup().click(await screen.findByRole('link', { name: /immagini/i }));
   expect(await screen.findByRole('button', { name: "a fox · Disegno l'immagine 1/2" })).toBeInTheDocument();
@@ -115,4 +114,14 @@ it('follows the server: a change it announces shows up without asking every few 
     step: 'Il modello scrive la storia', title: null, error: null, created: 4 });
   serverSays();
   expect(await screen.findByRole('button', { name: 'Fresh · Il modello scrive la storia' })).toBeInTheDocument();
+});
+
+it('names a picture job "Immagini" in its modal, not by its whole prompt', async () => {
+  fakeServer([{ id: '20261109-110000-eeeeee', kind: 'photo', topic: 'a very long prompt '.repeat(10), voice: '', captions: false, news: null,
+    state: 'error', step: 'Errore', title: null, error: 'boom', created: 1, photo: { prompt: 'x', negative: '', count: 1 } }]);
+  render(App);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('link', { name: /immagini/i }));
+  await user.click(await screen.findByRole('button', { name: /a very long prompt/ }));
+  expect(await screen.findByRole('dialog', { name: 'Immagini' })).toBeInTheDocument();
 });

@@ -47,15 +47,13 @@ describe('api', () => {
 });
 
 describe('api for pictures', () => {
-  it('reads tag suggestions, asks for pictures and points at them', async () => {
+  it('asks for pictures and points at them', async () => {
     const fetcher = reply({ id: 'p1' });
     vi.stubGlobal('fetch', fetcher);
-    await api.tags();
-    expect(fetcher).toHaveBeenLastCalledWith('/api/tags', expect.anything());
-    await api.photos({ tags: { subject: ['a cat'] }, extra: '', count: 2, options });
+    await api.photos({ prompt: 'a cat', negative: 'dogs', count: 1 });
     const [url, init] = fetcher.mock.calls.at(-1) as unknown as [string, RequestInit];
     expect(url).toBe('/api/photos');
-    expect(JSON.parse(init.body as string)).toEqual({ tags: { subject: ['a cat'] }, extra: '', count: 2, options });
+    expect(JSON.parse(init.body as string)).toEqual({ prompt: 'a cat', negative: 'dogs', count: 1 });
     expect(imageUrl(7)).toBe('/api/library/7/image');
     await api.remove('j1');
     expect(fetcher).toHaveBeenLastCalledWith('/api/jobs/j1', expect.objectContaining({ method: 'DELETE' }));

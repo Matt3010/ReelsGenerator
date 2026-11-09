@@ -10,7 +10,6 @@ import { z } from "zod";
 import { Library } from "./library.js";
 import { fetchNews, type NewsItem } from "./news.js";
 import { STYLES, type StyleId } from "./images.js";
-import { CATEGORIES, composePrompt, suggestions } from "./photos.js";
 import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
 import { VOICES } from "./tts.js";
@@ -37,13 +36,12 @@ const NewJob = z.object({
   options: Options,
 });
 
-const Tag = z.string().trim().min(1).max(60);
+// a picture: the prompt and the negative prompt as written (sd.cpp splits a long prompt into CLIP's chunks)
 const PhotoJob = z.object({
-  tags: z.partialRecord(z.enum(CATEGORIES.map((c) => c.id) as [string, ...string[]]), z.array(Tag).max(8)),
-  extra: z.string().trim().max(200).default(""),
-  count: z.number().int().min(1).max(4).default(2),
-  options: Options,
-}).refine((p) => composePrompt(p.tags, p.extra) !== "", "choose a tag or write something");
+  prompt: z.string().trim().min(1, "write a prompt").max(2000),
+  negative: z.string().trim().max(2000).default(""),
+  count: z.number().int().min(1).max(4).default(1),
+});
 
 export interface AppOptions {
   root?: string; runner?: (job: Job) => Promise<void>; news?: () => Promise<NewsItem[]>; library?: () => Library;
@@ -102,15 +100,11 @@ export function createApp(o: AppOptions = {}) {
     return c.json({ ok: true });
   });
 
-  app.get("/api/tags", (c) => c.json({ categories: suggestions(library().usedTags()), recent: library().recentTagSets() }));
-
   app.post("/api/photos", async (c) => {
     const parsed = PhotoJob.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ detail: z.prettifyError(parsed.error) }, 422);
-    const { extra, count, options } = parsed.data;
-    // only the categories with tags: the history counts what was chosen
-    const tags = Object.fromEntries(Object.entries(parsed.data.tags).filter((e): e is [string, string[]] => !!e[1]?.length));
-    const job = Job.create(root, { topic: composePrompt(tags, extra), voice: "", captions: false, kind: "photo", photo: { tags, extra, count }, options });
+    const photo = parsed.data;
+    const job = Job.create(root, { topic: photo.prompt, voice: "", captions: false, kind: "photo", photo });
     enqueue(job);
     return c.json({ id: job.id });
   });

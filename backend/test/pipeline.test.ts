@@ -110,22 +110,6 @@ it("lists jobs newest first", () => {
 });
 
 
-it("a photo job draws the pictures, stores them with their tags and remembers the tags", async () => {
-  const root = tmp();
-  const { eng, prompts } = engines(root);
-  const tags = { subject: ["an old fisherman"], light: ["golden hour"] };
-  const job = Job.create(join(root, "jobs"), { topic: "an old fisherman, golden hour", voice: "", captions: false, kind: "photo",
-    photo: { tags, extra: "", count: 3 } });
-  await runJob(job, eng);
-  const st = job.status();
-  expect(st.state, st.error ?? "").toBe("done");
-  expect(prompts).toEqual(["an old fisherman, golden hour", "an old fisherman, golden hour", "an old fisherman, golden hour"]);
-  const ids: number[] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
-  expect(ids).toHaveLength(3);
-  expect(eng.library.get(ids[0])!.tags).toEqual(["an old fisherman", "golden hour"]);
-  expect(eng.library.recentTagSets()).toEqual([tags]);
-});
-
 it("after a restart, jobs left half-way are marked interrupted (and can be retried)", () => {
   const root = tmp();
   const running = Job.create(root, { topic: "a", voice: "v", captions: false });
@@ -157,13 +141,20 @@ it("draws in the style the job asks for, and drops the anachronism list when tol
   expect(eng.library.get(1)!.style).toBe("realistic");
 });
 
-it("a photo job uses its style too", async () => {
+
+it("a photo job draws the prompt as written, with its negative prompt, and keeps the pictures in the library", async () => {
   const root = tmp();
-  const styles: string[] = [];
+  const calls: string[][] = [];
   const { eng } = engines(root);
   const draw = eng.generate;
-  eng.generate = async (p, seed, out, style, neg) => { styles.push(style); return draw(p, seed, out, style, neg); };
-  await runJob(Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
-    photo: { tags: { subject: ["a cat"] }, extra: "", count: 1 }, options: { style: "free", realPeople: true, avoid: true } }), eng);
-  expect(styles).toEqual(["free"]);
+  eng.generate = async (prompt, seed, out, style, negative) => { calls.push([prompt, style, negative]); return draw(prompt, seed, out, style, negative); };
+  const prompt = "An old fisherman mending nets at golden hour, 1920s harbour, cinematic";
+  const job = Job.create(join(root, "jobs"), { topic: prompt, voice: "", captions: false, kind: "photo",
+    photo: { prompt, negative: "blurry, extra fingers", count: 2 } });
+  await runJob(job, eng);
+  expect(job.status().state, job.status().error ?? "").toBe("done");
+  expect(calls).toEqual([[prompt, "free", "blurry, extra fingers"], [prompt, "free", "blurry, extra fingers"]]);
+  const ids: number[] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
+  expect(ids).toHaveLength(2);
+  expect(eng.library.get(ids[0])!.tags).toEqual(["old", "fisherman", "mending", "nets", "golden", "hour", "1920s", "harbour"]);
 });

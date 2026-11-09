@@ -15,7 +15,7 @@
   import PhotoViewer from './components/PhotoViewer.svelte';
   import SurePopover from './components/SurePopover.svelte';
   import TabBar from './components/TabBar.svelte';
-  import { api, imageUrl, type JobInfo, type NewJob, type NewPhotos, type Palette } from './lib/api';
+  import { api, imageUrl, type JobInfo, type NewJob, type Palette, type PhotoRequest } from './lib/api';
   import { follow } from './lib/events';
   import { nav } from './lib/nav.svelte';
   import { ui } from './lib/ui.svelte';
@@ -36,7 +36,7 @@
     await refresh();
   }
 
-  async function createPhotos(req: NewPhotos) {
+  async function createPhotos(req: PhotoRequest) {
     await api.photos(req);
     ui.closeModal();
     await refresh();
@@ -45,11 +45,12 @@
   function nuovo() {
     if (!palette) return;
     if (tab === 'video') ui.openModal({ title: 'Nuovo video', view: Composer, props: { voices, palette, loadNews: api.news, onCreate: create } });
-    else ui.openModal({ title: 'Nuove immagini', view: PhotoComposer, props: { palette, loadTags: api.tags, onCreate: createPhotos } });
+    else ui.openModal({ title: 'Nuova immagine', view: PhotoComposer, props: { onCreate: createPhotos } });
   }
 
   const apri = (job: JobInfo) =>
-    ui.openModal({ title: job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story } });
+    // un lavoro di immagini si chiama così: il suo prompt intero non sta in una testata
+    ui.openModal({ title: job.kind === 'photo' ? 'Immagini' : job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story } });
 
   const apriFoto = (id: number) =>
     ui.openModal({ title: 'Immagine', view: PhotoViewer, props: { id, prompt: pictures.find((p) => p.id === id)?.alt ?? '', onDelete: removePicture } });
@@ -100,7 +101,7 @@
   <div class="comandi">
     <h2>{tab === 'photo' ? 'Le tue immagini' : 'I tuoi video'}</h2>
     <Button look="primary" onclick={nuovo} disabled={!palette}>
-      <Icon name="generate" />{tab === 'video' ? 'Nuovo video' : 'Nuove immagini'}
+      <Icon name="generate" />{tab === 'video' ? 'Nuovo video' : 'Nuova immagine'}
     </Button>
   </div>
   {#if !jobs}
@@ -108,7 +109,7 @@
   {:else if shown && shown.length === 0}
     <PageCard dashed>
       {#if tab === 'photo'}
-        <EmptyState title="Ancora nessuna immagine" line="Premi Nuove immagini, scegli qualche tag: un minuto o due per immagine." />
+        <EmptyState title="Ancora nessuna immagine" line="Premi Nuova immagine e scrivi il prompt: un minuto o due." />
       {:else}
         <EmptyState title="Ancora nessun video" line="Premi Nuovo video e scegli una notizia di oggi: ci vogliono una ventina di minuti." />
       {/if}

@@ -1,6 +1,6 @@
 // Reusable picture library: PNGs in <root>/images, an SQLite index (Drizzle ORM, migrations in drizzle/).
 import Database from "better-sqlite3";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { createHash } from "node:crypto";
@@ -8,7 +8,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { assets, assetTags, recentPrompts, tagUses } from "./db.js";
+import { assets, assetTags } from "./db.js";
 
 const MIGRATIONS = fileURLToPath(new URL("../drizzle", import.meta.url));
 
@@ -17,9 +17,6 @@ export interface Asset {
   width: number; height: number; uses: number;
 }
 export interface AssetMeta { prompt: string; tags: string[]; style: string; seed: number; model: string }
-
-export interface TagUse { category: string; tag: string; uses: number; lastUsed: Date }
-export type TagSet = Record<string, string[]>;
 
 export const promptKey = (p: string) => p.trim().toLowerCase().replace(/\s+/g, " ");
 const cleanTags = (tags: string[]) => [...new Set(tags.map((t) => t.trim().toLowerCase()).filter(Boolean))];
@@ -106,28 +103,5 @@ export class Library {
     this.db.update(assets).set({ uses: sql`${assets.uses} + 1` }).where(eq(assets.id, id)).run();
   }
 
-  /** one more use of each tag (and when), and the combination among the recent ones */
-  recordTags(tags: TagSet): void {
-    let now = Date.now();
-    const last = this.db.select({ at: recentPrompts.createdAt }).from(recentPrompts).orderBy(desc(recentPrompts.id)).get();
-    if (last && last.at.getTime() >= now) now = last.at.getTime() + 1; // strictly increasing: same-tick calls keep their order
-    const at = new Date(now);
-    this.db.transaction((tx) => {
-      for (const [category, list] of Object.entries(tags)) {
-        for (const tag of list) {
-          tx.insert(tagUses).values({ category, tag, uses: 1, lastUsed: at })
-            .onConflictDoUpdate({ target: [tagUses.category, tagUses.tag], set: { uses: sql`${tagUses.uses} + 1`, lastUsed: at } }).run();
-        }
-      }
-      tx.insert(recentPrompts).values({ tags, createdAt: at }).run();
-    });
-  }
 
-  usedTags(): TagUse[] {
-    return this.db.select().from(tagUses).all();
-  }
-
-  recentTagSets(limit = 8): TagSet[] {
-    return this.db.select({ tags: recentPrompts.tags }).from(recentPrompts).orderBy(desc(recentPrompts.id)).limit(limit).all().map((r) => r.tags);
-  }
 }

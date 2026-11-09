@@ -113,9 +113,10 @@
     background: rgb(0 0 0 / 0.18);
   }
 
+  /* la crocetta in alto, alla prima riga, anche quando il titolo va su più righe */
   header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
     flex: none;

@@ -66,24 +66,6 @@ it("keeps the data when reopened", async () => {
   expect(new Library(join(d, "lib")).get(a.id)!.prompt).toBe("barn");
 });
 
-it("remembers which tags were used, how often and when", async () => {
-  const lib = new Library(join(tmp(), "lib"));
-  lib.recordTags({ subject: ["cat", "dog"], light: ["night"] });
-  lib.recordTags({ subject: ["cat"] });
-  const used = lib.usedTags();
-  const cat = used.find((u) => u.tag === "cat")!;
-  expect(cat).toMatchObject({ category: "subject", uses: 2 });
-  expect(used.find((u) => u.tag === "dog")!.uses).toBe(1);
-  expect(used.find((u) => u.tag === "night")!.category).toBe("light");
-  expect(lib.recentTagSets()).toEqual([{ subject: ["cat"] }, { subject: ["cat", "dog"], light: ["night"] }]);
-});
-
-it("keeps only the latest tag sets", () => {
-  const lib = new Library(join(tmp(), "lib"));
-  for (let i = 0; i < 5; i++) lib.recordTags({ subject: [`s${i}`] });
-  expect(lib.recentTagSets(2)).toEqual([{ subject: ["s4"] }, { subject: ["s3"] }]);
-});
-
 it("removes a picture: its file, its row and its tags", async () => {
   const d = tmp();
   const lib = new Library(join(d, "lib"));
