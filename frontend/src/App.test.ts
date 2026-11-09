@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import App from './App.svelte';
@@ -27,10 +27,13 @@ it('lists the videos and adds a new one at the top', async () => {
   const posted = fakeServer([{ id: '20261109-101021-61aa49', topic: 'Molasses', voice: 'en-US-GuyNeural', captions: true, news: null,
     state: 'done', step: 'Fatto', title: 'The Great Molasses Flood', error: null, created: 1, duration: 25.6 }]);
   render(App);
-  expect(await screen.findByRole('heading', { name: 'The Great Molasses Flood' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'The Great Molasses Flood' })).toBeInTheDocument();
   const user = userEvent.setup();
-  await user.type(screen.getByRole('textbox', { name: /argomento/i }), 'New one');
-  await user.click(screen.getByRole('button', { name: /genera video/i }));
+  await user.click(screen.getByRole('button', { name: /nuovo video/i }));
+  const dialog = await screen.findByRole('dialog', { name: /nuovo video/i });
+  await user.type(within(dialog).getByRole('textbox', { name: /argomento/i }), 'New one');
+  await user.click(within(dialog).getByRole('button', { name: /genera video/i }));
+  await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   expect(posted).toEqual([{ topic: 'New one', voice: 'en-US-GuyNeural', captions: true, news: null,
     options: { style: 'toon', realPeople: false, avoid: true } }]);
   expect(await screen.findByText('In coda')).toBeInTheDocument();
@@ -42,13 +45,16 @@ it('invites to start when there are no videos yet', async () => {
   expect(await screen.findByText(/ancora nessun video/i)).toBeInTheDocument();
 });
 
-it('switches to the pictures composer', async () => {
+it('switches to pictures, whose composer opens in a modal', async () => {
   fakeServer([]);
   render(App);
-  await userEvent.setup().click(screen.getByRole('tab', { name: /immagini/i }));
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('tab', { name: /immagini/i }));
   expect(screen.getByRole('tab', { name: /immagini/i })).toHaveAttribute('aria-selected', 'true');
-  expect(screen.getByRole('button', { name: /genera immagini/i })).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: /genera video/i })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /nuovo video/i })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: /nuove immagini/i }));
+  const dialog = await screen.findByRole('dialog', { name: /nuove immagini/i });
+  expect(within(dialog).getByRole('button', { name: /genera immagini/i })).toBeInTheDocument();
 });
 
 it('shows videos under Video and pictures under Immagini, never mixed', async () => {
@@ -59,14 +65,19 @@ it('shows videos under Video and pictures under Immagini, never mixed', async ()
       step: 'Fatto', title: null, error: null, created: 1, images: [7], photo: { tags: { subject: ['a robot'] }, extra: '', count: 1 } },
   ]);
   render(App);
-  expect(await screen.findByRole('heading', { name: 'The Great Molasses Flood' })).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'The Great Molasses Flood' })).toBeInTheDocument();
   expect(screen.getByRole('heading', { name: 'I tuoi video' })).toBeInTheDocument();
-  expect(screen.queryByRole('heading', { name: 'a robot, golden hour' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('list', { name: 'Le tue immagini' })).not.toBeInTheDocument();
 
-  await userEvent.setup().click(screen.getByRole('tab', { name: /immagini/i }));
-  expect(screen.getByRole('heading', { name: 'Le tue immagini' })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: 'a robot, golden hour' })).toBeInTheDocument();
-  expect(screen.queryByRole('heading', { name: 'The Great Molasses Flood' })).not.toBeInTheDocument();
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('tab', { name: /immagini/i }));
+  const gallery = screen.getByRole('list', { name: 'Le tue immagini' });
+  expect(gallery.querySelector('img')).toHaveAttribute('src', '/api/library/7/image');
+  expect(screen.queryByRole('button', { name: 'The Great Molasses Flood' })).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: 'a robot, golden hour' }));
+  const viewer = await screen.findByRole('dialog');
+  expect(within(viewer).getByRole('img', { name: 'a robot, golden hour' })).toHaveAttribute('src', '/api/library/7/image');
 });
 
 it('invites to make the first pictures when there are none yet', async () => {
@@ -74,4 +85,22 @@ it('invites to make the first pictures when there are none yet', async () => {
   render(App);
   await userEvent.setup().click(screen.getByRole('tab', { name: /immagini/i }));
   expect(await screen.findByText(/ancora nessuna immagine/i)).toBeInTheDocument();
+});
+
+it('opens a video in a modal, with its player and script button', async () => {
+  fakeServer([{ id: '20261109-101021-61aa49', topic: 'Molasses', voice: 'v', captions: true, news: null, state: 'done', step: 'Fatto',
+    title: 'The Great Molasses Flood', error: null, created: 2 }]);
+  render(App);
+  await userEvent.setup().click(await screen.findByRole('button', { name: /The Great Molasses Flood/ }));
+  const dialog = await screen.findByRole('dialog', { name: 'The Great Molasses Flood' });
+  expect(dialog.querySelector('video[controls]')).toHaveAttribute('src', '/api/jobs/20261109-101021-61aa49/video');
+  expect(within(dialog).getByRole('button', { name: /copione/i })).toBeInTheDocument();
+});
+
+it('keeps a picture job still at work as a tile above the gallery', async () => {
+  fakeServer([{ id: '20261109-110000-cccccc', kind: 'photo', topic: 'a fox', voice: '', captions: false, news: null, state: 'running',
+    step: "Disegno l'immagine 1/2", title: null, error: null, created: 1, photo: { tags: { subject: ['a fox'] }, extra: '', count: 2 } }]);
+  render(App);
+  await userEvent.setup().click(await screen.findByRole('tab', { name: /immagini/i }));
+  expect(await screen.findByText("Disegno l'immagine 1/2")).toBeInTheDocument();
 });

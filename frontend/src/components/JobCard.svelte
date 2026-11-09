@@ -32,7 +32,7 @@
   }
 </script>
 
-<article class="job surface">
+<article class="job">
   {#if job.state === 'done' && job.kind === 'photo'}
     <div class="foto">
       {#each job.images ?? [] as id, i (id)}
@@ -59,7 +59,6 @@
   {/if}
 
   <div class="meta">
-    <h3>{job.title ?? job.topic}</h3>
     <p class="sotto">
       {#if job.news}<Icon name="news" size="sm" tone="muted" /> {job.news.outlet} · {/if}{job.topic}
       {#if job.duration}· {Math.round(job.duration)} s{/if}
@@ -85,13 +84,13 @@
 </article>
 
 <style>
-  .job { display: flex; flex-direction: column; overflow: hidden; animation: rise 0.3s var(--ease); }
+  .job { display: flex; flex-direction: column; gap: 4px; }
 
   video, .attesa {
     width: 100%;
     aspect-ratio: 9 / 16;
     background: #000;
-    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-radius: var(--r-in);
   }
 
   .attesa {
@@ -114,14 +113,12 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 2px;
     background: #000;
-    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    border-radius: var(--r-in);
     overflow: hidden;
   }
   .foto img { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: cover; }
 
-  .meta { display: grid; gap: 8px; padding: var(--card-pad); }
-
-  h3 { margin: 0; font-size: 14px; font-weight: 620; letter-spacing: -0.014em; }
+  .meta { display: grid; gap: 8px; padding: 8px 0 0; }
 
   .sotto { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 0; font-size: 12.5px; color: var(--ink-3); }
 

@@ -69,6 +69,7 @@ describe('PhotoComposer', () => {
   it('picks the style, with no switches that only matter to videos', async () => {
     const { user, onCreate } = setup();
     await user.click(await within(await screen.findByRole('group', { name: 'Soggetto' })).findByRole('button', { name: 'a robot' }));
+    await user.click(screen.getByRole('button', { name: /opzioni/i }));
     await user.click(screen.getByRole('button', { name: /^stile/i }));
     await user.click(await screen.findByRole('button', { name: 'Libero' }));
     expect(screen.queryByRole('switch', { name: /persone reali/i })).not.toBeInTheDocument();

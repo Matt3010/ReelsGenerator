@@ -7,7 +7,6 @@
   import Chip from './Chip.svelte';
   import Field from './Field.svelte';
   import Icon from './Icon.svelte';
-  import PageCard from './PageCard.svelte';
   import PickField from './PickField.svelte';
   import TagGroup from './TagGroup.svelte';
   import TextField from './TextField.svelte';
@@ -74,8 +73,7 @@
   }
 </script>
 
-<PageCard label="Nuove immagini">
-  <h2>Nuove immagini</h2>
+<div class="modulo">
 
   {#if suggested}
     {#if suggested.recent.length}
@@ -116,12 +114,16 @@
       <Icon name="generate" />Genera immagini
     </Button>
   </div>
-</PageCard>
+</div>
 
 <style>
-  .gruppo { display: grid; gap: 6px; }
+  .modulo { display: grid; gap: 12px; min-width: 0; }
+  /* nessuno più largo della finestra: un tag lungo va a capo o si taglia, non la sfonda */
+  .modulo > :global(*) { min-width: 0; }
 
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .gruppo { display: grid; gap: 6px; min-width: 0; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
 
   .anteprima { display: grid; gap: 4px; padding: 10px 12px; border-radius: var(--r-in); background: var(--sunken); }
   .anteprima p { margin: 0; min-height: 1.4em; font-size: 13px; color: var(--ink-2); }

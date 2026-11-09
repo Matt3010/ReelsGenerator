@@ -6,7 +6,6 @@
   import Chip from './Chip.svelte';
   import Field from './Field.svelte';
   import Icon from './Icon.svelte';
-  import PageCard from './PageCard.svelte';
   import PickField from './PickField.svelte';
   import Switch from './Switch.svelte';
   import TextField from './TextField.svelte';
@@ -67,8 +66,7 @@
   }
 </script>
 
-<PageCard label="Nuovo video">
-  <h2>Nuovo video</h2>
+<div class="modulo">
   <Field label="Argomento">
     <TextField kind="multiline" label="Argomento" maxlength={300} bind:value={topic} oninput={() => (picked = null)}
       placeholder="Scegli una notizia di oggi o scrivi un argomento" rows="2" />
@@ -109,9 +107,13 @@
   <Button look="primary" size="lg" onclick={create} disabled={!topic.trim() || sending}>
     <Icon name="generate" />Genera video
   </Button>
-</PageCard>
+</div>
 
 <style>
+  .modulo { display: grid; gap: 12px; min-width: 0; }
+  /* nessuno più largo della finestra: un tag lungo va a capo o si taglia, non la sfonda */
+  .modulo > :global(*) { min-width: 0; }
+
   .riga { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
   .voce { flex: 1; min-width: 180px; display: grid; }

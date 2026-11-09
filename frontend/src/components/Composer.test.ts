@@ -65,6 +65,7 @@ describe('Composer', () => {
   it('lets me pick the style and lift the limits', async () => {
     const { user, onCreate } = setup();
     await user.type(screen.getByRole('textbox', { name: /argomento/i }), 'x');
+    await user.click(screen.getByRole('button', { name: /opzioni/i }));
     await user.click(screen.getByRole('button', { name: /^stile/i }));
     await user.click(await screen.findByRole('button', { name: 'Realistico' }));
     await user.click(screen.getByRole('switch', { name: /persone reali/i }));

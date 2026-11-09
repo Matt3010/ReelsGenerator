@@ -44,9 +44,9 @@
 </div>
 
 <style>
-  .gruppo { display: grid; gap: 6px; }
+  .gruppo { display: grid; gap: 6px; min-width: 0; }
 
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; }
 
   /* alto e tondo come una pastiglia: è il posto per la prossima */
   .nuovo { width: 120px; height: 30px; padding: 0 10px; border-radius: 99px; font-size: 12.5px; }
