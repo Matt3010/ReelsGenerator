@@ -1,0 +1,157 @@
+/* Base: reset, page frame, the glass surface and the two type styles. */
+
+* { box-sizing: border-box; }
+
+/* several overlay pieces set their own display, which would beat the UA rule */
+[hidden] { display: none !important; }
+
+/* lo sfondo anche su html, se no sotto a una pagina corta resta una fascia; niente
+   rimbalzo, se no su iPhone una pagina corta si trascina sotto l'orologio */
+html {
+  min-height: 100%;
+  background: #e8ebef;
+  overscroll-behavior-y: none;
+}
+
+body {
+  margin: 0;
+  overscroll-behavior-y: none;
+}
+
+html[data-theme='dark'] { background: #0b0d10; }
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: -0.006em;
+  color: var(--ink);
+  background: #e8ebef;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[data-theme='dark'] body { background: #0b0d10; }
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  outline-offset: 2px;
+}
+
+/* le varianti di Icon.svelte: qui e non nel componente, perché l'SVG entra con {@html} */
+.ico {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ico.is-xs { width: 10px; height: 10px; }
+.ico.is-sm { width: 12px; height: 12px; }
+.ico.is-lg { width: 20px; height: 20px; }
+.ico.is-bold { stroke-width: 2.1; }
+.ico.is-muted { color: var(--ink-3); }
+.ico.is-soft { color: var(--ink-2); }
+.ico.is-danger { color: var(--danger); }
+.ico.is-warn { color: var(--warn); }
+/* sopra una foto, chiara o scura che sia */
+.ico.is-light { color: #fff; filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.6)); }
+
+/* glass surface shared by panel, sheets, popover */
+.surface {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-2), inset 0 1px 0 var(--highlight);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .surface { background: var(--glass-strong); }
+}
+
+/* no scrollbars anywhere: on a phone everything scrolls under the thumb */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
+/* ---------------------------------------------------------------- typography */
+
+h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 620;
+  letter-spacing: -0.017em;
+}
+
+.eyebrow {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.085em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------------------------ sheets */
+
+/* La scatola di tutto quello che si apre davanti: una sola, dentro ognuna si arreda come vuole. */
+/* una finestra aperta: la pagina dietro non scorre, né lo scroll della finestra passa a lei */
+html.con-finestra, html.con-finestra body { overflow: hidden; }
+
+.modal {
+  overscroll-behavior: contain;
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: var(--z-sheet);
+  width: min(356px, calc(100vw - 28px));
+  max-height: calc(100vh - 28px);
+  padding: var(--card-pad);
+  overflow: auto;
+  animation: sheet-in 0.32s var(--ease);
+}
+
+@media (max-width: 600px) {
+  /* su un telefono la sheet si spinge via, e la maniglia lo dice */
+  .modal { padding-top: 22px; }
+
+  .modal::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 38px;
+    height: 4px;
+    border-radius: 99px;
+    background: var(--hairline);
+  }
+
+  /* su un telefono un foglio dal fondo fin sotto la barra di stato, come quelli del sistema;
+     `.surface.modal` perché per vincere su `.surface` servono due classi */
+  .surface.modal {
+    top: calc(env(safe-area-inset-top) + 10px);
+    left: 0;
+    right: 0;
+    /* sopra la tastiera, che altrimenti copre i campi in fondo (lib/tastiera) */
+    bottom: var(--tastiera, 0px);
+    width: auto;
+    height: auto;
+    max-height: none;
+    border: 0;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    padding-bottom: calc(var(--card-pad) + env(safe-area-inset-bottom));
+    animation-name: sheet-in-mobile;
+  }
+}
+
+/* niente zoom col doppio tocco (Safari iPhone ingrandiva invece di contare il secondo tocco);
+   lo zoom con due dita resta */
+html, body, button, a, input, textarea, select, label, [role='button'] { touch-action: manipulation; }

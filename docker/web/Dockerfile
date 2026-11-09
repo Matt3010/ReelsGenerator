@@ -1,0 +1,15 @@
+# The front: the Svelte app built with Vite, served by nginx, which passes /api to the API container.
+
+FROM node:22-alpine AS build
+WORKDIR /app/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend ./
+RUN npm run build
+
+# nginx as an unprivileged user (uid 101), listening on 8080: nothing in the container runs as root.
+FROM nginxinc/nginx-unprivileged:1.27-alpine
+COPY docker/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/web/security-headers.conf /etc/nginx/snippets/security-headers.conf
+COPY --from=build /app/frontend/dist/ /usr/share/nginx/html/
+EXPOSE 8080

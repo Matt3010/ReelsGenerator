@@ -1,0 +1,18 @@
+/* Le fondamenta di SendLater: i token, il reset con la superficie in vetro, i campi e i keyframe.
+   Ogni pezzo di interfaccia si porta il proprio stile dentro il suo componente. */
+
+@import './tokens.css';
+@import './base.css';
+@import './controls.css';
+@import './animations.css';
+
+/* le tendine, come i campi */
+select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--sunken);
+  border: 1px solid transparent;
+  border-radius: var(--r-in);
+  height: 40px;
+  padding: 0 10px;
+}

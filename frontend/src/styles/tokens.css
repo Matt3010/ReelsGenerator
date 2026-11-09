@@ -1,0 +1,103 @@
+/* Design tokens: colour, ink, elevation, stacking and geometry, plus their dark twins. */
+
+:root {
+  color-scheme: light;
+
+  --font: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif;
+
+  /* surfaces */
+  --base: 255 255 255;
+  --glass: rgb(var(--base) / 0.88);
+  --glass-strong: rgb(var(--base) / 0.97);
+  /* la barra delle sezioni: al chiaro è il vetro di tutti, al buio più chiara, che non si perda nello sfondo */
+  --bar-glass: var(--glass);
+  --bar-glass-strong: var(--glass-strong);
+  --bar-line: var(--hairline);
+  --sunken: rgb(14 17 22 / 0.04);
+  --sunken-hover: rgb(14 17 22 / 0.07);
+  --hairline: rgb(14 17 22 / 0.09);
+  --hairline-soft: rgb(14 17 22 / 0.06);
+  --highlight: rgb(255 255 255 / 0.65);
+
+  /* ink */
+  --ink: #0e1116;
+  --ink-2: #5a6472;
+  --ink-3: #8b94a3;
+  --on-accent: #ffffff;
+  /* il blu di dove sei: lo stesso del pin dell'email sulla porta */
+  --me: #2f6fed;
+  --accent: #0e1116;
+  --accent-grad: linear-gradient(180deg, #232932 0%, #0e1116 100%);
+  --danger: #c0372b;
+  /* lo stato di una cosa: --ok, --warn, --danger e --ink-3 («non ha mai parlato»), ovunque */
+  --ok: #2f9e5e;
+  --warn: #d98613;
+
+  /* elevation */
+  --shadow-1: 0 1px 2px rgb(10 13 18 / 0.05), 0 2px 8px rgb(10 13 18 / 0.05);
+  --shadow-2: 0 2px 6px rgb(10 13 18 / 0.06), 0 14px 32px -10px rgb(10 13 18 / 0.22);
+  --shadow-3: 0 4px 10px rgb(10 13 18 / 0.08), 0 28px 60px -16px rgb(10 13 18 / 0.34);
+
+  /* stacking: what floats above the pages, in the order it covers them */
+  --z-bar: 1100;
+  --z-hint: 1200;
+  --z-sheet: 1300;
+  /* le domande a foglietto stanno sopra alla finestra da cui nascono */
+  --z-popover: 1400;
+  --z-toast: 1500;
+
+  /* geometry */
+  /* la barra delle sezioni è un'isola alta 64px staccata dal fondo (e dalla barra di sistema
+     dell'iPhone); --tab-bar è tutto lo spazio che occupa da sotto */
+  --island-gap: max(14px, env(safe-area-inset-bottom));
+  --island-side: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+  --tab-bar: calc(64px + var(--island-gap));
+  /* lo spazio in fondo a ogni pagina; cresce con un banner sopra la barra (vedi sotto) */
+  --sopra-alla-barra: calc(var(--tab-bar) + 14px);
+  --card-pad: 12px;
+  /* quanto si allarga la pagina, dove c'è spazio: su un telefono prende comunque tutto lo schermo */
+  --page-max: 960px;
+  --r-lg: 20px;
+  --r-md: 13px;
+  --r-sm: 10px;
+  /* Dentro a un contenitore tondo, l'angolo è quello di fuori meno quanto dista dal suo bordo (bordo + padding):
+     le curve restano parallele. Calcolati, così restano giusti se cambia un padding. */
+  --r-in: calc(var(--r-lg) - var(--card-pad) - 1px); /* in una scheda, una finestra, un foglio dal basso */
+  --r-pop: calc(var(--r-lg) - 10px); /* le voci di un popover: padding 9 + bordo */
+  --r-drop: calc(var(--r-lg) - 7px); /* le voci di una tendina: padding 6 + bordo */
+  --r-flat: calc(var(--r-in) + 10px); /* una riga flat, che entra di 10px nel padding della scheda */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* scuro: lo dice `data-theme`, che public/theme.js mette prima di disegnare (dal sistema o dalla scelta) */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --base: 20 23 28;
+  --glass: rgb(var(--base) / 0.86);
+  --glass-strong: rgb(var(--base) / 0.96);
+  --bar-glass: rgb(38 42 50 / 0.92);
+  --bar-glass-strong: rgb(38 42 50 / 0.98);
+  --bar-line: rgb(255 255 255 / 0.14);
+  --sunken: rgb(255 255 255 / 0.06);
+  --sunken-hover: rgb(255 255 255 / 0.1);
+  --hairline: rgb(255 255 255 / 0.1);
+  --hairline-soft: rgb(255 255 255 / 0.07);
+  --highlight: rgb(255 255 255 / 0.08);
+
+  --ink: #eef1f5;
+  --ink-2: #9aa4b2;
+  --ink-3: #6f7987;
+  --on-accent: #0e1116;
+  --accent: #f2f4f7;
+  --accent-grad: linear-gradient(180deg, #ffffff 0%, #dfe4ea 100%);
+  --danger: #ff6b5e;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.3);
+  --shadow-2: 0 2px 6px rgb(0 0 0 / 0.35), 0 14px 32px -10px rgb(0 0 0 / 0.6);
+  --shadow-3: 0 4px 10px rgb(0 0 0 / 0.4), 0 28px 60px -16px rgb(0 0 0 / 0.75);
+}
+
+/* un banner sopra le sezioni (un messaggio, il prossimo invio): le pagine gli lasciano il posto */
+body.now-banner, body.with-message { --sopra-alla-barra: calc(var(--tab-bar) + 84px); }

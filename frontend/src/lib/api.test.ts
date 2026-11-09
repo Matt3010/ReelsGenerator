@@ -1,0 +1,58 @@
+import { describe, expect, it, vi } from 'vitest';
+import { api, imageUrl, videoUrl } from './api';
+
+const reply = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status }));
+
+describe('api', () => {
+  it('lists jobs, news and voices', async () => {
+    const fetcher = reply([{ id: 'a' }]);
+    vi.stubGlobal('fetch', fetcher);
+    expect(await api.jobs()).toEqual([{ id: 'a' }]);
+    expect(fetcher).toHaveBeenCalledWith('/api/jobs', expect.anything());
+    await api.news();
+    expect(fetcher).toHaveBeenLastCalledWith('/api/news', expect.anything());
+    await api.voices();
+    expect(fetcher).toHaveBeenLastCalledWith('/api/voices', expect.anything());
+  });
+
+  it('creates a job with its news source', async () => {
+    const fetcher = reply({ id: 'j1' });
+    vi.stubGlobal('fetch', fetcher);
+    const news = { title: 'T', url: 'https://bbc.co.uk/a', published: '', outlet: 'BBC News', summary: '' };
+    expect(await api.create({ topic: 'T', voice: 'en-US-GuyNeural', captions: true, news })).toEqual({ id: 'j1' });
+    const [url, init] = fetcher.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/jobs');
+    expect(init.method).toBe('POST');
+    expect(JSON.parse(init.body as string)).toEqual({ topic: 'T', voice: 'en-US-GuyNeural', captions: true, news });
+  });
+
+  it('retries a job and reads its script', async () => {
+    const fetcher = reply({ id: 'j1' });
+    vi.stubGlobal('fetch', fetcher);
+    await api.retry('j1');
+    expect(fetcher).toHaveBeenLastCalledWith('/api/jobs/j1/retry', expect.objectContaining({ method: 'POST' }));
+    await api.story('j1');
+    expect(fetcher).toHaveBeenLastCalledWith('/api/jobs/j1/story', expect.anything());
+  });
+
+  it("fails with the server's own words", async () => {
+    vi.stubGlobal('fetch', reply({ detail: 'topic is empty' }, 422));
+    await expect(api.create({ topic: '', voice: 'v', captions: true, news: null })).rejects.toThrow('topic is empty');
+  });
+
+  it('points at the video', () => expect(videoUrl('j1')).toBe('/api/jobs/j1/video'));
+});
+
+describe('api for pictures', () => {
+  it('reads tag suggestions, asks for pictures and points at them', async () => {
+    const fetcher = reply({ id: 'p1' });
+    vi.stubGlobal('fetch', fetcher);
+    await api.tags();
+    expect(fetcher).toHaveBeenLastCalledWith('/api/tags', expect.anything());
+    await api.photos({ tags: { subject: ['a cat'] }, extra: '', count: 2 });
+    const [url, init] = fetcher.mock.calls.at(-1) as unknown as [string, RequestInit];
+    expect(url).toBe('/api/photos');
+    expect(JSON.parse(init.body as string)).toEqual({ tags: { subject: ['a cat'] }, extra: '', count: 2 });
+    expect(imageUrl(7)).toBe('/api/library/7/image');
+  });
+});

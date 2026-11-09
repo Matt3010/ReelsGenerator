@@ -1,0 +1,10 @@
+**/node_modules
+**/dist
+models
+tools
+jobs
+library
+.venv
+shorts
+tests
+.git

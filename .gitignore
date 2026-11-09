@@ -1,9 +1,9 @@
+**/node_modules/
+**/dist/
 .venv/
 __pycache__/
-.pytest_cache/
 jobs/
-*.pyc
-# local models and binaries (~13 GB), downloaded by setup
+# local models and Windows binaries (~13 GB): in Docker they live in the models volume
 models/
 tools/
 # generated picture library (images + SQLite index)
