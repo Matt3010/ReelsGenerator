@@ -56,6 +56,12 @@ function sdxlFromCivitai(m: { id: string; label: string; note: string; file: str
   };
 }
 
+/** Krea 2's text model and VAE: LUSTIFY v10 is built on Krea 2 and uses them too */
+const KREA_TEXT: Item = { name: "Qwen3-VL 4B (Krea text)", check: "Qwen3VL-4B-Instruct-Q4_K_M.gguf", size: 2497281664,
+  urls: [`${HF}/Qwen/Qwen3-VL-4B-Instruct-GGUF/resolve/main/Qwen3VL-4B-Instruct-Q4_K_M.gguf`] };
+const KREA_VAE: Item = { name: "Wan 2.1 VAE", check: "wan_2.1_vae.safetensors", size: 253815318,
+  urls: [`${HF}/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors`] };
+
 const VAE_SDXL: Item = { name: "SDXL VAE fp16-fix", check: "sdxl.vae.safetensors", size: 334641162,
   urls: [`${HF}/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl.vae.safetensors`] };
 
@@ -107,10 +113,8 @@ export const MODELS: ImageModel[] = [
     files: [
       { name: "Krea 2 Turbo Q4_K_M", check: "Krea-2-Turbo-Q4_K_M.gguf", size: 7216993376,
         urls: [`${HF}/realrebelai/KREA-2_GGUFs/resolve/main/TURBO/Krea-2-Turbo-Q4_K_M.gguf`] },
-      { name: "Qwen3-VL 4B (Krea text)", check: "Qwen3VL-4B-Instruct-Q4_K_M.gguf", size: 2497281664,
-        urls: [`${HF}/Qwen/Qwen3-VL-4B-Instruct-GGUF/resolve/main/Qwen3VL-4B-Instruct-Q4_K_M.gguf`] },
-      { name: "Wan 2.1 VAE", check: "wan_2.1_vae.safetensors", size: 253815318,
-        urls: [`${HF}/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors`] },
+      KREA_TEXT,
+      KREA_VAE,
     ],
     args: (dir) => ["--diffusion-model", join(dir, "Krea-2-Turbo-Q4_K_M.gguf"), "--llm", join(dir, "Qwen3VL-4B-Instruct-Q4_K_M.gguf"),
       "--vae", join(dir, "wan_2.1_vae.safetensors"), "--steps", "8", "--cfg-scale", "1", "--offload-to-cpu", "--vae-tiling"],
@@ -127,6 +131,25 @@ export const MODELS: ImageModel[] = [
     id: "lustify", label: "LUSTIFY! v9", note: "SDXL NSFW fotorealistico (solo da testo)",
     file: "lustify_v9_finalsdxl_.safetensors", download: "3045803?fileId=2924520", size: 6938143490,
   }),
+  {
+    id: "lustify-krea",
+    label: "LUSTIFY! v10 Krea",
+    note: "NSFW su Krea 2 Turbo, il più nuovo (solo da testo)",
+    files: [
+      { name: "LUSTIFY v10 Krea Turbo Q4_0", check: "lustify-v10-krea-turbo-Q4_0.gguf", size: 8311164960, auth: "civitai",
+        urls: ["https://civitai.com/api/download/models/3112728?fileId=3002352"] },
+      KREA_TEXT,
+      KREA_VAE,
+    ],
+    args: (dir) => ["--diffusion-model", join(dir, "lustify-v10-krea-turbo-Q4_0.gguf"), "--llm", join(dir, "Qwen3VL-4B-Instruct-Q4_K_M.gguf"),
+      "--vae", join(dir, "wan_2.1_vae.safetensors"), "--steps", "8", "--cfg-scale", "1", "--offload-to-cpu", "--vae-tiling"],
+    maxSide: 2048,
+    hiresFix: false,
+    negative: false,
+    img2img: false,
+    // measured: 4 min at 768x1344, like Krea 2
+    minutes: { standard: 4, fullhd: 9.5, "4k": 12.5 },
+  },
 ];
 
 export const DEFAULT_MODEL = "dreamshaper";

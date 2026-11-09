@@ -3,7 +3,7 @@ import { DEFAULT_MODEL, MODELS, drawPlan, modelById } from "../src/models.js";
 
 describe("models", () => {
   it("offers DreamShaper, Z-Image Turbo, Krea 2 Turbo, Juggernaut XL and LUSTIFY, DreamShaper first", () => {
-    expect(MODELS.map((m) => m.id)).toEqual(["dreamshaper", "zimage", "krea2", "juggernaut", "lustify"]);
+    expect(MODELS.map((m) => m.id)).toEqual(["dreamshaper", "zimage", "krea2", "juggernaut", "lustify", "lustify-krea"]);
     expect(DEFAULT_MODEL).toBe("dreamshaper");
     for (const m of MODELS) {
       expect(m.label.length).toBeGreaterThan(0);
@@ -31,7 +31,7 @@ describe("models", () => {
   });
 
   it("the NSFW models draw only from text: no photo of a real person to start from", () => {
-    expect(MODELS.filter((m) => !m.img2img).map((m) => m.id)).toEqual(["juggernaut", "lustify"]);
+    expect(MODELS.filter((m) => !m.img2img).map((m) => m.id)).toEqual(["juggernaut", "lustify", "lustify-krea"]);
   });
 
   it("downloads the Civitai models with the account's key", () => {

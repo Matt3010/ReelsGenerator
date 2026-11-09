@@ -189,7 +189,7 @@ describe("options", () => {
     expect(body.styles[0]).toEqual({ id: "toon", label: "Cartoon" });
     expect(body.styles.length).toBeGreaterThanOrEqual(18);
     expect(body.defaults).toEqual({ style: "toon", realPeople: false, avoid: true, model: "dreamshaper" });
-    expect(body.models.map((m: { id: string }) => m.id)).toEqual(["dreamshaper", "zimage", "krea2", "juggernaut", "lustify"]);
+    expect(body.models.map((m: { id: string }) => m.id)).toEqual(["dreamshaper", "zimage", "krea2", "juggernaut", "lustify", "lustify-krea"]);
     expect(body.models[1]).toEqual({ id: "zimage", label: "Z-Image Turbo", note: expect.any(String), negative: false, img2img: true,
       minutes: { standard: expect.any(Number), fullhd: expect.any(Number), "4k": expect.any(Number) } });
   });
