@@ -51,7 +51,8 @@ function sdxlFromCivitai(m: { id: string; label: string; note: string; file: str
     args: (dir) => ["-m", join(dir, m.file), "--vae", join(dir, "sdxl.vae.safetensors"), "--steps", "30", "--cfg-scale", "4.5",
       "--sampling-method", "dpm++2m", "--scheduler", "karras", "--vae-tiling"],
     maxSide: 1344, hiresFix: true, negative: true, img2img: false,
-    minutes: { standard: 4, fullhd: 10, "4k": 15 },
+    // measured with Juggernaut: 5 min at 768x1344, 30 steps
+    minutes: { standard: 5, fullhd: 9, "4k": 12 },
   };
 }
 
@@ -124,7 +125,7 @@ export const MODELS: ImageModel[] = [
   }),
   sdxlFromCivitai({
     id: "lustify", label: "LUSTIFY! v9", note: "SDXL NSFW fotorealistico (solo da testo)",
-    file: "lustify_v9_finalsdxl_.safetensors", download: "3045803?fileId=2924520",
+    file: "lustify_v9_finalsdxl_.safetensors", download: "3045803?fileId=2924520", size: 6938143490,
   }),
 ];
 
