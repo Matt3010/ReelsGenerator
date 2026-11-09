@@ -28,6 +28,14 @@ describe("models", () => {
     expect(modelById("krea2").negative).toBe(false);
   });
 
+  it("knows about how long each model takes at each resolution, longer as it grows", () => {
+    for (const m of MODELS) {
+      expect(m.minutes.standard).toBeGreaterThan(0);
+      expect(m.minutes.fullhd).toBeGreaterThan(m.minutes.standard);
+      expect(m.minutes["4k"]).toBeGreaterThan(m.minutes.fullhd);
+    }
+  });
+
   it("refuses an unknown model", () => {
     expect(() => modelById("nope")).toThrow(/nope/);
   });

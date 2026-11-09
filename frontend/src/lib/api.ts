@@ -5,7 +5,11 @@ export interface NewsItem { title: string; url: string; published: string; outle
 /** lo stile delle immagini, il modello che le disegna e quali limiti valgono: per video e immagini */
 export interface JobOptions { style: string; realPeople: boolean; avoid: boolean; model?: string }
 /** un modello di immagini; `negative`: se ascolta il negative prompt */
-export interface ImageModel { id: string; label: string; note: string; negative: boolean }
+export interface ImageModel {
+  id: string; label: string; note: string; negative: boolean;
+  /** quanto ci mette più o meno un'immagine, per risoluzione */
+  minutes: Record<Resolution, number>;
+}
 /** gli stili e i modelli che il server sa usare e le scelte con cui parte un lavoro: li decide lui */
 export interface Palette { styles: { id: string; label: string }[]; defaults: JobOptions; models: ImageModel[] }
 

@@ -19,7 +19,8 @@
   const righe = $derived([
     ['Modello', models.find((m) => m.id === modello)?.label ?? modello],
     ['Prompt', photo.prompt],
-    ['Negative prompt', photo.negative || '—'],
+    // un modello che ignora il negative prompt non ne ha uno
+    ...(models.find((m) => m.id === modello)?.negative === false ? [] : [['Negative prompt', photo.negative || '—']]),
     ['Formato', nomeDi(FORMATI, photo.format)],
     ['Risoluzione', nomeDi(RISOLUZIONI, photo.resolution ?? 'standard')],
     ...(seed === undefined ? [['Quante', String(photo.count)]] : []),

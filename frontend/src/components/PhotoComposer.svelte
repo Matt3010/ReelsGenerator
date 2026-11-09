@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Format, ImageModel, PhotoRequest, Resolution } from '../lib/api';
-  import { FORMATI, RISOLUZIONI } from '../lib/photo';
+  import { FORMATI, risoluzioniPer } from '../lib/photo';
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
   import Field from './Field.svelte';
@@ -71,7 +71,7 @@
       <PickField label="Formato" value={format} options={FORMATI} drop onpick={(id) => (format = id as Format)} />
     </Field>
     <Field label="Risoluzione">
-      <PickField label="Risoluzione" value={resolution} options={RISOLUZIONI} drop onpick={(id) => (resolution = id as Resolution)} />
+      <PickField label="Risoluzione" value={resolution} options={risoluzioniPer(scelto?.minutes)} drop onpick={(id) => (resolution = id as Resolution)} />
     </Field>
     <Field label="Quante">
       <PickField label="Quante" value={String(count)} options={QUANTE} drop onpick={(id) => (count = Number(id))} />

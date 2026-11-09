@@ -68,12 +68,22 @@ describe('Composer', () => {
     await user.click(screen.getByRole('button', { name: /opzioni/i }));
     await user.click(screen.getByRole('button', { name: /^stile/i }));
     await user.click(await screen.findByRole('button', { name: 'Realistico' }));
-    await user.click(screen.getByRole('button', { name: /^modello/i }));
-    await user.click(await screen.findByRole('button', { name: /z-image turbo/i }));
     await user.click(screen.getByRole('switch', { name: /persone reali/i }));
     await user.click(screen.getByRole('switch', { name: /anacronismi/i }));
+    await user.click(screen.getByRole('button', { name: /^modello/i }));
+    await user.click(await screen.findByRole('button', { name: /z-image turbo/i }));
     await user.click(screen.getByRole('button', { name: /genera video/i }));
     expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ options: { style: 'realistic', realPeople: true, avoid: false, model: 'zimage' } }));
+  });
+
+  it('offers to avoid anachronisms only with a model that listens to a negative prompt', async () => {
+    const { user } = setup();
+    await user.click(screen.getByRole('button', { name: /opzioni/i }));
+    expect(screen.getByRole('switch', { name: /anacronismi/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^modello/i }));
+    await user.click(await screen.findByRole('button', { name: /z-image turbo/i }));
+    expect(screen.queryByRole('switch', { name: /anacronismi/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: /persone reali/i })).toBeInTheDocument();
   });
 
   it('cannot generate without a topic', () => {

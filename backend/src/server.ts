@@ -84,7 +84,7 @@ export function createApp(o: AppOptions = {}) {
   // the app shows what the server knows: the palette and what a new job starts with
   app.get("/api/styles", (c) => c.json({
     styles: Object.entries(STYLES).map(([id, s]) => ({ id, label: s.label })), defaults: DEFAULT_OPTIONS,
-    models: MODELS.map(({ id, label, note, negative }) => ({ id, label, note, negative })) }));
+    models: MODELS.map(({ id, label, note, negative, minutes }) => ({ id, label, note, negative, minutes })) }));
   app.get("/api/news", async (c) => c.json(await news()));
   // the pages follow this: "changed" whenever a job does (they read /api/jobs again), a ping every 25 s
   // so a quiet stream is not taken for a dead one

@@ -45,6 +45,18 @@ describe('PhotoComposer', () => {
     expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ model: 'zimage', negative: '' }));
   });
 
+  it('says how long each resolution takes with the chosen model', async () => {
+    const { user } = setup();
+    await user.click(screen.getByRole('button', { name: /^risoluzione/i }));
+    expect(await screen.findByText('1,5 min circa')).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('button', { name: /^modello/i }));
+    await user.click(await screen.findByRole('button', { name: /z-image turbo/i }));
+    await user.click(screen.getByRole('button', { name: /^risoluzione/i }));
+    expect(await screen.findByText('2,5 min circa')).toBeInTheDocument();
+    expect(screen.getByText('6 min circa')).toBeInTheDocument();
+  });
+
   it('takes a long prompt', () => {
     setup();
     expect(screen.getByRole('textbox', { name: /^prompt/i })).toHaveAttribute('maxlength', '2000');

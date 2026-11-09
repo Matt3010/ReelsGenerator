@@ -16,6 +16,8 @@
 
   let open = $state(false);
   let anchor = $state<HTMLElement | null>(null);
+  /** il negative prompt (dove va la lista degli anacronismi) solo con i modelli che lo ascoltano */
+  const ascolta = $derived(models.find((m) => m.id === options.model)?.negative !== false);
   const nome = $derived(styles.find((s) => s.id === options.style)?.label ?? options.style);
 </script>
 
@@ -36,9 +38,11 @@
         <Switch checked={options.realPeople} label="Persone reali"
           hint="Nomi e volti di persone vere nelle immagini (spento: solo figure generiche)"
           onchange={(v) => (options.realPeople = v)} />
+        {#if ascolta}
         <Switch checked={options.avoid} label="Evita anacronismi"
           hint="Il modello elenca cosa non disegnare per l'epoca (auto moderne, materiali sbagliati…)"
           onchange={(v) => (options.avoid = v)} />
+        {/if}
       {/if}
     </div>
   </Popover>

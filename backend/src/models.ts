@@ -32,6 +32,8 @@ export interface ImageModel {
   hiresFix: boolean;
   /** run without guidance, a model ignores the negative prompt */
   negative: boolean;
+  /** about how long one picture takes on the GTX 1060, by resolution (measured), for the menu */
+  minutes: Record<Resolution, number>;
 }
 
 const VAE_SDXL: Item = { name: "SDXL VAE fp16-fix", check: "sdxl.vae.safetensors", size: 334641162,
@@ -52,11 +54,13 @@ export const MODELS: ImageModel[] = [
     maxSide: 1344,
     hiresFix: true,
     negative: true,
+    minutes: { standard: 1.5, fullhd: 5, "4k": 10 },
   },
   {
     id: "zimage",
     label: "Z-Image Turbo",
     note: "foto realistiche, scritte leggibili",
+    minutes: { standard: 2.5, fullhd: 6, "4k": 9 },
     files: [
       { name: "Z-Image Turbo Q4_K", check: "z_image_turbo-Q4_K.gguf", size: 3864250304,
         urls: [`${HF}/leejet/Z-Image-Turbo-GGUF/resolve/main/z_image_turbo-Q4_K.gguf`] },
@@ -75,6 +79,7 @@ export const MODELS: ImageModel[] = [
     id: "krea2",
     label: "Krea 2 Turbo",
     note: "estetica fotografica (licenza Krea 2 Community)",
+    minutes: { standard: 4, fullhd: 12, "4k": 15 },
     files: [
       { name: "Krea 2 Turbo Q4_K_M", check: "Krea-2-Turbo-Q4_K_M.gguf", size: 7216993376,
         urls: [`${HF}/realrebelai/KREA-2_GGUFs/resolve/main/TURBO/Krea-2-Turbo-Q4_K_M.gguf`] },

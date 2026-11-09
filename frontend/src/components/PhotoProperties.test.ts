@@ -4,13 +4,13 @@ import { PALETTE } from '../test/fixtures';
 import PhotoProperties from './PhotoProperties.svelte';
 
 const photo = { prompt: 'a lighthouse at golden hour', negative: 'blurry', count: 2, format: 'landscape' as const, seed: 1234,
-  resolution: 'fullhd' as const, model: 'zimage' };
+  resolution: 'fullhd' as const, model: 'dreamshaper' };
 
 const value = (name: string) => screen.getByText(name, { selector: 'dt' }).nextElementSibling?.textContent;
 
 it('lists what the pictures were asked with', () => {
   render(PhotoProperties, { photo, models: PALETTE.models });
-  expect(value('Modello')).toBe('Z-Image Turbo');
+  expect(value('Modello')).toBe('DreamShaper XL Turbo');
   expect(value('Prompt')).toBe('a lighthouse at golden hour');
   expect(value('Negative prompt')).toBe('blurry');
   expect(value('Formato')).toBe('Orizzontale 16:9');
@@ -22,6 +22,11 @@ it('lists what the pictures were asked with', () => {
 it("pictures from before the model choice were DreamShaper's", () => {
   render(PhotoProperties, { photo: { ...photo, model: undefined }, models: PALETTE.models });
   expect(value('Modello')).toBe('DreamShaper XL Turbo');
+});
+
+it('leaves out the negative prompt of a model that ignores it', () => {
+  render(PhotoProperties, { photo: { ...photo, negative: '', model: 'zimage' }, models: PALETTE.models });
+  expect(screen.queryByText('Negative prompt', { selector: 'dt' })).not.toBeInTheDocument();
 });
 
 it('says how long the pictures took', () => {

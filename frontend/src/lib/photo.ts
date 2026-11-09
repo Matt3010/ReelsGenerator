@@ -7,11 +7,15 @@ export const FORMATI: { id: Format; label: string }[] = [
   { id: 'landscape', label: 'Orizzontale 16:9' },
 ];
 
-export const RISOLUZIONI: { id: Resolution; label: string; note: string }[] = [
-  { id: 'standard', label: 'Standard', note: '1,5 min circa' },
-  { id: 'fullhd', label: 'Full HD', note: '5 min circa' },
-  { id: '4k', label: '4K', note: '10 min circa' },
+export const RISOLUZIONI: { id: Resolution; label: string }[] = [
+  { id: 'standard', label: 'Standard' },
+  { id: 'fullhd', label: 'Full HD' },
+  { id: '4k', label: '4K' },
 ];
+
+/** le risoluzioni con accanto quanto ci mette il modello: «2,5 min circa» */
+export const risoluzioniPer = (minutes: Record<Resolution, number> | undefined) =>
+  RISOLUZIONI.map((r) => (minutes ? { ...r, note: `${String(minutes[r.id]).replace('.', ',')} min circa` } : r));
 
 export const nomeDi = <T extends string>(list: { id: T; label: string }[], id: T | undefined) =>
   list.find((x) => x.id === id)?.label ?? id ?? '';
