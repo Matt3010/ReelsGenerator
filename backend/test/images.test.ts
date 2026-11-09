@@ -2,12 +2,11 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import sharp from "sharp";
-import { STYLES, planImages, produceImages, sdCommand, sdGenerator, sdProgress, sdUpscaler, fitTo, type DrawRequest } from "../src/images.js";
+import { STYLES, drawScenes, sdCommand, sdGenerator, sdProgress, sdUpscaler, fitTo, type DrawRequest } from "../src/images.js";
 import { FORMATS, targetSize as targetSizeOf } from "../src/models.js";
-import { Library } from "../src/library.js";
-import { imagePrompt, parseStory } from "../src/spec.js";
+import { parseStory } from "../src/spec.js";
 import { storyDict } from "./fixtures.js";
-import { png, tmp } from "./helpers.js";
+import { png, tmp, DirStore } from "./helpers.js";
 
 const req = (prompt: string, seed: number, out: string, style: string, negative: string, more: Partial<DrawRequest> = {}): DrawRequest =>
   ({ prompt, seed, out, style, negative, model: "dreamshaper", ...more });
@@ -52,61 +51,19 @@ class FakeGen {
   };
 }
 
-it("plans: reuses exact prompts and pictures the model picks", async () => {
+it("draws each distinct picture of a story once, a file per scene in the work folder", async () => {
   const d = storyDict();
   d.scenes.push({ ...d.scenes[0], narration: "And again." });
   const story = parseStory(d);
   const dir = tmp();
-  const lib = new Library(join(dir, "lib"));
-  const old = await lib.add(await png(join(dir, "old.png"), [9, 9, 9], [4, 4]),
-    { prompt: "an old bridge falling down", tags: ["bridge", "collapse", "river", "splash"], style: "toon", seed: 1, model: "m" });
-  const asked: number[][] = [];
-  const plan = await planImages(story, lib, "toon", "m", async (_p, c) => { asked.push(c.map((a) => a.id)); return c[0].id; });
-  expect(plan).toEqual([null, old.id, null]);
-  expect(asked).toEqual([[old.id]]);
-});
-
-it("plans: generates when the model rejects the candidates", async () => {
-  const story = parseStory(storyDict());
-  const dir = tmp();
-  const lib = new Library(join(dir, "lib"));
-  await lib.add(await png(join(dir, "old.png")), { prompt: "x", tags: ["bridge", "collapse", "river", "splash"], style: "toon", seed: 1, model: "m" });
-  expect(await planImages(story, lib, "toon", "m", async () => null)).toEqual([null, null]);
-});
-
-it("plans: reuses only pictures drawn by the chosen model", async () => {
-  const story = parseStory(storyDict());
-  const dir = tmp();
-  const lib = new Library(join(dir, "lib"));
-  await lib.add(await png(join(dir, "a.png")), { prompt: imagePrompt(story, story.scenes[0]), tags: ["bridge", "collapse", "river", "splash"],
-    style: "toon", seed: 1, model: "dreamshaper" });
-  expect(await planImages(story, lib, "toon", "zimage", async (_p, c) => c[0]?.id ?? null)).toEqual([null, null]);
-});
-
-it("plans: reuses an identical prompt without asking", async () => {
-  const story = parseStory(storyDict());
-  const dir = tmp();
-  const lib = new Library(join(dir, "lib"));
-  const a = await lib.add(await png(join(dir, "old.png")), { prompt: imagePrompt(story, story.scenes[0]), tags: ["x"], style: "toon", seed: 1, model: "m" });
-  const plan = await planImages(story, lib, "toon", "m", async () => { throw new Error("should not ask"); });
-  expect(plan[0]).toBe(a.id);
-});
-
-it("produces each distinct picture once, stores it and counts every use", async () => {
-  const d = storyDict();
-  d.scenes.push({ ...d.scenes[0], narration: "And again." });
-  const story = parseStory(d);
-  const dir = tmp();
-  const lib = new Library(join(dir, "lib"));
   const gen = new FakeGen();
-  const assets = await produceImages(story, lib, [null, null, null], gen.fn, { style: "toon", seed: 5, model: "zimage", work: join(dir, "w") });
+  const files = await drawScenes(story, gen.fn, { style: "toon", seed: 5, model: "zimage", work: join(dir, "w") });
   expect(gen.prompts).toHaveLength(2);
-  expect(assets[0].id).toBe(assets[2].id);
-  expect(assets[1].tags).toEqual(["bridge", "collapse", "river", "splash"]);
-  expect(lib.get(assets[0].id)!.uses).toBe(2);
+  expect(files).toHaveLength(3);
+  expect(files[0]).toBe(files[2]);
+  expect(files.every((f) => f.startsWith(join(dir, "w")) && existsSync(f))).toBe(true);
   expect(gen.negatives).toEqual(["cars, electric lights", "cars, electric lights"]);
   expect(gen.models).toEqual(["zimage", "zimage"]);
-  expect(assets[0].model).toBe("zimage");
 });
 
 it("offers a wide palette of styles, each named and with its own words", () => {

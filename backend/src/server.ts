@@ -1,10 +1,10 @@
 // The API behind the web app (nginx serves the app and passes /api here): news, jobs, their videos.
 import { serve } from "@hono/node-server";
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
-import { createReadStream, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
+import { randomUUID } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Readable } from "node:stream";
 import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { Library } from "./library.js";
@@ -13,7 +13,9 @@ import { STYLES, type StyleId } from "./images.js";
 import { DEFAULT_MODEL, FORMATS, MODELS, RESOLUTIONS, type Format, type Resolution } from "./models.js";
 import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
+import { moveToStores } from "./move.js";
 import { Sampler } from "./stats.js";
+import { stores, videoKey, type Store } from "./storage.js";
 import { VOICES } from "./tts.js";
 
 const NewsRef = z.object({
@@ -56,16 +58,26 @@ export interface AppOptions {
   root?: string; runner?: (job: Job) => Promise<void>; news?: () => Promise<NewsItem[]>; library?: () => Library;
   /** a sampler of the machine for each page watching it, and how often (ms) */
   stats?: () => Pick<Sampler, "sample">; statsEvery?: number;
+  /** where the finished videos are, and where the pages upload pictures (silo) */
+  videos?: Store; uploads?: Store;
 }
 
 const JOB_ID = /^\d{8}-\d{6}-[0-9a-f]{6}$/;
+/** the largest picture a page may upload */
+const MAX_UPLOAD = 20 * 1024 * 1024;
+/** a title as a file name: letters, digits, spaces and dashes */
+const fileName = (title: string) => `${title.replace(/[^\p{L}\p{N} -]+/gu, "").replace(/\s+/g, " ").trim() || "video"}.mp4`;
 
 export function createApp(o: AppOptions = {}) {
   const root = o.root ?? JOBS;
   const runner = o.runner ?? ((job: Job) => runJob(job, defaultEngines()));
   const news = o.news ?? (() => fetchNews());
   let lib: Library | undefined;
-  const library = o.library ?? (() => (lib ??= new Library(CONFIG.library)));
+  const library = o.library ?? (() => (lib ??= new Library(CONFIG.library, stores().images)));
+  const videos = () => o.videos ?? stores().videos;
+  const uploads = () => o.uploads ?? stores().uploads;
+  /** the host the page asked, port included: silo checks the signature against it (nginx passes it on) */
+  const hostOf = (c: Context) => c.req.header("host") ?? "localhost";
 
   // one job at a time: the GPU holds one model at a time
   const queue: Job[] = [];
@@ -113,12 +125,13 @@ export function createApp(o: AppOptions = {}) {
   app.get("/api/jobs", (c) => c.json(Job.list(root).map((j) => ({ id: j.id, ...j.status(), images: j.images() }))));
 
   // a job (a video, or a photo job with its pictures still listed) gone; not while it is at work
-  app.delete("/api/jobs/:id", (c) => {
+  app.delete("/api/jobs/:id", async (c) => {
     const dir = jobDir(c.req.param("id"));
     if (!dir) return c.json({ detail: "job not found" }, 404);
     const job = new Job(dir);
     const { state } = job.status();
     if (state === "running" || state === "queued") return c.json({ detail: "è in lavorazione: si può eliminare quando ha finito" }, 409);
+    await videos().remove(videoKey(job.id)).catch(() => {});
     job.remove();
     return c.json({ ok: true });
   });
@@ -133,9 +146,9 @@ export function createApp(o: AppOptions = {}) {
   });
 
   // a picture gone: from the library, and from the job that made it
-  app.delete("/api/library/:id", (c) => {
+  app.delete("/api/library/:id", async (c) => {
     const id = Number(c.req.param("id"));
-    if (!Number.isInteger(id) || !library().remove(id)) return c.json({ detail: "no such picture" }, 404);
+    if (!Number.isInteger(id) || !(await library().remove(id))) return c.json({ detail: "no such picture" }, 404);
     for (const job of Job.list(root)) if (job.images().includes(id)) job.dropImage(id);
     return c.json({ ok: true });
   });
@@ -148,12 +161,18 @@ export function createApp(o: AppOptions = {}) {
     return c.json({ id: asset.id, prompt: asset.prompt, seed: asset.seed, width: asset.width, height: asset.height, model: asset.model });
   });
 
-  app.get("/api/library/:id/image", (c) => {
+  // a picture: a link signed for silo (the same all hour long, so the browser keeps it)
+  app.get("/api/library/:id/image", async (c) => {
     const id = Number(c.req.param("id"));
     const asset = Number.isInteger(id) ? library().get(id) : null;
-    if (!asset || !existsSync(asset.path)) return c.json({ detail: "no such picture" }, 404);
-    return c.body(Readable.toWeb(createReadStream(asset.path)) as ReadableStream, 200, {
-      "content-type": "image/png", "cache-control": "public, max-age=31536000, immutable" });
+    if (!asset) return c.json({ detail: "no such picture" }, 404);
+    return c.redirect(await library().store.signedGet(asset.key, hostOf(c)), 302);
+  });
+
+  // a signed form post for one picture: the page sends it straight to silo, never through here
+  app.post("/api/uploads", async (c) => {
+    const key = randomUUID();
+    return c.json({ key, ...(await uploads().signedUpload(key, { maxBytes: MAX_UPLOAD, contentType: "image/" })) });
   });
 
   app.post("/api/jobs", async (c) => {
@@ -180,23 +199,14 @@ export function createApp(o: AppOptions = {}) {
     return c.json(JSON.parse(readFileSync(file, "utf8")));
   });
 
-  app.get("/api/jobs/:id/video", (c) => {
-    const id = c.req.param("id");
-    const dir = jobDir(id);
-    const file = dir && join(dir, "video.mp4");
-    if (!file || !existsSync(file)) return c.json({ detail: "no video yet" }, 404);
-    const size = statSync(file).size;
-    const headers: Record<string, string> = { "content-type": "video/mp4", "accept-ranges": "bytes",
-      "content-disposition": `inline; filename="${id}.mp4"` };
-    const m = /^bytes=(\d*)-(\d*)$/.exec(c.req.header("range") ?? "");
-    if (m && (m[1] || m[2])) {
-      const start = m[1] ? Number(m[1]) : Math.max(0, size - Number(m[2]));
-      const end = m[1] && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1;
-      if (start > end || start >= size) return c.body(null, 416, { "content-range": `bytes */${size}` });
-      const body = Readable.toWeb(createReadStream(file, { start, end })) as ReadableStream;
-      return c.body(body, 206, { ...headers, "content-range": `bytes ${start}-${end}/${size}`, "content-length": String(end - start + 1) });
-    }
-    return c.body(Readable.toWeb(createReadStream(file)) as ReadableStream, 200, { ...headers, "content-length": String(size) });
+  // a video: a link signed for silo, which answers the ranges the player asks to seek; ?download names the file
+  app.get("/api/jobs/:id/video", async (c) => {
+    const dir = jobDir(c.req.param("id"));
+    if (!dir) return c.json({ detail: "no video yet" }, 404);
+    const job = new Job(dir);
+    if (!(await videos().has(videoKey(job.id)))) return c.json({ detail: "no video yet" }, 404);
+    const name = c.req.query("download") === undefined ? undefined : fileName(job.status().title ?? job.id);
+    return c.redirect(await videos().signedGet(videoKey(job.id), hostOf(c), { filename: name }), 302);
   });
 
   return app;
@@ -205,6 +215,11 @@ export function createApp(o: AppOptions = {}) {
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   mkdirSync(JOBS, { recursive: true });
   markInterrupted(JOBS);
+  // silo: the buckets, then whatever pictures and videos are still on disk from before
+  const all = stores();
+  for (const store of Object.values(all)) await store.ensure();
+  const moved = await moveToStores({ library: CONFIG.library, jobs: JOBS }, all);
+  if (moved.images || moved.videos) console.log(`Moved to silo: ${moved.images} pictures, ${moved.videos} videos`);
   serve({ fetch: createApp().fetch, hostname: CONFIG.host, port: CONFIG.port });
-  console.log(`AI Shorts API on http://${CONFIG.host}:${CONFIG.port}`);
+  console.log(`Reels Generator API on http://${CONFIG.host}:${CONFIG.port}`);
 }

@@ -3,10 +3,11 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { fitTo, planImages, produceImages, sdGenerator, sdUpscaler, type Generator, type SdProgress, type StyleId, type Upscaler } from "./images.js";
+import { drawScenes, fitTo, sdGenerator, sdUpscaler, type Generator, type SdProgress, type StyleId, type Upscaler } from "./images.js";
 import { DEFAULT_MODEL, drawPlan, modelById, type Format, type Resolution } from "./models.js";
 import { Library } from "./library.js";
-import { chooseImage, generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
+import { stores, videoKey, type Store } from "./storage.js";
+import { generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
 import { articleText, type NewsItem } from "./news.js";
 import { CONFIG } from "./config.js";
 import { normalizeAudio, renderVideo } from "./render.js";
@@ -125,6 +126,8 @@ export interface Engines {
   generate: Generator;
   tts: (text: string, voice: string, out: string) => Promise<SceneAudio>;
   library: Library;
+  /** where the finished videos go (silo) */
+  videos: Store;
   render: typeof renderVideo;
   normalize: (src: string, dst: string) => Promise<void>;
   upscale: Upscaler;
@@ -143,10 +146,6 @@ function fail(job: Job, e: unknown): void {
   job.update({ state: "error", step: "Errore", error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) });
 }
 
-const STOP = new Set(["the", "and", "with", "for", "from", "into", "onto", "over", "under"]);
-/** the words of a prompt, as tags for the library (so a short can reuse the picture) */
-export const promptTags = (prompt: string) =>
-  [...new Set((prompt.toLowerCase().match(/[a-z0-9']+/g) ?? []).filter((w) => w.length >= 3 && !STOP.has(w)))].slice(0, 8);
 
 /** only pictures: the prompt drawn count times as written (no style added, each with its own seed), kept in the library */
 async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
@@ -169,7 +168,7 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
       job.update({ step: `Ingrandisco l'immagine ${i}/${req.count}` });
       await eng.upscale(file, plan.exact);
     } else if (plan.exact !== plan.size) await fitTo(file, plan.exact);
-    ids.push((await eng.library.add(file, { prompt: req.prompt, tags: promptTags(req.prompt), style, seed, model })).id);
+    ids.push((await eng.library.add(file, { prompt: req.prompt, style, seed, model })).id);
   }
   writeFileSync(join(job.dir, "images.json"), JSON.stringify(ids), "utf8");
   rmSync(join(job.dir, "work"), { recursive: true, force: true });
@@ -190,9 +189,7 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
   const limits = { avoid: opts.avoid, realPeople: opts.realPeople };
   const model = opts.model ?? DEFAULT_MODEL;
   try {
-    const lib = eng.library;
     let story: Story;
-    let plan: (number | null)[] | null = existsSync(at("plan.json")) ? JSON.parse(readFileSync(at("plan.json"), "utf8")) : null;
     if (existsSync(at("story.json"))) {
       story = parseStory(JSON.parse(readFileSync(at("story.json"), "utf8")));
     } else {
@@ -203,7 +200,7 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
         article = await eng.article(st.news);
         writeFileSync(at("article.txt"), article, "utf8");
       }
-      [story, plan] = await eng.llm(async (run) => {
+      story = await eng.llm(async (run) => {
         job.update({ step: "Il modello ragiona sui fatti" });
         const notes = await researchNotes(st.topic, run, article);
         writeFileSync(at("notes.txt"), notes, "utf8");
@@ -211,22 +208,17 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
         const s = await generateStory(st.topic, run, { notes, maxSeconds: eng.maxSeconds, newsText: article, realPeople: opts.realPeople });
         if (st.news) s.source = { outlet: st.news.outlet, title: st.news.title, url: st.news.url, published: st.news.published };
         writeFileSync(at("story.json"), JSON.stringify(s, null, 1), "utf8");
-        job.update({ step: "Cerco immagini riusabili" });
-        const p = await planImages(s, lib, opts.style, model, (prompt, c) => chooseImage(prompt, c, run));
-        writeFileSync(at("plan.json"), JSON.stringify(p), "utf8");
-        return [s, p] as const;
+        return s;
       });
     }
-    plan ??= await planImages(story, lib, opts.style, model, null);
     job.update({ state: "running", title: story.title, step: "Immagini" });
 
-    const assets = await produceImages(story, lib, plan, eng.generate, {
+    // the pictures serve the render only: drawn into the work folder, gone with it
+    const pictures = await drawScenes(story, eng.generate, {
       style: opts.style, limits, seed: topicSeed(st.topic), model, work: at("work"),
       progress: (i, n) => job.update({ step: `Disegno l'immagine ${i}/${n}` }),
       step: (p) => job.update({ detail: modelDetail(p) }),
     });
-    writeFileSync(at("images.json"), JSON.stringify(assets.map((a) => a.id)), "utf8");
-    rmSync(at("work"), { recursive: true, force: true });
 
     const clips: SceneAudio[] = [];
     for (const [i, scene] of story.scenes.entries()) {
@@ -238,11 +230,14 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
 
     job.update({ step: `Montaggio (${Math.round(tl.total / tl.fps)} s di video)` });
     const raw = at("video_raw.mp4");
-    await eng.render(job.dir, tl, assets.map((a) => a.path), story.scenes.map((s) => s.motion),
-      st.captions, raw, (l) => job.log(l));
+    await eng.render(job.dir, tl, pictures, story.scenes.map((s) => s.motion), st.captions, raw, (l) => job.log(l));
+    rmSync(at("work"), { recursive: true, force: true });
     job.update({ step: "Volume a -14 LUFS" });
     await eng.normalize(raw, at("video.mp4"));
     if (existsSync(raw)) unlinkSync(raw);
+    // the finished video lives in silo; the pages get a signed link to it
+    await eng.videos.put(videoKey(job.id), at("video.mp4"), "video/mp4");
+    unlinkSync(at("video.mp4"));
     job.update({ state: "done", step: "Fatto", error: null, duration: Math.round((tl.total / tl.fps) * 10) / 10 });
   } catch (e) {
     fail(job, e);
@@ -266,7 +261,8 @@ export function defaultEngines(): Engines {
     llm: (fn) => withLlama(fn, { log: join(JOBS, "llama-server.log") }),
     generate: sdGenerator(),
     tts: (text, voice, out) => synthesize(text, voice, out),
-    library: new Library(LIBRARY),
+    library: new Library(LIBRARY, stores().images),
+    videos: stores().videos,
     render: renderVideo,
     normalize: normalizeAudio,
     upscale: sdUpscaler(),

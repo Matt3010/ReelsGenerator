@@ -19,7 +19,6 @@ const Scene = z.strictObject({
   narration: z.string().trim().min(1).max(400),
   image: z.string().trim().min(10).max(400).describe("what the still picture shows, in English"),
   cast: z.array(z.string()).max(4).default([]).describe("ids of the characters visible"),
-  tags: z.array(z.string()).min(1).max(8).describe("lowercase keywords to find the picture again"),
   motion: z.enum(MOTIONS).default("zoom_in"),
 });
 
@@ -41,17 +40,20 @@ export type Source = z.infer<typeof Source>;
 /** the JSON schema the model's reply is constrained to */
 export const storyJsonSchema = () => z.toJSONSchema(StoryShape, { io: "input" });
 
-const cleanTags = (tags: string[]) => [...new Set(tags.map((t) => t.trim().toLowerCase()).filter(Boolean))];
+/** stories saved while pictures were reused had tags on their scenes: read them as they are now */
+function withoutTags(data: unknown): unknown {
+  const d = data as { scenes?: unknown };
+  if (!d || typeof d !== "object" || !Array.isArray(d.scenes)) return data;
+  return { ...d, scenes: d.scenes.map((s) => (s && typeof s === "object" ? (({ tags: _, ...rest }) => rest)(s as Record<string, unknown>) : s)) };
+}
 
 /** validate a reply and repair what small models typically get wrong */
 export function parseStory(data: unknown): Story {
-  const story = StoryShape.parse(data);
+  const story = StoryShape.parse(withoutTags(data));
   const ids = story.cast.map((c) => c.id);
   const dupes = [...new Set(ids.filter((id, i) => ids.indexOf(id) !== i))];
   if (dupes.length) throw new Error(`duplicate cast ids: ${dupes.sort().join(", ")}`);
   story.scenes.forEach((scene, n) => {
-    scene.tags = cleanTags(scene.tags);
-    if (!scene.tags.length) throw new Error(`scene ${n + 1}: no tags`);
     if (SAME_AS_PREVIOUS.test(scene.image)) {
       if (n === 0) throw new Error("the first scene's image must describe a picture, not refer to a previous one");
       scene.image = story.scenes[n - 1].image;

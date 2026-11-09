@@ -7,7 +7,7 @@ import { Job, markInterrupted, runJob, type Engines } from "../src/pipeline.js";
 import { parseStory } from "../src/spec.js";
 import type { SceneAudio } from "../src/timeline.js";
 import { storyDict } from "./fixtures.js";
-import { png, tmp } from "./helpers.js";
+import { png, tmp, DirStore } from "./helpers.js";
 
 function engines(root: string, story = storyDict(), opts: { llmCalls?: string[]; render?: Engines["render"] } = {}) {
   const llmCalls = opts.llmCalls ?? [];
@@ -23,9 +23,10 @@ function engines(root: string, story = storyDict(), opts: { llmCalls?: string[];
       writeFileSync(out, "mp3");
       return { audio: out.split(/[\\/]/).at(-1)!, duration: 1, words: text.split(" ").map((w, i) => ({ text: w, start: i * 0.2, end: i * 0.2 + 0.15 })) };
     },
-    library: new Library(join(root, "lib")),
+    library: new Library(join(root, "lib"), new DirStore(join(root, "store"))),
+    videos: new DirStore(join(root, "videos")),
     render: opts.render ?? (async (_dir, tl, images, motions, captions, out) => {
-      Object.assign(rendered, { images, motions, captions, total: tl.total });
+      Object.assign(rendered, { images, motions, captions, total: tl.total, onDisk: images.every((p) => existsSync(p)) });
       writeFileSync(out, "mp4");
     }),
     normalize: async (src, dst) => writeFileSync(dst, readFileSync(src)),
@@ -44,24 +45,20 @@ it("writes story, pictures and video", async () => {
   const st = job.status();
   expect(st.state, st.error ?? "").toBe("done");
   expect(st.title).toBe("The Bridge That Fell");
-  expect(existsSync(join(job.dir, "video.mp4"))).toBe(true);
+  // the video in silo, under the job's name; nothing big left in the job's folder
+  expect((eng.videos as DirStore).keys()).toEqual([`${job.id}.mp4`]);
+  expect(existsSync(join(job.dir, "video.mp4"))).toBe(false);
+  expect(existsSync(join(job.dir, "work"))).toBe(false);
   expect(voices).toEqual(["s01.mp3", "s02.mp3"]);
   expect(prompts).toHaveLength(2);
-  expect((rendered.images as string[]).map((p) => dirname(p))).toEqual([eng.library.imagesDir, eng.library.imagesDir]);
+  // the pictures are drawn in the job's work folder, for the render only
+  expect((rendered.images as string[]).map((p) => dirname(p))).toEqual([join(job.dir, "work"), join(job.dir, "work")]);
+  expect(rendered.onDisk).toBe(true);
   expect(rendered.motions).toEqual(["zoom_in", "pan_left"]);
   expect(rendered.captions).toBe(true);
-  expect(JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"))).toEqual([1, 2]);
   expect(readFileSync(join(job.dir, "notes.txt"), "utf8")).toBe("Facts: the bridge fell in 1831.");
 });
 
-it("a second job reuses the library pictures", async () => {
-  const root = tmp();
-  const { eng, prompts } = engines(root);
-  await runJob(Job.create(join(root, "jobs"), { topic: "a", voice: "v", captions: false }), eng);
-  await runJob(Job.create(join(root, "jobs"), { topic: "b", voice: "v", captions: false }), eng);
-  expect(prompts).toHaveLength(2);
-  expect(eng.library.get(1)!.uses).toBe(2);
-});
 
 it("reuses an existing story without starting the model", async () => {
   const root = tmp();
@@ -155,8 +152,6 @@ it("draws in the style the job asks for, and drops the anachronism list when tol
   expect(styles).toEqual(["realistic", "realistic"]);
   expect(negatives).toEqual(["", ""]);
   expect(models).toEqual(["krea2", "krea2"]);
-  expect(eng.library.get(1)!.style).toBe("realistic");
-  expect(eng.library.get(1)!.model).toBe("krea2");
 });
 
 
@@ -174,7 +169,7 @@ it("a photo job draws the prompt as written, with its negative prompt, and keeps
   expect(calls).toEqual([[prompt, "free", "blurry, extra fingers", "dreamshaper"], [prompt, "free", "blurry, extra fingers", "dreamshaper"]]);
   const ids: number[] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
   expect(ids).toHaveLength(2);
-  expect(eng.library.get(ids[0])!.tags).toEqual(["old", "fisherman", "mending", "nets", "golden", "hour", "1920s", "harbour"]);
+  expect(eng.library.get(ids[0])!.prompt).toBe(prompt);
 });
 
 it("a photo job draws its format, and from a given seed the next ones (the same request, the same pictures)", async () => {

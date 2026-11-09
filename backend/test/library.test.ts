@@ -1,91 +1,73 @@
 import Database from "better-sqlite3";
-import { readdirSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { expect, it } from "vitest";
-import { Library } from "../src/library.js";
-import { png, tmp } from "./helpers.js";
+import { cpSync, readFileSync, writeFileSync } from "node:fs";
+import { Library, MIGRATIONS } from "../src/library.js";
+import { png, tmp, DirStore } from "./helpers.js";
 
 const meta = { style: "toon", seed: 1, model: "m" };
 
 it("migrations create the schema", () => {
-  const lib = new Library(join(tmp(), "lib"));
+  const lib = new Library(join(tmp(), "lib"), new DirStore(join(tmp(), "store")));
   const tables = new Database(lib.dbPath).prepare("select name from sqlite_master where type='table'").all().map((r: any) => r.name);
-  expect(tables).toEqual(expect.arrayContaining(["assets", "asset_tags", "__drizzle_migrations"]));
+  expect(tables).toEqual(expect.arrayContaining(["assets", "__drizzle_migrations"]));
 });
 
-it("add copies the image and records it", async () => {
+it("add puts the image in the store and records it", async () => {
   const d = tmp();
-  const lib = new Library(join(d, "lib"));
-  const a = await lib.add(await png(join(d, "x.png")), { prompt: "a red barn", tags: ["barn", "farm"], style: "toon", seed: 7, model: "dsxl" });
-  expect(dirname(a.path)).toBe(lib.imagesDir);
+  const store = new DirStore(join(d, "store"));
+  const lib = new Library(join(d, "lib"), store);
+  const a = await lib.add(await png(join(d, "x.png")), { prompt: "a red barn", style: "toon", seed: 7, model: "dsxl" });
+  expect(store.keys()).toEqual([a.key]);
+  expect(a.key).toMatch(/^[0-9a-f]{16}.png$/);
   expect([a.width, a.height]).toEqual([8, 14]);
-  expect(a.tags).toEqual(["barn", "farm"]);
-  expect([a.seed, a.model, a.uses]).toEqual([7, "dsxl", 0]);
+  expect([a.seed, a.model]).toEqual([7, "dsxl"]);
 });
 
 it("stores the same pixels once", async () => {
   const d = tmp();
-  const lib = new Library(join(d, "lib"));
-  const a = await lib.add(await png(join(d, "x.png")), { prompt: "a red barn", tags: ["barn"], ...meta });
-  const b = await lib.add(await png(join(d, "y.png")), { prompt: "a red barn", tags: ["barn"], ...meta });
+  const store = new DirStore(join(d, "store"));
+  const lib = new Library(join(d, "lib"), store);
+  const a = await lib.add(await png(join(d, "x.png")), { prompt: "a red barn", ...meta });
+  const b = await lib.add(await png(join(d, "y.png")), { prompt: "a red barn", ...meta });
   expect(a.id).toBe(b.id);
-  expect(readdirSync(lib.imagesDir)).toHaveLength(1);
+  expect(store.keys()).toHaveLength(1);
 });
 
-it("finds exact prompts ignoring case and spaces but not style or model", async () => {
-  const d = tmp();
-  const lib = new Library(join(d, "lib"));
-  await lib.add(await png(join(d, "x.png")), { prompt: "A red  barn", tags: ["barn"], ...meta });
-  expect(lib.findExact("a red barn", "toon", "m")).not.toBeNull();
-  expect(lib.findExact("a red barn", "photo", "m")).toBeNull();
-  expect(lib.findExact("a red barn", "toon", "zimage")).toBeNull();
-  expect(lib.findExact("a blue barn", "toon", "m")).toBeNull();
-});
 
-it("ranks candidates by tag overlap", async () => {
-  const d = tmp();
-  const lib = new Library(join(d, "lib"));
-  const barn = await lib.add(await png(join(d, "1.png"), [1, 1, 1]), { prompt: "barn", tags: ["barn", "farm", "day"], ...meta });
-  const farm = await lib.add(await png(join(d, "2.png"), [2, 2, 2]), { prompt: "farm", tags: ["farm", "cows", "field", "day"], ...meta });
-  await lib.add(await png(join(d, "3.png"), [3, 3, 3]), { prompt: "ship", tags: ["ship", "sea"], ...meta });
-  await lib.add(await png(join(d, "4.png"), [4, 4, 4]), { prompt: "barn", tags: ["barn", "farm", "day"], ...meta, style: "photo" });
-  await lib.add(await png(join(d, "5.png"), [5, 5, 5]), { prompt: "barn", tags: ["barn", "farm", "day"], ...meta, model: "zimage" });
-  expect(lib.candidates(["barn", "farm", "day"], "toon", "m", 0.4).map((a) => a.id)).toEqual([barn.id, farm.id]);
-});
 
-it("counts uses", async () => {
-  const d = tmp();
-  const lib = new Library(join(d, "lib"));
-  const a = await lib.add(await png(join(d, "x.png")), { prompt: "barn", tags: ["barn"], ...meta });
-  lib.markUsed(a.id);
-  lib.markUsed(a.id);
-  expect(lib.get(a.id)!.uses).toBe(2);
-});
 
 it("keeps the data when reopened", async () => {
   const d = tmp();
-  const a = await new Library(join(d, "lib")).add(await png(join(d, "x.png")), { prompt: "barn", tags: ["barn"], ...meta });
-  expect(new Library(join(d, "lib")).get(a.id)!.prompt).toBe("barn");
+  const a = await new Library(join(d, "lib"), new DirStore(join(d, "store"))).add(await png(join(d, "x.png")), { prompt: "barn", ...meta });
+  expect(new Library(join(d, "lib"), new DirStore(join(d, "store"))).get(a.id)!.prompt).toBe("barn");
 });
 
-it("removes a picture: its file, its row and its tags", async () => {
+it("removes a picture: its file in the store and its row", async () => {
   const d = tmp();
-  const lib = new Library(join(d, "lib"));
-  const a = await lib.add(await png(join(d, "x.png")), { prompt: "barn", tags: ["barn"], ...meta });
-  expect(lib.remove(a.id)).toBe(true);
+  const store = new DirStore(join(d, "store"));
+  const lib = new Library(join(d, "lib"), store);
+  const a = await lib.add(await png(join(d, "x.png")), { prompt: "barn", ...meta });
+  expect(await lib.remove(a.id)).toBe(true);
   expect(lib.get(a.id)).toBeNull();
-  expect(readdirSync(lib.imagesDir)).toHaveLength(0);
-  expect(lib.candidates(["barn"], "toon", "m", 0)).toEqual([]);
-  expect(lib.remove(a.id)).toBe(false);
+  expect(store.keys()).toHaveLength(0);
+  expect(await lib.remove(a.id)).toBe(false);
 });
+
 
 it("pictures drawn before the model choice are recorded as DreamShaper's", async () => {
   const d = tmp();
-  const lib = new Library(join(d, "lib"));
-  const a = await lib.add(await png(join(d, "x.png")), { prompt: "barn", tags: ["barn"], ...meta, model: "DreamShaperXL_Turbo_v2_1" });
-  // as if the last migration had not run yet
-  const db = new Database(lib.dbPath);
-  db.prepare("delete from __drizzle_migrations where created_at = (select max(created_at) from __drizzle_migrations)").run();
+  // a library as it was before: only the migrations up to 0002, and a picture recorded then
+  const old = join(d, "old-migrations");
+  cpSync(MIGRATIONS, old, { recursive: true });
+  const journal = JSON.parse(readFileSync(join(old, "meta", "_journal.json"), "utf8"));
+  journal.entries = journal.entries.filter((e: { idx: number }) => e.idx <= 2);
+  writeFileSync(join(old, "meta", "_journal.json"), JSON.stringify(journal));
+  const before = new Library(join(d, "lib"), new DirStore(join(d, "store")), old);
+  const db = new Database(before.dbPath);
+  db.prepare("insert into assets (sha256, file, prompt, prompt_key, style, seed, model, width, height, uses, created_at) "
+    + "values ('s', 'f.png', 'barn', 'barn', 'toon', 1, 'DreamShaperXL_Turbo_v2_1', 8, 14, 0, 0)").run();
   db.close();
-  expect(new Library(join(d, "lib")).get(a.id)!.model).toBe("dreamshaper");
+  // opened with today's migrations
+  expect(new Library(join(d, "lib"), new DirStore(join(d, "store"))).get(1)!.model).toBe("dreamshaper");
 });

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Asset } from "../src/library.js";
-import { LlamaServer, chooseImage, extractJson, generateStory, llamaRunner, newsProblems, researchNotes, type Runner } from "../src/llm.js";
+import { LlamaServer, extractJson, generateStory, llamaRunner, newsProblems, researchNotes, type Runner } from "../src/llm.js";
 import { parseStory } from "../src/spec.js";
 import { storyDict } from "./fixtures.js";
 
@@ -137,17 +136,6 @@ it("llamaRunner reports HTTP errors", async () => {
   await expect(llamaRunner("http://x", fetcher as unknown as typeof fetch)("hi")).rejects.toThrow(/boom/);
 });
 
-const asset = (id: number): Asset => ({ id, path: "", prompt: `prompt ${id}`, tags: ["a"], style: "toon", seed: 1, model: "m", width: 4, height: 4, uses: 0 });
-
-it("chooseImage returns the picked id, or null for 0", async () => {
-  const run: Runner = async (p, schema: any) => {
-    expect(p).toContain("prompt 7");
-    expect(schema.properties.id.enum).toEqual([0, 7, 9]);
-    return '{"id": 9}';
-  };
-  expect(await chooseImage("a bridge", [asset(7), asset(9)], run)).toBe(9);
-  expect(await chooseImage("a bridge", [asset(7)], async () => '{"id": 0}')).toBeNull();
-});
 
 it("LlamaServer starts, waits for health and stops", async () => {
   const launched: string[][] = [];

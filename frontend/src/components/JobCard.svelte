@@ -90,7 +90,7 @@
     {#if job.state === 'done' || job.state === 'error'}
       <div class="azioni">
         {#if job.state === 'done'}
-          <Button look="ghost" size="sm" href={videoUrl(job.id)} download><Icon name="download" />Scarica</Button>
+          <Button look="ghost" size="sm" href={`${videoUrl(job.id)}?download`} download><Icon name="download" />Scarica</Button>
           <Button look="ghost" size="sm" onclick={apriCopione}><Icon name="script" />Copione</Button>
         {/if}
         <span class="spazio"></span>

@@ -12,6 +12,12 @@ services:
     volumes:
       - models:/models
       - data:/data
+    environment:
+      SILO_URL: http://silo:9000
+      SILO_ACCESS_KEY: ${SILO_ACCESS_KEY:?set SILO_ACCESS_KEY in .env}
+      SILO_SECRET_KEY: ${SILO_SECRET_KEY:?set SILO_SECRET_KEY in .env}
+    depends_on:
+      - silo
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/voices').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
       interval: 30s
@@ -19,6 +25,27 @@ services:
       # the first start downloads the models
       start_period: 30m
       retries: 3
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # The files: pictures, videos and uploads, in silo (an S3 store, a MinIO port), one bucket per context.
+  # Not published: the API reaches it inside, the pages through nginx with links the API signed.
+  silo:
+    image: pgsty/silo:RELEASE.2026-09-16T00-00-00Z
+    container_name: ai-shorts-silo
+    restart: unless-stopped
+    command: ["server", "/data"]
+    environment:
+      MINIO_ROOT_USER: ${SILO_ACCESS_KEY:?set SILO_ACCESS_KEY in .env}
+      MINIO_ROOT_PASSWORD: ${SILO_SECRET_KEY:?set SILO_SECRET_KEY in .env}
+      MINIO_BROWSER: "off"
+    volumes:
+      - silo:/data
     security_opt:
       - no-new-privileges:true
     logging:
@@ -43,6 +70,7 @@ services:
       BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:?set BASIC_AUTH_PASSWORD in .env}
     depends_on:
       - api
+      - silo
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
       interval: 30s
@@ -61,3 +89,4 @@ services:
 volumes:
   models:
   data:
+  silo:

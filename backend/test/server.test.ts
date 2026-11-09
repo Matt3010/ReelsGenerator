@@ -4,9 +4,10 @@ import { describe, expect, it } from "vitest";
 import type { NewsItem } from "../src/news.js";
 import { Library } from "../src/library.js";
 import { Job, onJobsChanged } from "../src/pipeline.js";
+import { videoKey } from "../src/storage.js";
 import { createApp } from "../src/server.js";
 import { storyDict } from "./fixtures.js";
-import { png, tmp } from "./helpers.js";
+import { png, tmp, DirStore } from "./helpers.js";
 
 async function waitFor(cond: () => boolean | Promise<boolean>, ms = 3000) {
   const end = Date.now() + ms;
@@ -20,14 +21,17 @@ async function waitFor(cond: () => boolean | Promise<boolean>, ms = 3000) {
 function make(news: () => Promise<NewsItem[]> = async () => []) {
   const root = tmp();
   const ran: string[] = [];
+  const videos = new DirStore(join(root, "videos"), "reels-videos");
+  const uploads = new DirStore(join(root, "uploads"), "reels-uploads");
   const runner = async (job: Job) => {
     ran.push(job.id);
-    writeFileSync(join(job.dir, "video.mp4"), "mp4-bytes");
-    job.update({ state: "done", title: "T" });
+    writeFileSync(join(root, "v.mp4"), "mp4-bytes");
+    await videos.put(videoKey(job.id), join(root, "v.mp4"));
+    job.update({ state: "done", title: "The Bridge: That Fell?" });
   };
-  const app = createApp({ root, runner, news });
+  const app = createApp({ root, runner, news, videos, uploads });
   const post = (body: object) => app.request("/api/jobs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-  return { app, root, ran, post };
+  return { app, root, ran, post, videos, uploads };
 }
 
 
@@ -41,19 +45,27 @@ it("creates a job, runs it and lists it", async () => {
   expect(jobs[0].id).toBe(id);
   expect(jobs[0].topic).toBe("bridges");
   expect(await waitFor(async () => (await (await app.request("/api/jobs")).json())[0].state === "done")).toBe(true);
-  const v = await app.request(`/api/jobs/${id}/video`);
-  expect(v.status).toBe(200);
-  expect(await v.text()).toBe("mp4-bytes");
+  // the video comes from silo: a link signed for the host the page came from (silo answers the ranges to seek)
+  const v = await app.request(`/api/jobs/${id}/video`, { headers: { host: "gen.example.work" } });
+  expect(v.status).toBe(302);
+  expect(v.headers.get("location")).toBe(`/reels-videos/${id}.mp4?host=gen.example.work`);
 });
 
-it("serves byte ranges so the player can seek", async () => {
+it("the download link names the file after the video", async () => {
   const { app, ran, post } = make();
   const { id } = await (await post({ topic: "x", voice: "en-US-GuyNeural", captions: true })).json();
-  await waitFor(() => ran.length === 1);
-  const r = await app.request(`/api/jobs/${id}/video`, { headers: { range: "bytes=4-6" } });
-  expect(r.status).toBe(206);
-  expect(r.headers.get("content-range")).toBe("bytes 4-6/9");
-  expect(await r.text()).toBe("byt");
+  await waitFor(async () => ran.length === 1 && (await (await app.request("/api/jobs")).json())[0].state === "done");
+  const r = await app.request(`/api/jobs/${id}/video?download`, { headers: { host: "h" } });
+  expect(r.headers.get("location")).toBe(`/reels-videos/${id}.mp4?host=h&name=The Bridge That Fell.mp4`);
+});
+
+it("hands out a signed upload for one picture, straight to silo", async () => {
+  const { app } = make();
+  const r = await app.request("/api/uploads", { method: "POST" });
+  expect(r.status).toBe(200);
+  const up = await r.json();
+  expect(up.key).toMatch(/^[0-9a-f-]{36}$/);
+  expect(up).toEqual({ key: up.key, url: "/reels-uploads", fields: { key: up.key, max: String(20 * 1024 * 1024), type: "image/" } });
 });
 
 it("rejects a blank topic, an unknown voice and a non-web news link", async () => {
@@ -67,6 +79,7 @@ it("rejects a blank topic, an unknown voice and a non-web news link", async () =
 it("answers 404 for unknown jobs and path tricks", async () => {
   const { app } = make();
   expect((await app.request("/api/jobs/nope/video")).status).toBe(404);
+  expect((await app.request("/api/jobs/20261109-120000-abcdef/video")).status).toBe(404);
   expect((await app.request("/api/jobs/..%2F..%2Fsecret/video")).status).toBe(404);
 });
 
@@ -108,7 +121,7 @@ describe("photos", () => {
   const withLibrary = () => {
     const root = tmp();
     const ran: string[] = [];
-    const library = new Library(join(root, "lib"));
+    const library = new Library(join(root, "lib"), new DirStore(join(root, "store")));
     const app = createApp({ root, runner: async (job) => { ran.push(job.id); job.update({ state: "done" }); }, news: async () => [], library: () => library });
     return { app, ran, library, root };
   };
@@ -143,13 +156,14 @@ describe("photos", () => {
 
   it("lists the pictures of a job and serves them", async () => {
     const { app, library, root } = withLibrary();
-    const a = await library.add(await png(join(root, "x.png")), { prompt: "a cat", tags: ["a cat"], style: "toon", seed: 1, model: "m" });
+    const a = await library.add(await png(join(root, "x.png")), { prompt: "a cat", style: "toon", seed: 1, model: "m" });
     const { id } = await (await postPhotos(app, { prompt: "a cat" })).json();
     writeFileSync(join(root, id, "images.json"), JSON.stringify([a.id]));
     expect((await (await app.request("/api/jobs")).json())[0].images).toEqual([a.id]);
-    const img = await app.request(`/api/library/${a.id}/image`);
-    expect(img.status).toBe(200);
-    expect(img.headers.get("content-type")).toBe("image/png");
+    // the picture comes from silo: a link signed for the page's host
+    const img = await app.request(`/api/library/${a.id}/image`, { headers: { host: "gen.example.work" } });
+    expect(img.status).toBe(302);
+    expect(img.headers.get("location")).toBe(`/reels-test/${a.key}?host=gen.example.work`);
     expect((await app.request("/api/library/999/image")).status).toBe(404);
     expect(await (await app.request(`/api/library/${a.id}`)).json()).toEqual({ id: a.id, prompt: "a cat", seed: 1, width: 8, height: 14, model: "m" });
     expect((await app.request("/api/library/999")).status).toBe(404);
@@ -224,21 +238,25 @@ it("a job tells whoever listens each time its state changes", () => {
 describe("deleting", () => {
   const withLibrary = () => {
     const root = tmp();
-    const library = new Library(join(root, "lib"));
-    const app = createApp({ root, runner: async (job) => job.update({ state: "done" }), news: async () => [], library: () => library });
-    return { app, library, root };
+    const library = new Library(join(root, "lib"), new DirStore(join(root, "store")));
+    const videos = new DirStore(join(root, "videos"), "reels-videos");
+    const app = createApp({ root, runner: async (job) => job.update({ state: "done" }), news: async () => [], library: () => library, videos });
+    return { app, library, root, videos };
   };
   const del = (app: ReturnType<typeof createApp>, path: string) => app.request(path, { method: "DELETE" });
 
-  it("deletes a finished video, and tells the pages", async () => {
-    const { app, root } = withLibrary();
+  it("deletes a finished video, from silo too, and tells the pages", async () => {
+    const { app, root, videos } = withLibrary();
     const job = Job.create(root, { topic: "x", voice: "v", captions: false });
     job.update({ state: "done" });
+    writeFileSync(join(root, "v.mp4"), "mp4");
+    await videos.put(videoKey(job.id), join(root, "v.mp4"));
     let heard = 0;
     const stop = onJobsChanged(() => heard++);
     expect((await del(app, `/api/jobs/${job.id}`)).status).toBe(200);
     stop();
     expect(existsSync(job.dir)).toBe(false);
+    expect(videos.keys()).toEqual([]);
     expect(heard).toBe(1);
     expect((await del(app, `/api/jobs/${job.id}`)).status).toBe(404);
   });
@@ -253,8 +271,8 @@ describe("deleting", () => {
 
   it("deletes a picture from the library and from its job; the job goes with its last picture", async () => {
     const { app, library, root } = withLibrary();
-    const a = await library.add(await png(join(root, "a.png"), [1, 1, 1]), { prompt: "a", tags: ["a"], style: "toon", seed: 1, model: "m" });
-    const b = await library.add(await png(join(root, "b.png"), [2, 2, 2]), { prompt: "b", tags: ["b"], style: "toon", seed: 1, model: "m" });
+    const a = await library.add(await png(join(root, "a.png"), [1, 1, 1]), { prompt: "a", style: "toon", seed: 1, model: "m" });
+    const b = await library.add(await png(join(root, "b.png"), [2, 2, 2]), { prompt: "b", style: "toon", seed: 1, model: "m" });
     const job = Job.create(root, { topic: "a cat", voice: "", captions: false, kind: "photo", photo: { prompt: "a cat", negative: "", count: 2 } });
     job.update({ state: "done" });
     writeFileSync(join(job.dir, "images.json"), JSON.stringify([a.id, b.id]));

@@ -51,7 +51,7 @@ describe('JobCard', () => {
     expect(container.querySelector('video')).toHaveAttribute('src', `/api/jobs/${base.id}/video`);
     expect(screen.getByText(/BBC News/)).toBeInTheDocument();
     expect(screen.getByText(/26 s/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /scarica/i })).toHaveAttribute('href', `/api/jobs/${base.id}/video`);
+    expect(screen.getByRole('link', { name: /scarica/i })).toHaveAttribute('href', `/api/jobs/${base.id}/video?download`);
   });
 
   it('tells the error and retries', async () => {

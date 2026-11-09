@@ -23,10 +23,10 @@ describe("story", () => {
     expect(() => parseStory(d)).toThrow(/duplicate/);
   });
 
-  it("normalises tags to lowercase unique", () => {
+  it("reads a story saved before, when scenes still had tags", () => {
     const d = storyDict();
-    d.scenes[0].tags = ["Bridge", "bridge ", "River"];
-    expect(parseStory(d).scenes[0].tags).toEqual(["bridge", "river"]);
+    (d.scenes[0] as Record<string, unknown>).tags = ["bridge"];
+    expect(parseStory(d).scenes[0]).not.toHaveProperty("tags");
   });
 
   it("folds unknown scene cast into the picture", () => {

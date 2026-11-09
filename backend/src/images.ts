@@ -1,8 +1,7 @@
-// Still pictures with stable-diffusion.cpp, reused from the library whenever a fitting one is already there.
+// Still pictures with stable-diffusion.cpp.
 import { existsSync, mkdirSync, renameSync } from "node:fs";
 import { dirname, join } from "node:path";
 import sharp from "sharp";
-import type { Asset, Library } from "./library.js";
 import { CONFIG } from "./config.js";
 import { FORMATS, modelById, type Size } from "./models.js";
 import { run as runProcess, type Run } from "./proc.js";
@@ -93,7 +92,6 @@ export type Generator = (req: DrawRequest) => Promise<string>;
 const HIRES_DENOISE = "0.35";
 const HIRES_STEPS = "8";
 const up64 = (n: number) => Math.ceil(n / 64) * 64;
-export type Chooser = (prompt: string, candidates: Asset[]) => Promise<number | null>;
 
 /** sd-cli's arguments: the model's weights and settings from MODELS_DIR (`dir`), then the picture itself */
 export function sdCommand(exe: string, dir: string, r: DrawRequest): string[] {
@@ -137,44 +135,25 @@ export function sdUpscaler(exe = CONFIG.sdCli, esrgan = join(CONFIG.models, "Rea
   };
 }
 
-/** for every scene, the id of a library picture to reuse, or null when a new one must be drawn */
-/** only pictures in the same style and by the same model are reused */
-export async function planImages(story: Story, lib: Library, style: string, model: string, choose: Chooser | null, minOverlap = 0.5) {
-  const plan: (number | null)[] = [];
-  for (const scene of story.scenes) {
-    const prompt = imagePrompt(story, scene);
-    const exact = lib.findExact(prompt, style, model);
-    if (exact) { plan.push(exact.id); continue; }
-    const found = lib.candidates(scene.tags, style, model, minOverlap);
-    const pick = found.length && choose ? await choose(prompt, found) : null;
-    plan.push(pick !== null && found.some((a) => a.id === pick) ? pick : null);
-  }
-  return plan;
-}
-
-export interface ProduceOptions {
+export interface DrawOptions {
   style: string; seed: number; model: string; work: string; limits?: Limits; progress?: (i: number, n: number) => void;
   /** the model's step on the picture being drawn */
   step?: (p: SdProgress) => void;
 }
 
-/** draw what the plan leaves open (once per distinct prompt), store it in the library, count every use */
-export async function produceImages(story: Story, lib: Library, plan: (number | null)[], generate: Generator, o: ProduceOptions) {
+/**
+ * A video's pictures: each distinct one drawn once, into the work folder, a file per scene (the same file where two
+ * scenes show the same thing). They serve the render only: nothing is kept.
+ */
+export async function drawScenes(story: Story, generate: Generator, o: DrawOptions): Promise<string[]> {
   mkdirSync(o.work, { recursive: true });
-  const todo = plan.filter((p) => p === null).length;
-  const out: Asset[] = [];
-  let done = 0;
-  for (const [i, scene] of story.scenes.entries()) {
-    const prompt = imagePrompt(story, scene);
-    let asset = plan[i] !== null ? lib.get(plan[i]!) : lib.findExact(prompt, o.style, o.model);
-    if (!asset) {
-      o.progress?.(++done, todo);
-      const file = await generate({ prompt, seed: o.seed, out: join(o.work, `img${String(i + 1).padStart(2, "0")}.png`), style: o.style,
-        negative: negativeExtra(story, o.limits ?? DEFAULT_LIMITS), model: o.model, progress: o.step });
-      asset = await lib.add(file, { prompt, tags: scene.tags, style: o.style, seed: o.seed, model: o.model });
-    }
-    lib.markUsed(asset.id);
-    out.push(lib.get(asset.id)!);
+  const prompts = story.scenes.map((scene) => imagePrompt(story, scene));
+  const distinct = [...new Set(prompts)];
+  const files = new Map<string, string>();
+  for (const [i, prompt] of distinct.entries()) {
+    o.progress?.(i + 1, distinct.length);
+    files.set(prompt, await generate({ prompt, seed: o.seed, out: join(o.work, `img${String(i + 1).padStart(2, "0")}.png`), style: o.style,
+      negative: negativeExtra(story, o.limits ?? DEFAULT_LIMITS), model: o.model, progress: o.step }));
   }
-  return out;
+  return prompts.map((p) => files.get(p)!);
 }

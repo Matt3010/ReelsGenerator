@@ -2,7 +2,6 @@
 import { spawn as nodeSpawn, type ChildProcess } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { join } from "node:path";
-import type { Asset } from "./library.js";
 import { CONFIG } from "./config.js";
 import { parseStory, storyJsonSchema, type Story } from "./spec.js";
 
@@ -34,8 +33,7 @@ Pictures (an image model draws them from your text, so describe only what is VIS
 - "cast": recurring characters. Give each a "look" (age, clothes, colours, one distinctive detail; 6-25 words) that
   never changes; list in a scene's "cast" only the characters visible in its picture (at most 2 is best), and do NOT
   describe their clothes again in "image". Background people are just described in "image".
-- "tags": 3-8 lowercase single words naming the subject, place and era, used to find the picture again later.
-- When two scenes show the same thing, write exactly the same "image" text and cast: the picture is reused.
+- When two scenes show the same thing, write exactly the same "image" text and cast: the picture is drawn once.
 - "motion": zoom_in (tension, reveal), zoom_out (show the scale), pan_left / pan_right (travel, crowds),
   pan_up (tall things, hope), pan_down (falling, gloom). Vary it between scenes.
 - "era": the place and year every picture is set in (e.g. "Boston North End, January 1919").
@@ -56,14 +54,6 @@ Previous reply:
 
 Fix every problem and reply again with ONLY the corrected JSON object.`;
 
-const CHOOSE = `A short video needs this picture:
-"{prompt}"
-
-These pictures already exist in the library:
-{listing}
-
-Answer with the id of a picture that shows the same subject, place and era and could be used as it is, or 0 if none
-of them really fits (when in doubt, answer 0). Reply with ONLY JSON: {"id": <number>}`;
 
 const RESEARCH = `You are researching a 30-second story short about: {topic}
 
@@ -195,17 +185,6 @@ export async function generateStory(topic: string, run: Runner, o: StoryOptions 
   throw new Error(`story still invalid after ${attempts} attempts: ${lastError}`);
 }
 
-export async function chooseImage(prompt: string, candidates: Asset[], run: Runner): Promise<number | null> {
-  const ids = candidates.map((a) => a.id);
-  const schema = { type: "object", properties: { id: { type: "integer", enum: [0, ...ids] } }, required: ["id"] };
-  const listing = candidates.map((a) => `${a.id}: "${a.prompt}"`).join("\n");
-  try {
-    const pick = extractJson(await run(fill(CHOOSE, { prompt, listing }), schema)).id;
-    return typeof pick === "number" && ids.includes(pick) ? pick : null;
-  } catch {
-    return null;
-  }
-}
 
 export function llamaRunner(baseUrl: string, fetcher: typeof fetch = fetch, temperature = 0.7, maxTokens = 4096): Runner {
   return async (prompt, schema, think = false) => {
