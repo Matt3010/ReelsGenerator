@@ -9,3 +9,5 @@ tools/
 # generated picture library (images + SQLite index)
 library/
 .env
+# the IDE's own settings (JetBrains)
+.idea/
