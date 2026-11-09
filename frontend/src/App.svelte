@@ -49,10 +49,10 @@
   }
 
   const apri = (job: JobInfo) =>
-    ui.openModal({ title: job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, loadStory: api.story } });
+    ui.openModal({ title: job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story } });
 
   const apriFoto = (id: number) =>
-    ui.openModal({ title: 'Immagine', view: PhotoViewer, props: { id, prompt: pictures.find((p) => p.id === id)?.alt ?? '' } });
+    ui.openModal({ title: 'Immagine', view: PhotoViewer, props: { id, prompt: pictures.find((p) => p.id === id)?.alt ?? '', onDelete: removePicture } });
 
   /** la pagina la dice l'indirizzo: / i video, /immagini le immagini */
   const tab = $derived(nav.route.kind === 'photos' ? 'photo' : 'video');
@@ -68,6 +68,17 @@
     await api.retry(id);
     ui.closeModal();
     await refresh();
+  }
+
+  // eliminato, la finestra si chiude; la griglia la aggiorna l'evento del server
+  async function remove(id: string) {
+    await api.remove(id);
+    ui.closeModal();
+  }
+
+  async function removePicture(id: number) {
+    await api.removePicture(id);
+    ui.closeModal();
   }
 
   function onKeydown(event: KeyboardEvent): void {

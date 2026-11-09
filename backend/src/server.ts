@@ -89,10 +89,18 @@ export function createApp(o: AppOptions = {}) {
     stop();
   }));
 
-  app.get("/api/jobs", (c) => c.json(Job.list(root).map((j) => {
-    const images = join(j.dir, "images.json");
-    return { id: j.id, ...j.status(), ...(existsSync(images) ? { images: JSON.parse(readFileSync(images, "utf8")) } : {}) };
-  })));
+  app.get("/api/jobs", (c) => c.json(Job.list(root).map((j) => ({ id: j.id, ...j.status(), images: j.images() }))));
+
+  // a job (a video, or a photo job with its pictures still listed) gone; not while it is at work
+  app.delete("/api/jobs/:id", (c) => {
+    const dir = jobDir(c.req.param("id"));
+    if (!dir) return c.json({ detail: "job not found" }, 404);
+    const job = new Job(dir);
+    const { state } = job.status();
+    if (state === "running" || state === "queued") return c.json({ detail: "è in lavorazione: si può eliminare quando ha finito" }, 409);
+    job.remove();
+    return c.json({ ok: true });
+  });
 
   app.get("/api/tags", (c) => c.json({ categories: suggestions(library().usedTags()), recent: library().recentTagSets() }));
 
@@ -105,6 +113,14 @@ export function createApp(o: AppOptions = {}) {
     const job = Job.create(root, { topic: composePrompt(tags, extra), voice: "", captions: false, kind: "photo", photo: { tags, extra, count }, options });
     enqueue(job);
     return c.json({ id: job.id });
+  });
+
+  // a picture gone: from the library, and from the job that made it
+  app.delete("/api/library/:id", (c) => {
+    const id = Number(c.req.param("id"));
+    if (!Number.isInteger(id) || !library().remove(id)) return c.json({ detail: "no such picture" }, 404);
+    for (const job of Job.list(root)) if (job.images().includes(id)) job.dropImage(id);
+    return c.json({ ok: true });
   });
 
   app.get("/api/library/:id/image", (c) => {

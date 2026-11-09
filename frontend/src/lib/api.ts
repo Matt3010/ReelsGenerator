@@ -46,6 +46,8 @@ export const api = {
   retry: (id: string) => call<{ id: string }>(`/api/jobs/${id}/retry`, { method: 'POST' }),
   story: (id: string) => call<Story>(`/api/jobs/${id}/story`),
   tags: () => call<TagSuggestions>('/api/tags'),
+  remove: (id: string) => call<{ ok: true }>(`/api/jobs/${id}`, { method: 'DELETE' }),
+  removePicture: (id: number) => call<{ ok: true }>(`/api/library/${id}`, { method: 'DELETE' }),
   photos: (req: NewPhotos) => call<{ id: string }>('/api/photos', { method: 'POST', body: JSON.stringify(req) }),
 };
 

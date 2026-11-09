@@ -83,3 +83,14 @@ it("keeps only the latest tag sets", () => {
   for (let i = 0; i < 5; i++) lib.recordTags({ subject: [`s${i}`] });
   expect(lib.recentTagSets(2)).toEqual([{ subject: ["s4"] }, { subject: ["s3"] }]);
 });
+
+it("removes a picture: its file, its row and its tags", async () => {
+  const d = tmp();
+  const lib = new Library(join(d, "lib"));
+  const a = await lib.add(await png(join(d, "x.png")), { prompt: "barn", tags: ["barn"], ...meta });
+  expect(lib.remove(a.id)).toBe(true);
+  expect(lib.get(a.id)).toBeNull();
+  expect(readdirSync(lib.imagesDir)).toHaveLength(0);
+  expect(lib.candidates(["barn"], "toon", 0)).toEqual([]);
+  expect(lib.remove(a.id)).toBe(false);
+});

@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { JobInfo } from '../lib/api';
 import { OPTIONS } from '../test/fixtures';
+import { ui } from '../lib/ui.svelte';
 import JobCard from './JobCard.svelte';
 
 const base: JobInfo = {
@@ -12,16 +13,15 @@ const base: JobInfo = {
 
 describe('JobCard', () => {
   it('shows the step while it works', () => {
-    render(JobCard, { job: base, onRetry: vi.fn(), loadStory: vi.fn() });
+    render(JobCard, { job: base, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
     expect(screen.getByText("Disegno l'immagine 3/8")).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: /avanzamento/i })).toHaveAttribute('aria-valuenow', '3');
     expect(screen.queryByRole('link', { name: /scarica/i })).not.toBeInTheDocument();
   });
 
   it('plays and downloads a finished video, and names its source', () => {
     const job: JobInfo = { ...base, state: 'done', step: 'Fatto', title: 'Pianist rescued', duration: 26.2,
       news: { title: 't', url: 'https://bbc.co.uk/a', published: '', outlet: 'BBC News', summary: '' } };
-    const { container } = render(JobCard, { job, onRetry: vi.fn(), loadStory: vi.fn() });
+    const { container } = render(JobCard, { job, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
     expect(container.querySelector('video')).toHaveAttribute('src', `/api/jobs/${base.id}/video`);
     expect(screen.getByText(/BBC News/)).toBeInTheDocument();
     expect(screen.getByText(/26 s/)).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('JobCard', () => {
 
   it('tells the error and retries', async () => {
     const onRetry = vi.fn();
-    render(JobCard, { job: { ...base, state: 'error', error: 'ffmpeg failed' }, onRetry, loadStory: vi.fn() });
+    render(JobCard, { job: { ...base, state: 'error', error: 'ffmpeg failed' }, onRetry, onDelete: vi.fn(), loadStory: vi.fn() });
     expect(screen.getByRole('alert')).toHaveTextContent('ffmpeg failed');
     await userEvent.setup().click(screen.getByRole('button', { name: /riprova/i }));
     expect(onRetry).toHaveBeenCalledWith(base.id);
@@ -38,9 +38,26 @@ describe('JobCard', () => {
 
   it('opens the script', async () => {
     const loadStory = vi.fn(async () => ({ scenes: [{ narration: 'A pianist fell overboard.' }, { narration: 'Fishermen found him.' }] }));
-    render(JobCard, { job: { ...base, state: 'done', title: 'T' }, onRetry: vi.fn(), loadStory });
+    render(JobCard, { job: { ...base, state: 'done', title: 'T' }, onRetry: vi.fn(), onDelete: vi.fn(), loadStory });
     await userEvent.setup().click(screen.getByRole('button', { name: /copione/i }));
     expect(await screen.findByText('A pianist fell overboard.')).toBeInTheDocument();
     expect(screen.getByText('Fishermen found him.')).toBeInTheDocument();
+  });
+});
+
+describe('JobCard deleting', () => {
+  it('deletes a finished job after a yes next to the button', async () => {
+    const onDelete = vi.fn();
+    render(JobCard, { job: { ...base, state: 'done', title: 'T' }, onRetry: vi.fn(), onDelete, loadStory: vi.fn() });
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /elimina/i }));
+    expect(ui.sure?.title).toMatch(/eliminare/i);
+    ui.sure!.onYes();
+    expect(onDelete).toHaveBeenCalledWith(base.id);
+  });
+
+  it('cannot delete a job still at work', () => {
+    render(JobCard, { job: base, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
+    expect(screen.queryByRole('button', { name: /elimina/i })).not.toBeInTheDocument();
   });
 });

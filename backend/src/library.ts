@@ -4,7 +4,7 @@ import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -91,6 +91,15 @@ export class Library {
       .sort((x, y) => y.score - x.score || x.a.id - y.a.id)
       .slice(0, limit)
       .map((x) => x.a);
+  }
+
+  /** a picture gone for good: its file, its row and (by cascade) its tags; false when there was none */
+  remove(id: number): boolean {
+    const row = this.db.select().from(assets).where(eq(assets.id, id)).get();
+    if (!row) return false;
+    this.db.delete(assets).where(eq(assets.id, id)).run();
+    rmSync(join(this.imagesDir, row.file), { force: true });
+    return true;
   }
 
   markUsed(id: number): void {

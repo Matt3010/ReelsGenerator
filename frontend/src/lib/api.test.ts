@@ -57,5 +57,9 @@ describe('api for pictures', () => {
     expect(url).toBe('/api/photos');
     expect(JSON.parse(init.body as string)).toEqual({ tags: { subject: ['a cat'] }, extra: '', count: 2, options });
     expect(imageUrl(7)).toBe('/api/library/7/image');
+    await api.remove('j1');
+    expect(fetcher).toHaveBeenLastCalledWith('/api/jobs/j1', expect.objectContaining({ method: 'DELETE' }));
+    await api.removePicture(7);
+    expect(fetcher).toHaveBeenLastCalledWith('/api/library/7', expect.objectContaining({ method: 'DELETE' }));
   });
 });

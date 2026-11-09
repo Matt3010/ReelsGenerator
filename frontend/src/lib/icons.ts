@@ -1,4 +1,4 @@
-import { Check, ChevronDown, CircleAlert, Clapperboard, Download, Eye, EyeOff, FileText, Image, Newspaper, RotateCcw, Sparkles, X } from 'lucide';
+import { Check, ChevronDown, CircleAlert, Clapperboard, Download, Eye, EyeOff, FileText, Image, Newspaper, RotateCcw, Sparkles, Trash2, X } from 'lucide';
 
 /* Le icone che l'app disegna, e nessun'altra: chi ne vuole una nuova la aggiunge qui. */
 export const ICONS = {
@@ -15,6 +15,7 @@ export const ICONS = {
   eye: Eye,
   eyeOff: EyeOff,
   close: X,
+  trash: Trash2,
 } as const;
 
 export type IconName = keyof typeof ICONS;

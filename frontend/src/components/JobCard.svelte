@@ -4,26 +4,32 @@
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
   import Loader from './Loader.svelte';
-  import ProgressBar from './ProgressBar.svelte';
+  import { ui } from '../lib/ui.svelte';
 
   /** Un video: mentre si fa, il passo a cui è; fatto, il video da guardare e scaricare; andato male, il perché. */
   let {
     job,
     onRetry,
+    onDelete,
     loadStory,
   }: {
     job: JobInfo;
     onRetry: (id: string) => void;
+    onDelete: (id: string) => void;
     loadStory: (id: string) => Promise<Story>;
   } = $props();
 
-  // «Disegno l'immagine 3/8» -> 3 di 8: la barra lo mostra
-  const passo = $derived.by(() => {
-    const m = /(\d+)\/(\d+)/.exec(job.step);
-    return m ? { value: Number(m[1]), max: Number(m[2]) } : null;
-  });
-
   let copione = $state<string[] | null>(null);
+
+  /** si chiede accanto al tasto, come in SendLater: è una cosa che non torna indietro */
+  function elimina(event: MouseEvent) {
+    ui.askSure(event.currentTarget as HTMLElement, {
+      title: job.kind === 'photo' ? 'Eliminare queste immagini?' : 'Eliminare il video?',
+      detail: 'Si cancella per sempre.',
+      verb: 'Elimina',
+      onYes: () => onDelete(job.id),
+    });
+  }
 
   async function apriCopione() {
     if (copione) { copione = null; return; }
@@ -41,9 +47,6 @@
     <div class="attesa">
       <Loader delay={0} />
       <p>{job.step}</p>
-      {#if passo && job.state === 'running'}
-        <ProgressBar value={passo.value} max={passo.max} label="Avanzamento" />
-      {/if}
     </div>
   {/if}
 
@@ -57,10 +60,14 @@
       <Alert message={job.error} action={{ label: 'Riprova', run: () => onRetry(job.id) }} />
     {/if}
 
-    {#if job.state === 'done'}
+    {#if job.state === 'done' || job.state === 'error'}
       <div class="azioni">
-        <Button look="ghost" size="sm" href={videoUrl(job.id)} download><Icon name="download" />Scarica</Button>
-        <Button look="ghost" size="sm" onclick={apriCopione}><Icon name="script" />Copione</Button>
+        {#if job.state === 'done'}
+          <Button look="ghost" size="sm" href={videoUrl(job.id)} download><Icon name="download" />Scarica</Button>
+          <Button look="ghost" size="sm" onclick={apriCopione}><Icon name="script" />Copione</Button>
+        {/if}
+        <span class="spazio"></span>
+        <Button look="ghost" size="sm" tone="danger" onclick={elimina}><Icon name="trash" />Elimina</Button>
       </div>
     {/if}
 
@@ -75,7 +82,7 @@
 <style>
   .job { display: flex; flex-direction: column; gap: 4px; }
 
-  video, .attesa {
+  video {
     width: 100%;
     aspect-ratio: 9 / 16;
     background: #000;
@@ -86,8 +93,9 @@
     display: grid;
     align-content: center;
     justify-items: center;
-    gap: 10px;
-    padding: 24px;
+    gap: 8px;
+    padding: 28px 16px;
+    border-radius: var(--r-in);
     background: var(--sunken);
     color: var(--ink-2);
     text-align: center;
@@ -95,13 +103,13 @@
   }
 
   .attesa p { margin: 0; }
-  .attesa :global(.bar) { width: 70%; }
 
   .meta { display: grid; gap: 8px; padding: 8px 0 0; }
 
   .sotto { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 0; font-size: 12.5px; color: var(--ink-3); }
 
   .azioni { display: flex; gap: 6px; }
+  .spazio { flex: 1; }
 
   .copione { margin: 0; padding: 10px 10px 10px 28px; border-radius: var(--r-in); background: var(--sunken); font-size: 12.5px; color: var(--ink-2); }
 </style>

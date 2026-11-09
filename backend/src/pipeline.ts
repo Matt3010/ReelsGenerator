@@ -41,6 +41,8 @@ export function onJobsChanged(listener: () => void): () => void {
   return () => listeners.delete(listener);
 }
 
+const changed = () => { for (const listener of listeners) listener(); };
+
 export class Job {
   readonly id: string;
   constructor(readonly dir: string) { this.id = basename(dir); }
@@ -69,10 +71,30 @@ export class Job {
     const tmp = join(this.dir, "status.json.tmp");
     writeFileSync(tmp, JSON.stringify(st, null, 1), "utf8");
     renameSync(tmp, join(this.dir, "status.json"));
-    for (const listener of listeners) listener();
+    changed();
   }
 
   update(patch: Partial<JobStatus>) { this.write({ ...this.status(), ...patch }); }
+
+  /** the job and everything it made, gone (the pages hear of it) */
+  remove(): void {
+    rmSync(this.dir, { recursive: true, force: true });
+    changed();
+  }
+
+  /** the library pictures it made (a photo job), or that a video used */
+  images(): number[] {
+    const file = join(this.dir, "images.json");
+    return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : [];
+  }
+
+  /** a picture of a photo job deleted: off its list, and the job too when it was the last one */
+  dropImage(id: number): void {
+    const left = this.images().filter((one) => one !== id);
+    if (this.status().kind === "photo" && left.length === 0) return this.remove();
+    writeFileSync(join(this.dir, "images.json"), JSON.stringify(left), "utf8");
+    changed();
+  }
 
   log(line: string) { appendFileSync(join(this.dir, "log.txt"), line.trimEnd() + "\n", "utf8"); }
 }

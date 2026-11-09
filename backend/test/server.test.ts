@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { NewsItem } from "../src/news.js";
@@ -199,4 +199,50 @@ it("a job tells whoever listens each time its state changes", () => {
   stop();
   job.update({ step: "Voce narrante 2/3" });
   expect(heard).toBe(2);
+});
+
+describe("deleting", () => {
+  const withLibrary = () => {
+    const root = tmp();
+    const library = new Library(join(root, "lib"));
+    const app = createApp({ root, runner: async (job) => job.update({ state: "done" }), news: async () => [], library: () => library });
+    return { app, library, root };
+  };
+  const del = (app: ReturnType<typeof createApp>, path: string) => app.request(path, { method: "DELETE" });
+
+  it("deletes a finished video, and tells the pages", async () => {
+    const { app, root } = withLibrary();
+    const job = Job.create(root, { topic: "x", voice: "v", captions: false });
+    job.update({ state: "done" });
+    let heard = 0;
+    const stop = onJobsChanged(() => heard++);
+    expect((await del(app, `/api/jobs/${job.id}`)).status).toBe(200);
+    stop();
+    expect(existsSync(job.dir)).toBe(false);
+    expect(heard).toBe(1);
+    expect((await del(app, `/api/jobs/${job.id}`)).status).toBe(404);
+  });
+
+  it("refuses to delete a job still at work", async () => {
+    const { app, root } = withLibrary();
+    const job = Job.create(root, { topic: "x", voice: "v", captions: false });
+    job.update({ state: "running" });
+    expect((await del(app, `/api/jobs/${job.id}`)).status).toBe(409);
+    expect(existsSync(job.dir)).toBe(true);
+  });
+
+  it("deletes a picture from the library and from its job; the job goes with its last picture", async () => {
+    const { app, library, root } = withLibrary();
+    const a = await library.add(await png(join(root, "a.png"), [1, 1, 1]), { prompt: "a", tags: ["a"], style: "toon", seed: 1, model: "m" });
+    const b = await library.add(await png(join(root, "b.png"), [2, 2, 2]), { prompt: "b", tags: ["b"], style: "toon", seed: 1, model: "m" });
+    const job = Job.create(root, { topic: "a cat", voice: "", captions: false, kind: "photo", photo: { tags: {}, extra: "a cat", count: 2 } });
+    job.update({ state: "done" });
+    writeFileSync(join(job.dir, "images.json"), JSON.stringify([a.id, b.id]));
+    expect((await del(app, `/api/library/${a.id}`)).status).toBe(200);
+    expect(library.get(a.id)).toBeNull();
+    expect(JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"))).toEqual([b.id]);
+    expect((await del(app, `/api/library/${b.id}`)).status).toBe(200);
+    expect(existsSync(job.dir)).toBe(false);
+    expect((await del(app, "/api/library/999")).status).toBe(404);
+  });
 });
