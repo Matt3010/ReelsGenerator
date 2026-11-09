@@ -185,12 +185,26 @@ it("cuts a picture to an exact size", async () => {
 
 describe("progress", () => {
   it("reads sd.cpp's step and speed from its progress bar", () => {
-    expect(sdProgress("\r  |=========>          | 3/8 - 2.51s/it")).toEqual({ step: 3, steps: 8, rate: "2.51 s/it" });
-    expect(sdProgress("\r  |====| 7/8 - 1.20it/s\x1b[K\r  |=====| 8/8 - 1.31it/s\x1b[K")).toEqual({ step: 8, steps: 8, rate: "1.31 it/s" });
+    expect(sdProgress("\r  |=========>          | 3/8 - 2.51s/it")).toEqual({ step: 3, steps: 8, rate: "2.51 s/it", phase: "steps" });
+    expect(sdProgress("\r  |====| 7/8 - 1.20it/s\x1b[K\r  |=====| 8/8 - 1.31it/s\x1b[K")).toEqual({ step: 8, steps: 8, rate: "1.31 it/s", phase: "steps" });
     expect(sdProgress("[INFO ] loading tensors")).toBeNull();
     // as sd.cpp really prints them: padded numbers, an ETA, and a bar for loading the weights that is no step
-    expect(sdProgress("\r  |============>    | 1/4 -  27.93s/it - ETA 01:23\x1b[K")).toEqual({ step: 1, steps: 4, rate: "27.93 s/it" });
+    expect(sdProgress("\r  |============>    | 1/4 -  27.93s/it - ETA 01:23\x1b[K")).toEqual({ step: 1, steps: 4, rate: "27.93 s/it", phase: "steps" });
     expect(sdProgress("\r  |##########| 4/4 -  11.60MB/s\x1b[K")).toBeNull();
+  });
+
+  it("tells the steps from the hires fix and from decoding, as sd.cpp's log marks them", async () => {
+    const seen: string[] = [];
+    const gen = sdGenerator("sd-cli.exe", "/m", async (cmd, opts) => {
+      opts?.onOutput?.("[I] generating image: 1/1 - seed 1\n");
+      opts?.onOutput?.("\r  |=> | 8/8 -   1.80s/it\x1b[K\n[I] sampling completed, taking 22.45s\n[I] hires fix: upscaling to 1088x1920\n");
+      opts?.onOutput?.("\r  |=> | 2/5 -   3.10s/it\x1b[K");
+      opts?.onOutput?.("[I] decoding 1 latents\n\r  |=> | 10/45 -   2.20it/s\x1b[K");
+      await png(at(cmd, "-o"));
+      return { code: 0, output: "" };
+    });
+    await gen(req("a barn", 1, join(tmp(), "a.png"), "free", "", { progress: (p) => seen.push(`${p.phase} ${p.step}/${p.steps}`) }));
+    expect(seen).toEqual(["steps 8/8", "hires 2/5", "decode 10/45"]);
   });
 
   it("the generator passes each step on as sd.cpp draws", async () => {

@@ -50,7 +50,10 @@
 
   const apri = (job: JobInfo) =>
     // un lavoro di immagini si chiama così: il suo prompt intero non sta in una testata
-    ui.openModal({ title: job.kind === 'photo' ? 'Immagini' : job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story,
+    ui.openModal({ title: job.kind === 'photo' ? 'Immagini' : job.title ?? job.topic, view: JobCard, props: {
+      // il lavoro com'è adesso: la modale aperta segue passi e stato che arrivano dal server
+      get job() { return jobs?.find((one) => one.id === job.id) ?? job; },
+      onRetry: retry, onDelete: remove, loadStory: api.story,
       models: palette?.models ?? [] } });
 
   function apriFoto(id: number) {

@@ -125,3 +125,17 @@ it('names a picture job "Immagini" in its modal, not by its whole prompt', async
   await user.click(await screen.findByRole('button', { name: /a very long prompt/ }));
   expect(await screen.findByRole('dialog', { name: 'Immagini' })).toBeInTheDocument();
 });
+
+it('an open job follows the server: its step changes while the modal is open', async () => {
+  const job = { id: '20261109-101021-61aa49', topic: 'Molasses', voice: 'en-US-GuyNeural', captions: true, news: null,
+    state: 'running', step: 'Immagini', title: 'The Great Molasses Flood', error: null, created: 1 };
+  fakeServer([job]);
+  render(App);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', { name: /molasses flood/i }));
+  const dialog = await screen.findByRole('dialog');
+  expect(within(dialog).getByText(/^Immagini/)).toBeInTheDocument();
+  job.step = "Disegno l'immagine 2/5";
+  serverSays();
+  expect(await within(dialog).findByText(/^Disegno l'immagine 2\/5/)).toBeInTheDocument();
+});

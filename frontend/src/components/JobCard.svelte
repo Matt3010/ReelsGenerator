@@ -62,7 +62,11 @@
     <!-- fallito, basta l'avviso qui sotto con Riprova -->
     <div class="attesa">
       <Loader delay={0} />
-      <p>{job.step}{#if job.state === 'running' && trascorso !== null}{` · ${durata(trascorso)}`}{/if}</p>
+      <p>{job.step}</p>
+      <!-- sotto, il modello e il tempo: le cifre larghe uguali, così il secondo che scorre non sposta niente -->
+      {#if job.state === 'running' && (job.detail || trascorso !== null)}
+        <p class="dettaglio">{[job.detail, trascorso !== null ? durata(trascorso) : null].filter(Boolean).join(' · ')}</p>
+      {/if}
     </div>
   {/if}
 
@@ -126,6 +130,7 @@
   }
 
   .attesa p { margin: 0; }
+  .dettaglio { font-size: 12.5px; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
   .meta { display: grid; gap: 8px; padding: 8px 0 0; }
 

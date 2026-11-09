@@ -42,16 +42,35 @@ export const STYLES = {
 
 export type StyleId = keyof typeof STYLES;
 
-/** where sd.cpp is: the step it is on and its speed, as it prints them ("2.51 s/it", or "1.31 it/s" when fast) */
-export interface SdProgress { step: number; steps: number; rate: string }
+/**
+ * where sd.cpp is: the step it is on and its speed, as it prints them ("2.51 s/it", or "1.31 it/s" when fast); the
+ * phase: the steps of the drawing, the hires fix's second pass (SDXL), or the decoding to pixels (tile by tile)
+ */
+export type SdPhase = "steps" | "hires" | "decode";
+export interface SdProgress { step: number; steps: number; rate: string; phase: SdPhase }
 
 // "  |=====>   | 1/4 -  27.93s/it - ETA 01:23": the number is padded; loading the weights prints MB/s, no step
 const BAR = /(\d+)\/(\d+) -\s+([\d.]+)(s\/it|it\/s)/g;
+// where sd.cpp's log says a phase begins
+const PHASES: [RegExp, SdPhase][] = [[/generating image:/, "steps"], [/hires fix: upscaling/, "hires"], [/decoding \d+ latents/, "decode"]];
 
 /** the last progress bar in a piece of sd.cpp's output, or null */
-export function sdProgress(chunk: string): SdProgress | null {
+export function sdProgress(chunk: string, phase: SdPhase = "steps"): SdProgress | null {
   const last = [...chunk.matchAll(BAR)].at(-1);
-  return last ? { step: Number(last[1]), steps: Number(last[2]), rate: `${last[3]} ${last[4]}` } : null;
+  return last ? { step: Number(last[1]), steps: Number(last[2]), rate: `${last[3]} ${last[4]}`, phase } : null;
+}
+
+/** follows sd.cpp's output piece by piece: each bar with the phase the log last announced */
+function phaseReader(report: (p: SdProgress) => void): (chunk: string) => void {
+  let phase: SdPhase = "steps";
+  return (chunk) => {
+    for (const piece of chunk.split(/\r|\n/)) {
+      const marked = PHASES.find(([re]) => re.test(piece));
+      if (marked) phase = marked[1];
+      const p = sdProgress(piece, phase);
+      if (p) report(p);
+    }
+  };
 }
 
 /** one picture to draw: what, in which style, with which model, how big (and, for SDXL, a hires fix to a larger size) */
@@ -91,7 +110,7 @@ export function sdCommand(exe: string, dir: string, r: DrawRequest): string[] {
 export function sdGenerator(exe = CONFIG.sdCli, dir = CONFIG.models, run: Run = runProcess): Generator {
   return async (r) => {
     mkdirSync(dirname(r.out), { recursive: true });
-    const onOutput = r.progress && ((chunk: string) => { const p = sdProgress(chunk); if (p) r.progress!(p); });
+    const onOutput = r.progress && phaseReader(r.progress);
     const res = await run(sdCommand(exe, dir, r), { onOutput });
     if (res.code !== 0 || !existsSync(r.out)) throw new Error(`sd.cpp exited ${res.code}: ${res.output.slice(-1500)}`);
     return r.out;

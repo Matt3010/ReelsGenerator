@@ -232,8 +232,10 @@ it("shows the model's step and speed while it draws, for pictures and for videos
   const draw = eng.generate;
   let job: Job;
   eng.generate = async (r) => {
-    r.progress?.({ step: 3, steps: 8, rate: "2.51 s/it" });
-    steps.push(job.status().step);
+    r.progress?.({ step: 3, steps: 8, rate: "2.51 s/it", phase: "steps" });
+    steps.push(`${job.status().step} | ${job.status().detail}`);
+    r.progress?.({ step: 10, steps: 45, rate: "2.20 it/s", phase: "decode" });
+    steps.push(`${job.status().step} | ${job.status().detail}`);
     return draw(r);
   };
   job = Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
@@ -241,8 +243,9 @@ it("shows the model's step and speed while it draws, for pictures and for videos
   await runJob(job, eng);
   job = Job.create(join(root, "jobs"), { topic: "x", voice: "v", captions: false });
   await runJob(job, eng);
-  expect(steps[0]).toBe("Disegno l'immagine 1/1 · passo 3/8 · 2.51 s/it");
-  expect(steps[1]).toBe("Disegno l'immagine 1/2 · passo 3/8 · 2.51 s/it");
+  expect(steps.slice(0, 2)).toEqual(["Disegno l'immagine 1/1 | passo 3/8 · 2.51 s/it", "Disegno l'immagine 1/1 | decodifica 10/45 · 2.20 it/s"]);
+  expect(steps[2]).toBe("Disegno l'immagine 1/2 | passo 3/8 · 2.51 s/it");
+  expect(job.status().detail).toBeUndefined();               // a new step: the model's detail goes with the old one
 });
 
 it("a photo job at 4K draws at Full HD with the hires fix, then ESRGAN takes it to 4K", async () => {

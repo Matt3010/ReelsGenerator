@@ -35,6 +35,8 @@ export interface JobInfo extends NewJob {
   /** quando è partito e quando ha finito il lavoro (secondi, come created) */
   started?: number;
   finished?: number;
+  /** sotto il passo: a che punto è il modello («passo 3/8 · 2.51 s/it») */
+  detail?: string;
 }
 
 export interface Story { title?: string; scenes: { narration: string }[] }

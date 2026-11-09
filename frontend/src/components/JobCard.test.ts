@@ -20,8 +20,11 @@ describe('JobCard', () => {
 
   it('counts the time while it works, and says how long it took', () => {
     const now = Date.now() / 1000;
-    const { unmount } = render(JobCard, { job: { ...base, started: now - 75 }, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
-    expect(screen.getByText("Disegno l'immagine 3/8 · 1 min 15 s")).toBeInTheDocument();
+    const { unmount } = render(JobCard, { job: { ...base, started: now - 75, detail: "passo 3/8 · 2.51 s/it" },
+      onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
+    // the step on one line, what the model is at and the time on the next: a ticking clock does not move the step
+    expect(screen.getByText("Disegno l'immagine 3/8")).toBeInTheDocument();
+    expect(screen.getByText("passo 3/8 · 2.51 s/it · 1 min 15 s")).toBeInTheDocument();
     unmount();
     render(JobCard, { job: { ...base, state: 'done', step: 'Fatto', started: now - 1200, finished: now - 100 },
       onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
