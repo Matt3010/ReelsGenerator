@@ -44,11 +44,23 @@
     await refresh();
   }
 
+  /** la modale delle immagini: vuota, o con le impostazioni di un'immagine da rifare */
+  function nuovaImmagine(initial?: PhotoRequest) {
+    if (!palette) return;
+    ui.openModal({ title: 'Nuova immagine', view: PhotoComposer, props: { onCreate: createPhotos, models: palette.models,
+      upload: (file: File) => uploadPhoto(file, api.uploads), initial } });
+  }
+
   function nuovo() {
     if (!palette) return;
     if (tab === 'video') ui.openModal({ title: 'Nuovo video', view: Composer, props: { voices, palette, loadNews: api.news, onCreate: create } });
-    else ui.openModal({ title: 'Nuova immagine', view: PhotoComposer, props: { onCreate: createPhotos, models: palette.models,
-      upload: (file: File) => uploadPhoto(file, api.uploads) } });
+    else nuovaImmagine();
+  }
+
+  /** Rigenera: l'immagine lascia il posto alla modale, già compilata con le sue impostazioni e il suo seed */
+  function rigenera(req: PhotoRequest) {
+    ui.closeModal();
+    nuovaImmagine(req);
   }
 
   const apri = (job: JobInfo) =>
@@ -63,7 +75,7 @@
     const picture = pictures.find((p) => p.id === id);
     ui.openModal({ title: 'Immagine', view: PhotoViewer,
       props: { id, url: picture?.url ?? '', before: picture?.before, prompt: picture?.alt ?? '', photo: picture?.photo ?? null, took: picture?.took, models: palette?.models ?? [],
-        onDelete: removePicture, loadInfo: api.picture } });
+        onDelete: removePicture, onRegenerate: rigenera, loadInfo: api.picture } });
   }
 
   /** la pagina la dice l'indirizzo: / i video, /immagini le immagini */

@@ -15,28 +15,38 @@
    * chi non ascolta il negative prompt non lo chiede nemmeno. Si può partire da una foto propria (img2img): va su silo appena
    * scelta, e un cursore dice quanto cambiarla.
    */
-  let { onCreate, models, upload }: {
+  let { onCreate, models, upload, initial }: {
     onCreate: (req: PhotoRequest) => Promise<void>;
     models: ImageModel[];
     /** manda una foto a silo e ne torna la chiave */
     upload: (file: File) => Promise<string>;
+    /** le impostazioni di un'immagine da rifare (Rigenera): si cambia il prompt, il resto e il seed restano */
+    initial?: PhotoRequest;
   } = $props();
 
   const QUANTE = [1, 2, 3, 4].map((n) => ({ id: String(n), label: String(n) }));
 
-  // il primo della lista: il server mette in cima quello predefinito
+  // quello dell'immagine da rifare, o il primo della lista (il server mette in cima quello predefinito)
   // svelte-ignore state_referenced_locally
-  let model = $state(models[0]?.id ?? '');
+  let model = $state(initial?.model ?? models[0]?.id ?? '');
   const scelto = $derived(models.find((m) => m.id === model));
-  let prompt = $state('');
-  let negative = $state('');
-  let format = $state<Format>('portrait');
-  let resolution = $state<Resolution>('standard');
-  let count = $state(1);
-  let seed = $state('');
+  // svelte-ignore state_referenced_locally
+  let prompt = $state(initial?.prompt ?? '');
+  // svelte-ignore state_referenced_locally
+  let negative = $state(initial?.negative ?? '');
+  // svelte-ignore state_referenced_locally
+  let format = $state<Format>(initial?.format ?? 'portrait');
+  // svelte-ignore state_referenced_locally
+  let resolution = $state<Resolution>(initial?.resolution ?? 'standard');
+  // svelte-ignore state_referenced_locally
+  let count = $state(initial?.count ?? 1);
+  // svelte-ignore state_referenced_locally
+  let seed = $state(initial?.seed != null ? String(initial.seed) : '');
   /** la foto da cui partire (già su silo), e quanto cambiarla: 0,1 un ritocco, 0,95 quasi nuova */
-  let start = $state<{ key: string; url: string } | null>(null);
-  let strength = $state(0.6);
+  // svelte-ignore state_referenced_locally
+  let start = $state<{ key: string; url: string } | null>(initial?.init?.url ? { key: initial.init.key, url: initial.init.url } : null);
+  // svelte-ignore state_referenced_locally
+  let strength = $state(initial?.init?.strength ?? 0.6);
   let sending = $state(false);
   let problem = $state('');
 

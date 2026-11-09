@@ -149,3 +149,18 @@ it('opens the Sistema page from the bar, without the job buttons', async () => {
   expect(await screen.findByRole('heading', { name: 'Sistema' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /nuovo video|nuova immagine/i })).not.toBeInTheDocument();
 });
+
+it('regenerates a picture: its modal gives way to the composer, filled in with its settings and seed', async () => {
+  fakeServer([{ id: '20261109-110000-bbbbbb', kind: 'photo', topic: 'a robot, golden hour', voice: '', captions: false, news: null,
+    state: 'done', step: 'Fatto', title: null, error: null, created: 1, images: [{ id: 7, url: '/reels-images/abc.png?s=1' }],
+    photo: { prompt: 'a robot, golden hour', negative: '', count: 2, format: 'square', seed: 99, resolution: 'standard', model: 'dreamshaper' } }]);
+  render(App);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('link', { name: /immagini/i }));
+  await user.click(await screen.findByRole('button', { name: 'a robot, golden hour' }));
+  await user.click(within(await screen.findByRole('dialog')).getByRole('button', { name: /rigenera/i }));
+  const composer = await screen.findByRole('dialog', { name: /nuova immagine/i });
+  expect(within(composer).getByRole('textbox', { name: /^prompt/i })).toHaveValue('a robot, golden hour');
+  expect(within(composer).getByRole('textbox', { name: /seed/i })).toHaveValue('99');
+  expect(screen.getAllByRole('dialog')).toHaveLength(1);
+});

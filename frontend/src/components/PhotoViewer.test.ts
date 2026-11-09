@@ -19,6 +19,16 @@ it('shows the picture large, its properties with its own seed and size, and a do
   expect(screen.getByRole('link', { name: /scarica/i })).toHaveAttribute('href', '/reels-images/abc.png?X-Amz-Signature=s1');
 });
 
+it("regenerates: the same request, with this picture's own seed", async () => {
+  const onRegenerate = vi.fn();
+  const photo = { ...PHOTO, count: 3, seed: null, model: 'zimage' };
+  render(PhotoViewer, { id: 7, url: '/x', prompt: 'a robot', photo, models: PALETTE.models, onDelete: vi.fn(), onRegenerate,
+    loadInfo: async () => ({ id: 7, prompt: 'a robot', seed: 4242, width: 1920, height: 1080, model: 'zimage' }) });
+  await screen.findByText('4242');
+  await userEvent.setup().click(screen.getByRole('button', { name: /rigenera/i }));
+  expect(onRegenerate).toHaveBeenCalledWith({ ...photo, count: 1, seed: 4242 });
+});
+
 it('deletes the picture after a yes next to the button', async () => {
   const onDelete = vi.fn();
   render(PhotoViewer, { id: 7, url: '/reels-images/abc.png?X-Amz-Signature=s1', prompt: 'a robot', photo: null, models: PALETTE.models, onDelete, loadInfo: async () => null });

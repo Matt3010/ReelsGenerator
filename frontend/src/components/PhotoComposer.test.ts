@@ -87,6 +87,21 @@ describe('PhotoComposer', () => {
     expect(onCreate).toHaveBeenCalledWith(expect.not.objectContaining({ init: expect.anything() }));
   });
 
+  it('starts from the settings of a picture, to tune its prompt with the same seed', async () => {
+    const onCreate = vi.fn(async () => {});
+    render(PhotoComposer, { onCreate, models: PALETTE.models, upload: vi.fn(),
+      initial: { prompt: 'a fox at dawn', negative: 'blurry', count: 1, format: 'landscape', seed: 1234, resolution: 'fullhd',
+        model: 'zimage', init: { key: 'k-1', strength: 0.4, url: '/reels-uploads/k-1?s' } } });
+    const user = userEvent.setup();
+    expect(screen.getByRole('textbox', { name: /^prompt/i })).toHaveValue('a fox at dawn');
+    expect(screen.getByRole('textbox', { name: /seed/i })).toHaveValue('1234');
+    expect(screen.getByRole('slider', { name: /quanto cambiarla/i })).toHaveValue('0.4');
+    await user.type(screen.getByRole('textbox', { name: /^prompt/i }), ', foggy');
+    await user.click(screen.getByRole('button', { name: /genera/i }));
+    expect(onCreate).toHaveBeenCalledWith({ prompt: 'a fox at dawn, foggy', negative: '', count: 1, format: 'landscape', seed: 1234,
+      resolution: 'fullhd', model: 'zimage', init: { key: 'k-1', strength: 0.4 } });
+  });
+
   it('takes a long prompt', () => {
     setup();
     expect(screen.getByRole('textbox', { name: /^prompt/i })).toHaveAttribute('maxlength', '2000');

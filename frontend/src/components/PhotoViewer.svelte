@@ -16,6 +16,7 @@
     took,
     models,
     onDelete,
+    onRegenerate,
     loadInfo,
   }: {
     id: number;
@@ -30,6 +31,8 @@
     took?: number;
     models: ImageModel[];
     onDelete: (id: number) => void;
+    /** rifarla: la stessa richiesta, una sola immagine, col suo seed vero (per ritoccare solo il prompt) */
+    onRegenerate?: (req: PhotoRequest) => void;
     loadInfo: (id: number) => Promise<PictureInfo | null>;
   } = $props();
 
@@ -57,6 +60,11 @@
   seed={info?.seed} size={info ? [info.width, info.height] : undefined} model={info?.model} {models} {took} />
 <div class="azioni">
   <Button look="ghost" size="sm" href={url} download><Icon name="download" />Scarica</Button>
+  {#if photo && onRegenerate}
+    <Button look="ghost" size="sm" onclick={() => onRegenerate({ ...photo, count: 1, seed: info?.seed ?? photo.seed })}>
+      <Icon name="again" />Rigenera
+    </Button>
+  {/if}
   <span class="spazio"></span>
   <Button look="ghost" size="sm" tone="danger" onclick={elimina}><Icon name="trash" />Elimina</Button>
 </div>
