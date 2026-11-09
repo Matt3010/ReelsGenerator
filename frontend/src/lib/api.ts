@@ -23,7 +23,7 @@ export type Resolution = 'standard' | 'fullhd' | '4k';
 export interface PhotoRequest {
   prompt: string; negative: string; count: number; format: Format; seed: number | null; resolution: Resolution; model?: string;
   /** partire da una foto propria: la sua chiave in silo, e quanto cambiarla (0,1-0,95) */
-  init?: { key: string; strength: number };
+  init?: { key: string; strength: number; url?: string };
 }
 /** cos'è un'immagine della libreria: il seed per rifarla, la misura, il modello che l'ha disegnata */
 export interface PictureInfo { id: number; prompt: string; seed: number; width: number; height: number; model: string }

@@ -28,3 +28,10 @@ it('deletes the picture after a yes next to the button', async () => {
   ui.sure!.onYes();
   expect(onDelete).toHaveBeenCalledWith(7);
 });
+
+it('shows before and after when the picture started from a photo of mine', () => {
+  render(PhotoViewer, { id: 7, url: '/reels-images/abc.png?X-Amz-Signature=s1', before: '/reels-uploads/k?s=1', prompt: 'the street at night',
+    photo: null, models: PALETTE.models, onDelete: vi.fn(), loadInfo: async () => null });
+  expect(screen.getByRole('slider', { name: /prima e dopo/i })).toBeInTheDocument();
+  expect(screen.getByRole('img', { name: /prima/i })).toHaveAttribute('src', '/reels-uploads/k?s=1');
+});

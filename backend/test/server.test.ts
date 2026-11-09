@@ -168,6 +168,15 @@ describe("photos", () => {
     expect(await (await app.request(`/api/library/${a.id}`)).json()).toEqual({ id: a.id, prompt: "a cat", seed: 1, width: 8, height: 14, model: "m" });
     expect((await app.request("/api/library/999")).status).toBe(404);
   });
+
+  it("gives the starting picture of a job its signed link too, for the before and after", async () => {
+    const { app, root, uploads } = withLibrary();
+    const key = "2b1e7c1a-0000-4000-8000-000000000001";
+    await uploads.put(key, await png(join(root, "u.png")), "image/png");
+    await postPhotos(app, { prompt: "the same street at night", init: { key, strength: 0.6 } });
+    const [job] = await (await app.request("/api/jobs", { headers: { host: "h" } })).json();
+    expect(job.photo.init).toEqual({ key, strength: 0.6, url: `/reels-uploads/${key}?host=h` });
+  });
 });
 
 describe("options", () => {

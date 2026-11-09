@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { ImageModel, PhotoRequest, PictureInfo } from '../lib/api';
+  import BeforeAfter from './BeforeAfter.svelte';
   import PhotoProperties from './PhotoProperties.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
@@ -9,6 +10,7 @@
   let {
     id,
     url,
+    before,
     prompt,
     photo,
     took,
@@ -19,6 +21,8 @@
     id: number;
     /** il suo link firmato (silo) */
     url: string;
+    /** la foto da cui è partita (img2img): allora prima e dopo */
+    before?: string;
     prompt: string;
     /** con cosa è stata chiesta (null: un'immagine di un video) */
     photo: PhotoRequest | null;
@@ -44,7 +48,11 @@
   }
 </script>
 
-<img src={url} alt={prompt} />
+{#if before}
+  <BeforeAfter {before} after={url} alt={prompt} />
+{:else}
+  <img src={url} alt={prompt} />
+{/if}
 <PhotoProperties photo={photo ?? { prompt, negative: '', count: 1, format: 'portrait', seed: null, resolution: 'standard' }}
   seed={info?.seed} size={info ? [info.width, info.height] : undefined} model={info?.model} {models} {took} />
 <div class="azioni">

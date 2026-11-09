@@ -135,7 +135,9 @@ export function createApp(o: AppOptions = {}) {
         url: await videos().signedGet(videoKey(j.id), host),
         download: await videos().signedGet(videoKey(j.id), host, { filename: fileName(st.title ?? j.id) }),
       } : undefined;
-      return { id: j.id, ...st, images, video };
+      // the picture it started from (img2img), for the before and after
+      const photo = st.photo?.init ? { ...st.photo, init: { ...st.photo.init, url: await uploads().signedGet(st.photo.init.key, host) } } : st.photo;
+      return { id: j.id, ...st, photo, images, video };
     })));
   });
 
