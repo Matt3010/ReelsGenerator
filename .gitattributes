@@ -1,0 +1,3 @@
+# scripts and configs that run inside the Linux containers keep LF line endings
+*.sh text eol=lf
+docker/** text eol=lf
