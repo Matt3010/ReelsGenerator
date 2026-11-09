@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { NewsItem } from "../src/news.js";
 import { Library } from "../src/library.js";
-import { Job } from "../src/pipeline.js";
+import { Job, onJobsChanged } from "../src/pipeline.js";
 import { createApp } from "../src/server.js";
 import { storyDict } from "./fixtures.js";
 import { png, tmp } from "./helpers.js";
@@ -175,4 +175,28 @@ describe("options", () => {
     const { post } = make();
     expect((await post({ topic: "x", voice: "en-US-GuyNeural", captions: true, options: { style: "oil", realPeople: false, avoid: true } })).status).toBe(422);
   });
+});
+
+describe("events", () => {
+  it("streams a change whenever a job is created or moves on", async () => {
+    const { app, post } = make();
+    const r = await app.request("/api/events");
+    expect(r.headers.get("content-type")).toMatch(/text\/event-stream/);
+    const reader = r.body!.getReader();
+    const next = async () => new TextDecoder().decode((await reader.read()).value);
+    await post({ topic: "x", voice: "en-US-GuyNeural", captions: true });
+    expect(await next()).toContain("data: changed");
+    await reader.cancel();
+  });
+});
+
+it("a job tells whoever listens each time its state changes", () => {
+  const root = tmp();
+  let heard = 0;
+  const stop = onJobsChanged(() => heard++);
+  const job = Job.create(root, { topic: "x", voice: "v", captions: false });
+  job.update({ step: "Voce narrante 1/3" });
+  stop();
+  job.update({ step: "Voce narrante 2/3" });
+  expect(heard).toBe(2);
 });

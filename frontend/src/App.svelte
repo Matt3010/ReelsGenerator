@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import Button from './components/Button.svelte';
   import Composer from './components/Composer.svelte';
   import EmptyState from './components/EmptyState.svelte';
@@ -14,8 +14,10 @@
   import PhotoTile from './components/PhotoTile.svelte';
   import PhotoViewer from './components/PhotoViewer.svelte';
   import SurePopover from './components/SurePopover.svelte';
-  import Tabs from './components/Tabs.svelte';
+  import TabBar from './components/TabBar.svelte';
   import { api, imageUrl, type JobInfo, type NewJob, type NewPhotos, type Palette } from './lib/api';
+  import { follow } from './lib/events';
+  import { nav } from './lib/nav.svelte';
   import { ui } from './lib/ui.svelte';
 
   let voices = $state<Record<string, string>>({ 'en-US-GuyNeural': 'Guy (US, deep narrator)' });
@@ -52,7 +54,8 @@
   const apriFoto = (id: number) =>
     ui.openModal({ title: 'Immagine', view: PhotoViewer, props: { id, prompt: pictures.find((p) => p.id === id)?.alt ?? '' } });
 
-  let tab = $state<'video' | 'photo'>('video');
+  /** la pagina la dice l'indirizzo: / i video, /immagini le immagini */
+  const tab = $derived(nav.route.kind === 'photos' ? 'photo' : 'video');
   // ogni scheda i suoi: i video sotto Video, le immagini sotto Immagini
   const shown = $derived(jobs?.filter((j) => (j.kind === 'photo') === (tab === 'photo')) ?? null);
   // le immagini finite nella galleria, le più nuove prima; i lavori ancora aperti restano riquadri sopra
@@ -71,30 +74,24 @@
     if (event.key === 'Escape') ui.escape();
   }
 
-  // a video takes minutes: a look every few seconds is plenty
-  let timer: ReturnType<typeof setInterval> | undefined;
+  // il server dice quando qualcosa cambia (SSE): allora, e quando ci si ricollega, si rilegge
   onMount(() => {
     void api.voices().then((v) => (voices = v)).catch(() => {});
     void api.styles().then((p) => (palette = p)).catch(() => {});
     void refresh();
-    timer = setInterval(refresh, 4000);
+    return follow(() => void refresh());
   });
-  onDestroy(() => clearInterval(timer));
 </script>
 
 <svelte:window onkeydown={onKeydown} />
 
 <main>
   <div class="comandi">
-    <div class="schede">
-      <Tabs label="Cosa fare" value={tab} options={[{ id: 'video', label: 'Video' }, { id: 'photo', label: 'Immagini' }]} onpick={(id) => (tab = id)} />
-    </div>
+    <h2>{tab === 'photo' ? 'Le tue immagini' : 'I tuoi video'}</h2>
     <Button look="primary" onclick={nuovo} disabled={!palette}>
       <Icon name="generate" />{tab === 'video' ? 'Nuovo video' : 'Nuove immagini'}
     </Button>
   </div>
-
-  <h2 class="titolo">{tab === 'photo' ? 'Le tue immagini' : 'I tuoi video'}</h2>
   {#if !jobs}
     <Loader />
   {:else if shown && shown.length === 0}
@@ -119,6 +116,8 @@
   {/if}
 </main>
 
+<TabBar />
+
 {#each ui.modals as request (request)}
   <Modal {request} />
 {/each}
@@ -131,15 +130,13 @@
   main {
     display: grid;
     gap: 14px;
-    padding: max(18px, env(safe-area-inset-top)) 0 40px;
+    /* in fondo, il posto per la barra delle sezioni */
+    padding: max(18px, env(safe-area-inset-top)) 0 var(--sopra-alla-barra);
   }
 
   main > :global(:not(.grid)) { margin-inline: var(--island-side); }
 
   .comandi { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 
-  .schede { width: min(100%, 260px); }
-
-  .titolo { margin-top: 6px; padding: 0 2px; }
 
 </style>

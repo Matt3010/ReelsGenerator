@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import App from './App.svelte';
+import { serverSays } from './test/event-source';
 import { PALETTE } from './test/fixtures';
 
 function fakeServer(jobs: unknown[]) {
@@ -36,7 +37,7 @@ it('lists the videos and adds a new one at the top', async () => {
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   expect(posted).toEqual([{ topic: 'New one', voice: 'en-US-GuyNeural', captions: true, news: null,
     options: { style: 'toon', realPeople: false, avoid: true } }]);
-  expect(await screen.findByText('In coda')).toBeInTheDocument();
+  expect(await screen.findByRole('button', { name: 'New one · In coda' })).toBeInTheDocument();
 });
 
 it('invites to start when there are no videos yet', async () => {
@@ -49,8 +50,8 @@ it('switches to pictures, whose composer opens in a modal', async () => {
   fakeServer([]);
   render(App);
   const user = userEvent.setup();
-  await user.click(await screen.findByRole('tab', { name: /immagini/i }));
-  expect(screen.getByRole('tab', { name: /immagini/i })).toHaveAttribute('aria-selected', 'true');
+  await user.click(await screen.findByRole('link', { name: /immagini/i }));
+  expect(screen.getByRole('link', { name: /immagini/i })).toHaveAttribute('aria-current', 'page');
   expect(screen.queryByRole('button', { name: /nuovo video/i })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: /nuove immagini/i }));
   const dialog = await screen.findByRole('dialog', { name: /nuove immagini/i });
@@ -70,7 +71,7 @@ it('shows videos under Video and pictures under Immagini, never mixed', async ()
   expect(screen.queryByRole('list', { name: 'Le tue immagini' })).not.toBeInTheDocument();
 
   const user = userEvent.setup();
-  await user.click(screen.getByRole('tab', { name: /immagini/i }));
+  await user.click(screen.getByRole('link', { name: /immagini/i }));
   const gallery = screen.getByRole('list', { name: 'Le tue immagini' });
   expect(gallery.querySelector('img')).toHaveAttribute('src', '/api/library/7/image');
   expect(screen.queryByRole('button', { name: 'The Great Molasses Flood' })).not.toBeInTheDocument();
@@ -83,7 +84,7 @@ it('shows videos under Video and pictures under Immagini, never mixed', async ()
 it('invites to make the first pictures when there are none yet', async () => {
   fakeServer([]);
   render(App);
-  await userEvent.setup().click(screen.getByRole('tab', { name: /immagini/i }));
+  await userEvent.setup().click(screen.getByRole('link', { name: /immagini/i }));
   expect(await screen.findByText(/ancora nessuna immagine/i)).toBeInTheDocument();
 });
 
@@ -101,6 +102,17 @@ it('keeps a picture job still at work as a tile above the gallery', async () => 
   fakeServer([{ id: '20261109-110000-cccccc', kind: 'photo', topic: 'a fox', voice: '', captions: false, news: null, state: 'running',
     step: "Disegno l'immagine 1/2", title: null, error: null, created: 1, photo: { tags: { subject: ['a fox'] }, extra: '', count: 2 } }]);
   render(App);
-  await userEvent.setup().click(await screen.findByRole('tab', { name: /immagini/i }));
-  expect(await screen.findByText("Disegno l'immagine 1/2")).toBeInTheDocument();
+  await userEvent.setup().click(await screen.findByRole('link', { name: /immagini/i }));
+  expect(await screen.findByRole('button', { name: "a fox · Disegno l'immagine 1/2" })).toBeInTheDocument();
+});
+
+it('follows the server: a change it announces shows up without asking every few seconds', async () => {
+  const jobs: unknown[] = [];
+  fakeServer(jobs);
+  render(App);
+  expect(await screen.findByText(/ancora nessun video/i)).toBeInTheDocument();
+  jobs.push({ id: '20261109-130000-dddddd', topic: 'Fresh', voice: 'v', captions: true, news: null, state: 'running',
+    step: 'Il modello scrive la storia', title: null, error: null, created: 4 });
+  serverSays();
+  expect(await screen.findByRole('button', { name: 'Fresh · Il modello scrive la storia' })).toBeInTheDocument();
 });

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { imageUrl, videoUrl, type JobInfo, type Story } from '../lib/api';
+  import { videoUrl, type JobInfo, type Story } from '../lib/api';
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
@@ -33,24 +33,13 @@
 </script>
 
 <article class="job">
-  {#if job.state === 'done' && job.kind === 'photo'}
-    <div class="foto">
-      {#each job.images ?? [] as id, i (id)}
-        <a href={imageUrl(id)} target="_blank" rel="noreferrer" aria-label={`Apri immagine ${i + 1}`}>
-          <img src={imageUrl(id)} alt={job.topic} loading="lazy" />
-        </a>
-      {/each}
-    </div>
-  {:else if job.state === 'done'}
+  {#if job.state === 'done'}
     <!-- svelte-ignore a11y_media_has_caption -->
     <video src={videoUrl(job.id)} controls preload="metadata" playsinline></video>
-  {:else}
+  {:else if job.state !== 'error'}
+    <!-- fallito, basta l'avviso qui sotto con Riprova -->
     <div class="attesa">
-      {#if job.state === 'error'}
-        <Icon name="alert" size="lg" tone="danger" />
-      {:else}
-        <Loader delay={0} />
-      {/if}
+      <Loader delay={0} />
       <p>{job.step}</p>
       {#if passo && job.state === 'running'}
         <ProgressBar value={passo.value} max={passo.max} label="Avanzamento" />
@@ -68,7 +57,7 @@
       <Alert message={job.error} action={{ label: 'Riprova', run: () => onRetry(job.id) }} />
     {/if}
 
-    {#if job.state === 'done' && job.kind !== 'photo'}
+    {#if job.state === 'done'}
       <div class="azioni">
         <Button look="ghost" size="sm" href={videoUrl(job.id)} download><Icon name="download" />Scarica</Button>
         <Button look="ghost" size="sm" onclick={apriCopione}><Icon name="script" />Copione</Button>
@@ -107,16 +96,6 @@
 
   .attesa p { margin: 0; }
   .attesa :global(.bar) { width: 70%; }
-
-  .foto {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2px;
-    background: #000;
-    border-radius: var(--r-in);
-    overflow: hidden;
-  }
-  .foto img { display: block; width: 100%; aspect-ratio: 9 / 16; object-fit: cover; }
 
   .meta { display: grid; gap: 8px; padding: 8px 0 0; }
 

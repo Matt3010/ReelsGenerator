@@ -33,6 +33,14 @@ export interface JobStatus extends NewJob {
 
 let lastCreated = 0;
 
+/** who wants to know when a job changes (the pages following /api/events) */
+const listeners = new Set<() => void>();
+/** call back on every change of any job; returns how to stop */
+export function onJobsChanged(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 export class Job {
   readonly id: string;
   constructor(readonly dir: string) { this.id = basename(dir); }
@@ -61,6 +69,7 @@ export class Job {
     const tmp = join(this.dir, "status.json.tmp");
     writeFileSync(tmp, JSON.stringify(st, null, 1), "utf8");
     renameSync(tmp, join(this.dir, "status.json"));
+    for (const listener of listeners) listener();
   }
 
   update(patch: Partial<JobStatus>) { this.write({ ...this.status(), ...patch }); }

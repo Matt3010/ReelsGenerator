@@ -19,16 +19,18 @@ describe('JobTile', () => {
     expect(onopen).toHaveBeenCalledWith(base);
   });
 
-  it('shows the step of a job at work', () => {
-    render(JobTile, { job: { ...base, state: 'running', step: "Disegno l'immagine 3/8", title: null }, onopen: vi.fn() });
-    expect(screen.getByText("Disegno l'immagine 3/8")).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Cruise ship pianist rescued/ })).toBeInTheDocument();
+  it('marks a job at work with a sign in the corner only, the step said to screen readers', () => {
+    const { container } = render(JobTile, { job: { ...base, state: 'running', step: "Disegno l'immagine 3/8", title: null }, onopen: vi.fn() });
+    expect(screen.getByRole('button', { name: "Cruise ship pianist rescued · Disegno l'immagine 3/8" })).toBeInTheDocument();
+    expect(container.querySelector('.segno')).toBeInTheDocument();
+    expect(container.textContent?.trim()).toBe('');
   });
 
   it('says a job failed, without pulling the page anywhere', () => {
     const scroll = vi.spyOn(Element.prototype, 'scrollIntoView');
-    render(JobTile, { job: { ...base, state: 'error', error: 'boom' }, onopen: vi.fn() });
-    expect(screen.getByText('Errore')).toBeInTheDocument();
+    const { container } = render(JobTile, { job: { ...base, state: 'error', error: 'boom' }, onopen: vi.fn() });
+    expect(screen.getByRole('button', { name: 'Pianist rescued · Errore' })).toBeInTheDocument();
+    expect(container.textContent?.trim()).toBe('');
     expect(scroll).not.toHaveBeenCalled();
     scroll.mockRestore();
   });

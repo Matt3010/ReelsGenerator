@@ -1,6 +1,7 @@
 // The API behind the web app (nginx serves the app and passes /api here): news, jobs, their videos.
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { streamSSE } from "hono/streaming";
 import { createReadStream, existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { Readable } from "node:stream";
@@ -10,7 +11,7 @@ import { Library } from "./library.js";
 import { fetchNews, type NewsItem } from "./news.js";
 import { STYLES, type StyleId } from "./images.js";
 import { CATEGORIES, composePrompt, suggestions } from "./photos.js";
-import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, runJob } from "./pipeline.js";
+import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
 import { VOICES } from "./tts.js";
 
@@ -78,6 +79,16 @@ export function createApp(o: AppOptions = {}) {
   app.get("/api/styles", (c) => c.json({
     styles: Object.entries(STYLES).map(([id, s]) => ({ id, label: s.label })), defaults: DEFAULT_OPTIONS }));
   app.get("/api/news", async (c) => c.json(await news()));
+  // the pages follow this: "changed" whenever a job does (they read /api/jobs again), a ping every 25 s
+  // so a quiet stream is not taken for a dead one
+  app.get("/api/events", (c) => streamSSE(c, async (stream) => {
+    const stop = onJobsChanged(() => void stream.writeSSE({ data: "changed" }));
+    const ping = setInterval(() => void stream.write(": ping\n\n"), 25_000);
+    await new Promise<void>((done) => stream.onAbort(done));
+    clearInterval(ping);
+    stop();
+  }));
+
   app.get("/api/jobs", (c) => c.json(Job.list(root).map((j) => {
     const images = join(j.dir, "images.json");
     return { id: j.id, ...j.status(), ...(existsSync(images) ? { images: JSON.parse(readFileSync(images, "utf8")) } : {}) };
