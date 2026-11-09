@@ -1,19 +1,26 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { PhotoRequest, TagSet, TagSuggestions } from '../lib/api';
+  import type { NewPhotos, Palette, TagSet, TagSuggestions } from '../lib/api';
+  import Options from './Options.svelte';
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
   import Chip from './Chip.svelte';
+  import Field from './Field.svelte';
   import Icon from './Icon.svelte';
   import PageCard from './PageCard.svelte';
+  import PickField from './PickField.svelte';
+  import TagGroup from './TagGroup.svelte';
+  import TextField from './TextField.svelte';
 
   /** Solo immagini: il prompt si compone coi tag di cinque categorie, i preferiti per primi, più due parole libere. */
   let {
+    palette,
     loadTags,
     onCreate,
   }: {
+    palette: Palette;
     loadTags: () => Promise<TagSuggestions>;
-    onCreate: (req: PhotoRequest) => Promise<void>;
+    onCreate: (req: NewPhotos) => Promise<void>;
   } = $props();
 
   let suggested = $state<TagSuggestions | null>(null);
@@ -21,9 +28,10 @@
   let chosen = $state<TagSet>({});
   /** quelli scritti a mano, che si aggiungono ai suggeriti della loro categoria */
   let mine = $state<TagSet>({});
-  let typing = $state<Record<string, string>>({});
   let extra = $state('');
   let count = $state(2);
+  // svelte-ignore state_referenced_locally
+  let options = $state({ ...palette.defaults });
   let sending = $state(false);
   let problem = $state('');
 
@@ -38,12 +46,9 @@
     chosen[cat] = has(cat, tag) ? list.filter((t) => t !== tag) : [...list, tag];
   }
 
-  function addOwn(cat: string) {
-    const tag = (typing[cat] ?? '').trim();
-    if (!tag) return;
+  function addOwn(cat: string, tag: string) {
     if (!(mine[cat] ?? []).includes(tag)) mine[cat] = [...(mine[cat] ?? []), tag];
     if (!has(cat, tag)) toggle(cat, tag);
-    typing[cat] = '';
   }
 
   // nello stesso ordine del server: il soggetto per primo, dove il modello d'immagine guarda di più
@@ -58,7 +63,7 @@
     problem = '';
     const tags = Object.fromEntries(Object.entries(chosen).filter(([, list]) => list.length));
     try {
-      await onCreate({ tags, extra: extra.trim(), count });
+      await onCreate({ tags, extra: extra.trim(), count, options: { ...options } });
       chosen = {};
       extra = '';
     } catch (e) {
@@ -85,28 +90,16 @@
     {/if}
 
     {#each suggested.categories as cat (cat.id)}
-      <div class="gruppo" role="group" aria-label={cat.label}>
-        <span class="eyebrow">{cat.label}</span>
-        <div class="tags">
-          {#each [...new Set([...(mine[cat.id] ?? []), ...cat.tags])] as tag (tag)}
-            <Chip label={tag} color={has(cat.id, tag) ? 'var(--me)' : 'var(--ink-3)'} aria-pressed={has(cat.id, tag)} onclick={() => toggle(cat.id, tag)} />
-          {/each}
-          <input
-            class="nuovo"
-            aria-label={`Nuovo tag: ${cat.label}`}
-            placeholder="+ nuovo"
-            bind:value={typing[cat.id]}
-            onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addOwn(cat.id); } }}
-          />
-        </div>
-      </div>
+      <TagGroup label={cat.label} tags={[...new Set([...(mine[cat.id] ?? []), ...cat.tags])]} chosen={chosen[cat.id] ?? []}
+        ontoggle={(tag) => toggle(cat.id, tag)} onadd={(tag) => addOwn(cat.id, tag)} />
     {/each}
   {/if}
 
-  <label class="field">
-    <span class="eyebrow">Dettagli</span>
-    <input bind:value={extra} placeholder="es. holding a red umbrella" aria-label="Dettagli" />
-  </label>
+  <Field label="Dettagli">
+    <TextField label="Dettagli" maxlength={200} bind:value={extra} placeholder="es. holding a red umbrella" />
+  </Field>
+
+  <Options bind:options styles={palette.styles} />
 
   <div class="anteprima">
     <span class="eyebrow">Prompt</span>
@@ -116,9 +109,9 @@
   {#if problem}<Alert message={problem} />{/if}
 
   <div class="riga">
-    <select bind:value={count} aria-label="Quante immagini">
-      {#each [1, 2, 3, 4] as n (n)}<option value={n}>{n} {n === 1 ? 'immagine' : 'immagini'}</option>{/each}
-    </select>
+    <PickField label="Quante immagini" value={String(count)} drop width={160}
+      options={[1, 2, 3, 4].map((n) => ({ id: String(n), label: `${n} ${n === 1 ? 'immagine' : 'immagini'}` }))}
+      onpick={(id) => (count = Number(id))} />
     <Button look="primary" size="lg" onclick={create} disabled={!prompt || sending}>
       <Icon name="generate" />Genera immagini
     </Button>
@@ -129,8 +122,6 @@
   .gruppo { display: grid; gap: 6px; }
 
   .tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-
-  .nuovo { width: 120px; height: 30px; padding: 0 10px; border-radius: 99px; font-size: 12.5px; }
 
   .anteprima { display: grid; gap: 4px; padding: 10px 12px; border-radius: var(--r-in); background: var(--sunken); }
   .anteprima p { margin: 0; min-height: 1.4em; font-size: 13px; color: var(--ink-2); }

@@ -87,3 +87,16 @@ describe("story", () => {
 
   it("norm strips punctuation", () => expect(norm("Snapped!")).toBe("snapped"));
 });
+
+describe("options", () => {
+  const news = () => ({ ...storyDict(), source: { outlet: "BBC News", title: "t", url: "u", published: "" } });
+
+  it("can drop the anachronism list", () => {
+    expect(negativeExtra(parseStory(storyDict()), { avoid: false, realPeople: false })).toBe("");
+  });
+
+  it("can allow real people in news pictures", () => {
+    expect(negativeExtra(parseStory(news()), { avoid: true, realPeople: true })).toBe("cars, electric lights");
+    expect(negativeExtra(parseStory(news()), { avoid: true, realPeople: false })).toContain("politician");
+  });
+});

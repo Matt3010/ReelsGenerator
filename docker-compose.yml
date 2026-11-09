@@ -37,10 +37,14 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:${WEB_PORT:-8765}:8080"
+    # the basic-auth login: required, nginx does not start without it
+    environment:
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:?set BASIC_AUTH_USER in .env}
+      BASIC_AUTH_PASSWORD: ${BASIC_AUTH_PASSWORD:?set BASIC_AUTH_PASSWORD in .env}
     depends_on:
       - api
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
       interval: 30s
       timeout: 5s
       retries: 3

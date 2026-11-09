@@ -8,8 +8,9 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { Library } from "./library.js";
 import { fetchNews, type NewsItem } from "./news.js";
+import { STYLES, type StyleId } from "./images.js";
 import { CATEGORIES, composePrompt, suggestions } from "./photos.js";
-import { JOBS, Job, defaultEngines, markInterrupted, runJob } from "./pipeline.js";
+import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
 import { VOICES } from "./tts.js";
 
@@ -21,11 +22,18 @@ const NewsRef = z.object({
   summary: z.string().default(""),
 });
 
+const Options = z.object({
+  style: z.enum(Object.keys(STYLES) as [StyleId, ...StyleId[]]).default(DEFAULT_OPTIONS.style),
+  realPeople: z.boolean().default(DEFAULT_OPTIONS.realPeople),
+  avoid: z.boolean().default(DEFAULT_OPTIONS.avoid),
+}).prefault({});
+
 const NewJob = z.object({
   topic: z.string().trim().min(1, "topic is empty").transform((t) => t.slice(0, 300)),
   voice: z.string().refine((v) => v in VOICES, "unknown voice").default("en-US-GuyNeural"),
   captions: z.boolean().default(true),
   news: NewsRef.nullish(),
+  options: Options,
 });
 
 const Tag = z.string().trim().min(1).max(60);
@@ -33,6 +41,7 @@ const PhotoJob = z.object({
   tags: z.partialRecord(z.enum(CATEGORIES.map((c) => c.id) as [string, ...string[]]), z.array(Tag).max(8)),
   extra: z.string().trim().max(200).default(""),
   count: z.number().int().min(1).max(4).default(2),
+  options: Options,
 }).refine((p) => composePrompt(p.tags, p.extra) !== "", "choose a tag or write something");
 
 export interface AppOptions {
@@ -65,6 +74,9 @@ export function createApp(o: AppOptions = {}) {
 
   const app = new Hono();
   app.get("/api/voices", (c) => c.json(VOICES));
+  // the app shows what the server knows: the palette and what a new job starts with
+  app.get("/api/styles", (c) => c.json({
+    styles: Object.entries(STYLES).map(([id, s]) => ({ id, label: s.label })), defaults: DEFAULT_OPTIONS }));
   app.get("/api/news", async (c) => c.json(await news()));
   app.get("/api/jobs", (c) => c.json(Job.list(root).map((j) => {
     const images = join(j.dir, "images.json");
@@ -76,10 +88,10 @@ export function createApp(o: AppOptions = {}) {
   app.post("/api/photos", async (c) => {
     const parsed = PhotoJob.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ detail: z.prettifyError(parsed.error) }, 422);
-    const { extra, count } = parsed.data;
+    const { extra, count, options } = parsed.data;
     // only the categories with tags: the history counts what was chosen
     const tags = Object.fromEntries(Object.entries(parsed.data.tags).filter((e): e is [string, string[]] => !!e[1]?.length));
-    const job = Job.create(root, { topic: composePrompt(tags, extra), voice: "", captions: false, kind: "photo", photo: { tags, extra, count } });
+    const job = Job.create(root, { topic: composePrompt(tags, extra), voice: "", captions: false, kind: "photo", photo: { tags, extra, count }, options });
     enqueue(job);
     return c.json({ id: job.id });
   });

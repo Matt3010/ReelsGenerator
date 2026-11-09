@@ -2,10 +2,17 @@
 
 export interface NewsItem { title: string; url: string; published: string; outlet: string; summary: string }
 
-export interface NewJob { topic: string; voice: string; captions: boolean; news: NewsItem | null }
+/** lo stile delle immagini e quali limiti valgono: per video e immagini */
+export interface JobOptions { style: string; realPeople: boolean; avoid: boolean }
+/** gli stili che il server sa disegnare e le scelte con cui parte un lavoro: li decide lui */
+export interface Palette { styles: { id: string; label: string }[]; defaults: JobOptions }
+
+export interface NewJob { topic: string; voice: string; captions: boolean; news: NewsItem | null; options: JobOptions }
 
 export type TagSet = Record<string, string[]>;
 export interface PhotoRequest { tags: TagSet; extra: string; count: number }
+/** quello che il compositore manda: le foto chieste e le scelte */
+export type NewPhotos = PhotoRequest & { options: JobOptions };
 export interface TagSuggestions { categories: { id: string; label: string; tags: string[] }[]; recent: TagSet[] }
 
 export interface JobInfo extends NewJob {
@@ -32,13 +39,14 @@ async function call<T>(url: string, init: RequestInit = {}): Promise<T> {
 
 export const api = {
   voices: () => call<Record<string, string>>('/api/voices'),
+  styles: () => call<Palette>('/api/styles'),
   news: () => call<NewsItem[]>('/api/news'),
   jobs: () => call<JobInfo[]>('/api/jobs'),
   create: (job: NewJob) => call<{ id: string }>('/api/jobs', { method: 'POST', body: JSON.stringify(job) }),
   retry: (id: string) => call<{ id: string }>(`/api/jobs/${id}/retry`, { method: 'POST' }),
   story: (id: string) => call<Story>(`/api/jobs/${id}/story`),
   tags: () => call<TagSuggestions>('/api/tags'),
-  photos: (req: PhotoRequest) => call<{ id: string }>('/api/photos', { method: 'POST', body: JSON.stringify(req) }),
+  photos: (req: NewPhotos) => call<{ id: string }>('/api/photos', { method: 'POST', body: JSON.stringify(req) }),
 };
 
 export const videoUrl = (id: string) => `/api/jobs/${id}/video`;

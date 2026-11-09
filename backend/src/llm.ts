@@ -81,12 +81,14 @@ Reply with only the bullet points.`;
 
 const NEWS_RULES = `
 This short is about a NEWS story. The article below is the ONLY source: every fact must come from it.
-- Never depict real people: no names of real people anywhere in "image", "look" or "era". Characters are generic
-  figures ("a firefighter", "a minister in a grey suit"); prefer symbolic pictures (a gavel, a map, a crowd, empty
-  streets) over people.
-
+{people}
 ARTICLE:
 {article}
+`;
+
+const NO_REAL_PEOPLE = `- Never depict real people: no names of real people anywhere in "image", "look" or "era". Characters are generic
+  figures ("a firefighter", "a minister in a grey suit"); prefer symbolic pictures (a gavel, a map, a crowd, empty
+  streets) over people.
 `;
 
 const fill = (template: string, values: Record<string, string | number>) =>
@@ -153,13 +155,17 @@ export function newsProblems(story: Story, article: string): string[] {
   return problems;
 }
 
-export interface StoryOptions { attempts?: number; maxSeconds?: number; notes?: string; newsText?: string }
+export interface StoryOptions {
+  attempts?: number; maxSeconds?: number; notes?: string; newsText?: string;
+  /** real people may be named and drawn (news): off by default */
+  realPeople?: boolean;
+}
 
 export async function generateStory(topic: string, run: Runner, o: StoryOptions = {}): Promise<Story> {
-  const { attempts = 3, maxSeconds = 30, notes, newsText } = o;
+  const { attempts = 3, maxSeconds = 30, notes, newsText, realPeople = false } = o;
   const schema = storyJsonSchema();
   let base = buildPrompt(topic, maxSeconds, notes);
-  if (newsText) base += fill(NEWS_RULES, { article: newsText });
+  if (newsText) base += fill(NEWS_RULES, { article: newsText, people: realPeople ? "" : NO_REAL_PEOPLE });
   const limit = wordBudget(maxSeconds);
   const minimum = Math.round(limit * 0.75 * 0.85);
   let prompt = base, lastError = "no attempts";
@@ -173,7 +179,7 @@ export async function generateStory(topic: string, run: Runner, o: StoryOptions 
         throw new Error(`the narration is too short: ${n} words, write at least ${Math.round(limit * 0.75)} words in more `
           + `scenes so the short lasts about ${maxSeconds} seconds.`);
       }
-      const problems = newsText ? newsProblems(story, newsText) : [];
+      const problems = newsText && !realPeople ? newsProblems(story, newsText) : [];
       if (problems.length) throw new Error(problems.join("; "));
       return story;
     } catch (e) {

@@ -3,6 +3,7 @@
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
+  import Loader from './Loader.svelte';
   import ProgressBar from './ProgressBar.svelte';
 
   /** Un video: mentre si fa, il passo a cui è; fatto, il video da guardare e scaricare; andato male, il perché. */
@@ -48,7 +49,7 @@
       {#if job.state === 'error'}
         <Icon name="alert" size="lg" tone="danger" />
       {:else}
-        <span class="wheel" aria-hidden="true"></span>
+        <Loader delay={0} />
       {/if}
       <p>{job.step}</p>
       {#if passo && job.state === 'running'}
@@ -107,15 +108,6 @@
 
   .attesa p { margin: 0; }
   .attesa :global(.bar) { width: 70%; }
-
-  .wheel {
-    width: 26px;
-    height: 26px;
-    border: 2px solid var(--hairline);
-    border-top-color: var(--ink-2);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
 
   .foto {
     display: grid;

@@ -153,3 +153,26 @@ describe("photos", () => {
     expect((await app.request("/api/library/999/image")).status).toBe(404);
   });
 });
+
+describe("options", () => {
+  it("lists the styles and the default choices, for the app to show", async () => {
+    const body = await (await make().app.request("/api/styles")).json();
+    expect(body.styles[0]).toEqual({ id: "toon", label: "Cartoon" });
+    expect(body.styles.length).toBeGreaterThanOrEqual(18);
+    expect(body.defaults).toEqual({ style: "toon", realPeople: false, avoid: true });
+  });
+
+  it("keeps the job's style and limits, with today's behaviour by default", async () => {
+    const { app, post } = make();
+    await post({ topic: "x", voice: "en-US-GuyNeural", captions: true });
+    await post({ topic: "y", voice: "en-US-GuyNeural", captions: true, options: { style: "realistic", realPeople: true, avoid: false } });
+    const [second, first] = await (await app.request("/api/jobs")).json();
+    expect(first.options).toEqual({ style: "toon", realPeople: false, avoid: true });
+    expect(second.options).toEqual({ style: "realistic", realPeople: true, avoid: false });
+  });
+
+  it("refuses an unknown style", async () => {
+    const { post } = make();
+    expect((await post({ topic: "x", voice: "en-US-GuyNeural", captions: true, options: { style: "oil", realPeople: false, avoid: true } })).status).toBe(422);
+  });
+});

@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import App from './App.svelte';
+import { PALETTE } from './test/fixtures';
 
 function fakeServer(jobs: unknown[]) {
   const posted: unknown[] = [];
@@ -16,6 +17,7 @@ function fakeServer(jobs: unknown[]) {
     }
     if (url === '/api/jobs') return json(jobs);
     if (url === '/api/tags') return json({ categories: [], recent: [] });
+    if (url === '/api/styles') return json(PALETTE);
     return json([]);
   }));
   return posted;
@@ -29,7 +31,8 @@ it('lists the videos and adds a new one at the top', async () => {
   const user = userEvent.setup();
   await user.type(screen.getByRole('textbox', { name: /argomento/i }), 'New one');
   await user.click(screen.getByRole('button', { name: /genera video/i }));
-  expect(posted).toEqual([{ topic: 'New one', voice: 'en-US-GuyNeural', captions: true, news: null }]);
+  expect(posted).toEqual([{ topic: 'New one', voice: 'en-US-GuyNeural', captions: true, news: null,
+    options: { style: 'toon', realPeople: false, avoid: true } }]);
   expect(await screen.findByText('In coda')).toBeInTheDocument();
 });
 

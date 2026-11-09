@@ -14,9 +14,9 @@ const at = (cmd: string[], flag: string) => cmd[cmd.indexOf(flag) + 1];
 it("builds the sd.cpp command with style, size, seed, negatives and output", () => {
   const cmd = sdCommand(CFG, "a red barn", 42, "o.png", "toon", "tractors");
   expect(cmd[0]).toBe("sd-cli.exe");
-  expect(at(cmd, "-p").startsWith(STYLES.toon[0])).toBe(true);
+  expect(at(cmd, "-p").startsWith(STYLES.toon.positive)).toBe(true);
   expect(at(cmd, "-p").endsWith("a red barn")).toBe(true);
-  expect(at(cmd, "-n")).toBe(`${STYLES.toon[1]}, tractors`);
+  expect(at(cmd, "-n")).toBe(`${STYLES.toon.negative}, tractors`);
   expect([at(cmd, "-W"), at(cmd, "-H"), at(cmd, "--steps"), at(cmd, "--seed"), at(cmd, "-o")]).toEqual(["768", "1344", "8", "42", "o.png"]);
   expect(cmd).toContain("--vae-tiling");
 });
@@ -91,4 +91,20 @@ it("produces each distinct picture once, stores it and counts every use", async 
   expect(assets[1].tags).toEqual(["bridge", "collapse", "river", "splash"]);
   expect(lib.get(assets[0].id)!.uses).toBe(2);
   expect(gen.negatives).toEqual(["cars, electric lights", "cars, electric lights"]);
+});
+
+it("offers a wide palette of styles, each named and with its own words", () => {
+  const ids = Object.keys(STYLES);
+  expect(ids.length).toBeGreaterThanOrEqual(18);
+  expect(ids.slice(0, 3)).toEqual(["toon", "realistic", "free"]);
+  for (const s of Object.values(STYLES)) {
+    expect(s.label.length).toBeGreaterThan(0);
+    expect(s.negative.length).toBeGreaterThan(0);
+  }
+  expect(new Set(Object.values(STYLES).map((s) => s.label)).size).toBe(ids.length);
+  expect(STYLES.realistic.positive).toMatch(/photo/i);
+  expect(STYLES.realistic.negative).toMatch(/cartoon/i);
+  expect(STYLES.free.positive).toBe("");
+  const free = sdCommand(CFG, "a red barn", 1, "o.png", "free", "");
+  expect(at(free, "-p")).toBe("a red barn");                 // no style words at all
 });

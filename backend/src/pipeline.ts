@@ -3,7 +3,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { DEFAULT_SD, modelName, planImages, produceImages, sdGenerator, type Generator } from "./images.js";
+import { DEFAULT_SD, modelName, planImages, produceImages, sdGenerator, type Generator, type StyleId } from "./images.js";
 import { Library, type TagSet } from "./library.js";
 import { chooseImage, generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
 import { articleText, type NewsItem } from "./news.js";
@@ -18,9 +18,13 @@ export const JOBS = CONFIG.jobs;
 const LIBRARY = CONFIG.library;
 
 export interface PhotoRequest { tags: TagSet; extra: string; count: number }
+/** the job's choices: the picture style and which limits apply (both kinds of job) */
+export interface JobOptions { style: StyleId; realPeople: boolean; avoid: boolean }
+export const DEFAULT_OPTIONS: JobOptions = { style: "toon", realPeople: false, avoid: true };
 export interface NewJob {
   topic: string; voice: string; captions: boolean; news?: NewsItem | null;
   kind?: "video" | "photo"; photo?: PhotoRequest; // a photo job: only pictures, from the composer's tags
+  options?: JobOptions;
 }
 export interface JobStatus extends NewJob {
   state: "queued" | "running" | "done" | "error"; step: string; title: string | null; error: string | null; created: number;
@@ -41,7 +45,7 @@ export class Job {
     mkdirSync(dir, { recursive: true });
     lastCreated = Math.max(Date.now() / 1000, lastCreated + 1e-3); // strictly increasing: same-tick jobs keep their order
     const job = new Job(dir);
-    job.write({ ...req, news: req.news ?? null, state: "queued", step: "In coda", title: null, error: null, created: lastCreated });
+    job.write({ ...req, news: req.news ?? null, options: req.options ?? DEFAULT_OPTIONS, state: "queued", step: "In coda", title: null, error: null, created: lastCreated });
     return job;
   }
 
@@ -74,23 +78,29 @@ export interface Engines {
   modelName: string;
   render: typeof renderVideo;
   normalize: (src: string, dst: string) => Promise<void>;
-  style: string;
   maxSeconds: number;
   article: (item: NewsItem) => Promise<string>;
+}
+
+/** every failure reaches the UI (and the full trace the job log) */
+function fail(job: Job, e: unknown): void {
+  job.log(e instanceof Error ? e.stack ?? e.message : String(e));
+  job.update({ state: "error", step: "Errore", error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) });
 }
 
 /** only pictures: the composer's prompt drawn count times (each with its own seed), kept in the library with its tags */
 async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   const st = job.status();
   const req = st.photo!;
+  const { style } = st.options ?? DEFAULT_OPTIONS;
   eng.library.recordTags(req.tags);
   const ids: number[] = [];
   mkdirSync(join(job.dir, "work"), { recursive: true });
   for (let i = 1; i <= req.count; i++) {
     job.update({ state: "running", step: `Disegno l'immagine ${i}/${req.count}` });
     const seed = randomInt(2 ** 31);
-    const file = await eng.generate(st.topic, seed, join(job.dir, "work", `img${i}.png`), eng.style, "");
-    ids.push((await eng.library.add(file, { prompt: st.topic, tags: tagsOf(req.tags), style: eng.style, seed, model: eng.modelName })).id);
+    const file = await eng.generate(st.topic, seed, join(job.dir, "work", `img${i}.png`), style, "");
+    ids.push((await eng.library.add(file, { prompt: st.topic, tags: tagsOf(req.tags), style, seed, model: eng.modelName })).id);
   }
   writeFileSync(join(job.dir, "images.json"), JSON.stringify(ids), "utf8");
   rmSync(join(job.dir, "work"), { recursive: true, force: true });
@@ -103,12 +113,12 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
     try {
       return await runPhotoJob(job, eng);
     } catch (e) {
-      job.log(e instanceof Error ? e.stack ?? e.message : String(e));
-      job.update({ state: "error", step: "Errore", error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) });
-      return;
+      return fail(job, e);
     }
   }
   const at = (name: string) => join(job.dir, name);
+  const opts = st.options ?? DEFAULT_OPTIONS;
+  const limits = { avoid: opts.avoid, realPeople: opts.realPeople };
   try {
     const lib = eng.library;
     let story: Story;
@@ -128,20 +138,20 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
         const notes = await researchNotes(st.topic, run, article);
         writeFileSync(at("notes.txt"), notes, "utf8");
         job.update({ step: "Il modello scrive la storia" });
-        const s = await generateStory(st.topic, run, { notes, maxSeconds: eng.maxSeconds, newsText: article });
+        const s = await generateStory(st.topic, run, { notes, maxSeconds: eng.maxSeconds, newsText: article, realPeople: opts.realPeople });
         if (st.news) s.source = { outlet: st.news.outlet, title: st.news.title, url: st.news.url, published: st.news.published };
         writeFileSync(at("story.json"), JSON.stringify(s, null, 1), "utf8");
         job.update({ step: "Cerco immagini riusabili" });
-        const p = await planImages(s, lib, eng.style, (prompt, c) => chooseImage(prompt, c, run));
+        const p = await planImages(s, lib, opts.style, (prompt, c) => chooseImage(prompt, c, run));
         writeFileSync(at("plan.json"), JSON.stringify(p), "utf8");
         return [s, p] as const;
       });
     }
-    plan ??= await planImages(story, lib, eng.style, null);
+    plan ??= await planImages(story, lib, opts.style, null);
     job.update({ state: "running", title: story.title, step: "Immagini" });
 
     const assets = await produceImages(story, lib, plan, eng.generate, {
-      style: eng.style, seed: topicSeed(st.topic), model: eng.modelName, work: at("work"),
+      style: opts.style, limits, seed: topicSeed(st.topic), model: eng.modelName, work: at("work"),
       progress: (i, n) => job.update({ step: `Disegno l'immagine ${i}/${n}` }),
     });
     writeFileSync(at("images.json"), JSON.stringify(assets.map((a) => a.id)), "utf8");
@@ -164,8 +174,7 @@ export async function runJob(job: Job, eng: Engines): Promise<void> {
     if (existsSync(raw)) unlinkSync(raw);
     job.update({ state: "done", step: "Fatto", error: null, duration: Math.round((tl.total / tl.fps) * 10) / 10 });
   } catch (e) {
-    job.log(e instanceof Error ? e.stack ?? e.message : String(e));
-    job.update({ state: "error", step: "Errore", error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) });
+    fail(job, e);
   }
 }
 
@@ -190,7 +199,6 @@ export function defaultEngines(): Engines {
     modelName: modelName(DEFAULT_SD),
     render: renderVideo,
     normalize: normalizeAudio,
-    style: "toon",
     maxSeconds: 30,
     article: (item) => articleText(item),
   };

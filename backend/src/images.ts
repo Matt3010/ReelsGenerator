@@ -4,15 +4,41 @@ import { basename, dirname, extname, join } from "node:path";
 import type { Asset, Library } from "./library.js";
 import { CONFIG } from "./config.js";
 import { run as runProcess, type Run } from "./proc.js";
-import { imagePrompt, negativeExtra, type Story } from "./spec.js";
+import { DEFAULT_LIMITS, imagePrompt, negativeExtra, type Limits, type Story } from "./spec.js";
 
-// style name -> [positive prefix, negative prompt]; the style is part of the library key
-export const STYLES: Record<string, [string, string]> = {
-  toon: [
-    "storybook cartoon illustration, flat colors, bold clean ink outlines, warm vintage palette, expressive faces, consistent style",
-    "photo, realistic, 3d render, painting, text, letters, words, caption, watermark, signature, blurry, deformed, extra limbs",
-  ],
-};
+// what every picture must avoid, whatever the style
+const CLEAN = "text, letters, words, caption, watermark, signature, blurry, deformed, extra limbs";
+const style = (label: string, positive: string, negative = "") => ({ label, positive, negative: negative ? `${negative}, ${CLEAN}` : CLEAN });
+
+/** the palette: the style is part of the library key, so a picture is reused only in its own style */
+export const STYLES = {
+  toon: style("Cartoon", "storybook cartoon illustration, flat colors, bold clean ink outlines, warm vintage palette, expressive faces, consistent style", "photo, realistic, 3d render, painting"),
+  realistic: style("Realistico", "photorealistic photo, cinematic, natural light, sharp focus, detailed", "cartoon, illustration, drawing, anime, 3d render"),
+  free: style("Libero", ""),
+  cinematic: style("Cinematografico", "cinematic film still, anamorphic lens, dramatic lighting, shallow depth of field, color graded", "cartoon, illustration, drawing"),
+  vintagePhoto: style("Foto d'epoca", "vintage photograph, film grain, faded colors, sepia tones, old camera", "cartoon, illustration, modern, digital art"),
+  noir: style("Noir", "film noir, black and white, high contrast, hard shadows, moody, 1940s cinema", "color, cartoon, bright"),
+  watercolor: style("Acquerello", "watercolor painting, soft washes, paper texture, delicate brush strokes, gentle colors", "photo, 3d render, sharp lines"),
+  oilPainting: style("Pittura a olio", "oil painting, visible brush strokes, rich colors, canvas texture, classical fine art", "photo, 3d render, cartoon"),
+  pencil: style("Matita", "pencil sketch, graphite drawing, cross-hatching, paper texture, monochrome", "color, photo, 3d render"),
+  ink: style("China", "ink drawing, black ink lines, pen and ink illustration, crisp linework, white paper", "color, photo, 3d render"),
+  comic: style("Fumetto", "comic book art, bold inks, halftone dots, dynamic panel composition, vivid colors", "photo, realistic, 3d render"),
+  anime: style("Anime", "anime style, cel shading, vibrant colors, detailed background, studio quality", "photo, realistic, 3d render, western cartoon"),
+  pixel: style("Pixel art", "pixel art, 16-bit retro game style, limited palette, crisp pixels", "photo, realistic, smooth gradients, blurry pixels"),
+  lowPoly: style("Low poly", "low poly 3d render, faceted geometry, flat shading, pastel colors, isometric", "photo, realistic, painting"),
+  clay: style("Plastilina", "claymation, plasticine figures, stop motion, handmade clay texture, soft studio light", "photo, realistic, painting, flat"),
+  render3d: style("3D", "3d render, octane render, soft global illumination, smooth materials, toy-like", "photo, painting, flat illustration"),
+  paper: style("Carta ritagliata", "paper cut-out art, layered paper, craft collage, soft shadows between layers", "photo, realistic, 3d render, glossy"),
+  ukiyoe: style("Ukiyo-e", "ukiyo-e woodblock print, japanese traditional art, flat colors, bold outlines, washi paper", "photo, 3d render, modern"),
+  popArt: style("Pop art", "pop art, bold primary colors, ben-day dots, thick outlines, 1960s poster", "photo, realistic, muted colors"),
+  flat: style("Vettoriale", "flat vector illustration, minimal shapes, clean geometric forms, limited color palette", "photo, realistic, texture, 3d render"),
+  cyberpunk: style("Cyberpunk", "cyberpunk, neon lights, rain-soaked streets, futuristic city, magenta and cyan glow", "daylight, pastoral, cartoon"),
+  fantasy: style("Fantasy", "epic fantasy concept art, painterly, magical atmosphere, volumetric light, highly detailed", "photo, modern, cartoon"),
+  stainedGlass: style("Vetrata", "stained glass window, lead lines, jewel-toned glass, backlit, gothic", "photo, 3d render"),
+  mosaic: style("Mosaico", "ancient roman mosaic, small stone tiles, tesserae, earthy colors", "photo, 3d render, smooth"),
+} satisfies Record<string, { label: string; positive: string; negative: string }>;
+
+export type StyleId = keyof typeof STYLES;
 
 export type Generator = (prompt: string, seed: number, out: string, style: string, negativeExtra: string) => Promise<string>;
 export type Chooser = (prompt: string, candidates: Asset[]) => Promise<number | null>;
@@ -32,8 +58,8 @@ export const DEFAULT_SD: SdConfig = {
 export const modelName = (cfg: SdConfig) => basename(cfg.model, extname(cfg.model));
 
 export function sdCommand(cfg: SdConfig, prompt: string, seed: number, out: string, style: string, negExtra = ""): string[] {
-  const [positive, negative] = STYLES[style];
-  return [cfg.exe, "-m", cfg.model, "--vae", cfg.vae, "-p", `${positive}, ${prompt}`, "-n", negExtra ? `${negative}, ${negExtra}` : negative,
+  const { positive, negative } = STYLES[style as StyleId];
+  return [cfg.exe, "-m", cfg.model, "--vae", cfg.vae, "-p", positive ? `${positive}, ${prompt}` : prompt, "-n", negExtra ? `${negative}, ${negExtra}` : negative,
     "-W", String(cfg.width), "-H", String(cfg.height), "--steps", String(cfg.steps), "--cfg-scale", String(cfg.cfg),
     "--sampling-method", cfg.sampler, "--scheduler", cfg.scheduler, "--seed", String(seed), "--vae-tiling", "-o", out];
 }
@@ -61,7 +87,9 @@ export async function planImages(story: Story, lib: Library, style: string, choo
   return plan;
 }
 
-export interface ProduceOptions { style: string; seed: number; model: string; work: string; progress?: (i: number, n: number) => void }
+export interface ProduceOptions {
+  style: string; seed: number; model: string; work: string; limits?: Limits; progress?: (i: number, n: number) => void;
+}
 
 /** draw what the plan leaves open (once per distinct prompt), store it in the library, count every use */
 export async function produceImages(story: Story, lib: Library, plan: (number | null)[], generate: Generator, o: ProduceOptions) {
@@ -74,7 +102,7 @@ export async function produceImages(story: Story, lib: Library, plan: (number | 
     let asset = plan[i] !== null ? lib.get(plan[i]!) : lib.findExact(prompt, o.style);
     if (!asset) {
       o.progress?.(++done, todo);
-      const file = await generate(prompt, o.seed, join(o.work, `img${String(i + 1).padStart(2, "0")}.png`), o.style, negativeExtra(story));
+      const file = await generate(prompt, o.seed, join(o.work, `img${String(i + 1).padStart(2, "0")}.png`), o.style, negativeExtra(story, o.limits ?? DEFAULT_LIMITS));
       asset = await lib.add(file, { prompt, tags: scene.tags, style: o.style, seed: o.seed, model: o.model });
     }
     lib.markUsed(asset.id);

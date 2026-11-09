@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { TagSuggestions } from '../lib/api';
+import { PALETTE } from '../test/fixtures';
 import PhotoComposer from './PhotoComposer.svelte';
 
 const TAGS: TagSuggestions = {
@@ -16,7 +17,7 @@ const TAGS: TagSuggestions = {
 };
 
 function setup(onCreate = vi.fn(async () => {})) {
-  render(PhotoComposer, { loadTags: async () => TAGS, onCreate });
+  render(PhotoComposer, { palette: PALETTE, loadTags: async () => TAGS, onCreate });
   return { onCreate, user: userEvent.setup() };
 }
 
@@ -57,10 +58,22 @@ describe('PhotoComposer', () => {
     const { user, onCreate } = setup();
     await user.click(await within(await screen.findByRole('group', { name: 'Soggetto' })).findByRole('button', { name: 'a robot' }));
     await user.type(screen.getByRole('textbox', { name: /dettagli/i }), 'holding an umbrella');
-    await user.selectOptions(screen.getByRole('combobox', { name: /quante/i }), '4');
+    await user.click(screen.getByRole('button', { name: /^quante immagini/i }));
+    await user.click(await screen.findByRole('button', { name: '4 immagini' }));
     await user.click(screen.getByRole('button', { name: /genera immagini/i }));
-    expect(onCreate).toHaveBeenCalledWith({ tags: { subject: ['a robot'] }, extra: 'holding an umbrella', count: 4 });
+    expect(onCreate).toHaveBeenCalledWith({ tags: { subject: ['a robot'] }, extra: 'holding an umbrella', count: 4,
+      options: { style: 'toon', realPeople: false, avoid: true } });
     expect(screen.getByLabelText(/prompt/i)).toHaveTextContent('');
+  });
+
+  it('picks the style, with no switches that only matter to videos', async () => {
+    const { user, onCreate } = setup();
+    await user.click(await within(await screen.findByRole('group', { name: 'Soggetto' })).findByRole('button', { name: 'a robot' }));
+    await user.click(screen.getByRole('button', { name: /^stile/i }));
+    await user.click(await screen.findByRole('button', { name: 'Libero' }));
+    expect(screen.queryByRole('switch', { name: /persone reali/i })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /genera immagini/i }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ options: { style: 'free', realPeople: false, avoid: true } }));
   });
 
   it('cannot generate an empty prompt', async () => {

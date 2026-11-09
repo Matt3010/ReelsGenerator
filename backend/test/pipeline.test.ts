@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { Library } from "../src/library.js";
 import type { Runner } from "../src/llm.js";
 import { Job, markInterrupted, runJob, type Engines } from "../src/pipeline.js";
@@ -30,7 +30,6 @@ function engines(root: string, story = storyDict(), opts: { llmCalls?: string[];
       writeFileSync(out, "mp4");
     }),
     normalize: async (src, dst) => writeFileSync(dst, readFileSync(src)),
-    style: "toon",
     maxSeconds: 10,
     article: async () => "The old bridge in Turin reopened on Monday after repairs.",
   };
@@ -140,4 +139,31 @@ it("after a restart, jobs left half-way are marked interrupted (and can be retri
     expect(j.status().error).toMatch(/interrott/i);
   }
   expect(done.status().state).toBe("done");
+});
+
+it("draws in the style the job asks for, and drops the anachronism list when told to", async () => {
+  const root = tmp();
+  const negatives: string[] = [];
+  const styles: string[] = [];
+  const { eng } = engines(root);
+  const draw = eng.generate;
+  eng.generate = async (p, seed, out, style, neg) => { styles.push(style); negatives.push(neg); return draw(p, seed, out, style, neg); };
+  const job = Job.create(join(root, "jobs"), { topic: "x", voice: "v", captions: false,
+    options: { style: "realistic", realPeople: false, avoid: false } });
+  await runJob(job, eng);
+  expect(job.status().state).toBe("done");
+  expect(styles).toEqual(["realistic", "realistic"]);
+  expect(negatives).toEqual(["", ""]);
+  expect(eng.library.get(1)!.style).toBe("realistic");
+});
+
+it("a photo job uses its style too", async () => {
+  const root = tmp();
+  const styles: string[] = [];
+  const { eng } = engines(root);
+  const draw = eng.generate;
+  eng.generate = async (p, seed, out, style, neg) => { styles.push(style); return draw(p, seed, out, style, neg); };
+  await runJob(Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
+    photo: { tags: { subject: ["a cat"] }, extra: "", count: 1 }, options: { style: "free", realPeople: true, avoid: true } }), eng);
+  expect(styles).toEqual(["free"]);
 });

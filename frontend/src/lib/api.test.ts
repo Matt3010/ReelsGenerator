@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { OPTIONS as options } from '../test/fixtures';
 import { api, imageUrl, videoUrl } from './api';
 
 const reply = (body: unknown, status = 200) => vi.fn(async () => new Response(JSON.stringify(body), { status }));
@@ -13,17 +14,19 @@ describe('api', () => {
     expect(fetcher).toHaveBeenLastCalledWith('/api/news', expect.anything());
     await api.voices();
     expect(fetcher).toHaveBeenLastCalledWith('/api/voices', expect.anything());
+    await api.styles();
+    expect(fetcher).toHaveBeenLastCalledWith('/api/styles', expect.anything());
   });
 
   it('creates a job with its news source', async () => {
     const fetcher = reply({ id: 'j1' });
     vi.stubGlobal('fetch', fetcher);
     const news = { title: 'T', url: 'https://bbc.co.uk/a', published: '', outlet: 'BBC News', summary: '' };
-    expect(await api.create({ topic: 'T', voice: 'en-US-GuyNeural', captions: true, news })).toEqual({ id: 'j1' });
+    expect(await api.create({ topic: 'T', voice: 'en-US-GuyNeural', captions: true, news, options })).toEqual({ id: 'j1' });
     const [url, init] = fetcher.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe('/api/jobs');
     expect(init.method).toBe('POST');
-    expect(JSON.parse(init.body as string)).toEqual({ topic: 'T', voice: 'en-US-GuyNeural', captions: true, news });
+    expect(JSON.parse(init.body as string)).toEqual({ topic: 'T', voice: 'en-US-GuyNeural', captions: true, news, options });
   });
 
   it('retries a job and reads its script', async () => {
@@ -37,7 +40,7 @@ describe('api', () => {
 
   it("fails with the server's own words", async () => {
     vi.stubGlobal('fetch', reply({ detail: 'topic is empty' }, 422));
-    await expect(api.create({ topic: '', voice: 'v', captions: true, news: null })).rejects.toThrow('topic is empty');
+    await expect(api.create({ topic: '', voice: 'v', captions: true, news: null, options })).rejects.toThrow('topic is empty');
   });
 
   it('points at the video', () => expect(videoUrl('j1')).toBe('/api/jobs/j1/video'));
@@ -49,10 +52,10 @@ describe('api for pictures', () => {
     vi.stubGlobal('fetch', fetcher);
     await api.tags();
     expect(fetcher).toHaveBeenLastCalledWith('/api/tags', expect.anything());
-    await api.photos({ tags: { subject: ['a cat'] }, extra: '', count: 2 });
+    await api.photos({ tags: { subject: ['a cat'] }, extra: '', count: 2, options });
     const [url, init] = fetcher.mock.calls.at(-1) as unknown as [string, RequestInit];
     expect(url).toBe('/api/photos');
-    expect(JSON.parse(init.body as string)).toEqual({ tags: { subject: ['a cat'] }, extra: '', count: 2 });
+    expect(JSON.parse(init.body as string)).toEqual({ tags: { subject: ['a cat'] }, extra: '', count: 2, options });
     expect(imageUrl(7)).toBe('/api/library/7/image');
   });
 });

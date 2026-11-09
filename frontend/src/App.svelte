@@ -4,12 +4,16 @@
   import EmptyState from './components/EmptyState.svelte';
   import Icon from './components/Icon.svelte';
   import JobCard from './components/JobCard.svelte';
+  import Loader from './components/Loader.svelte';
   import PageCard from './components/PageCard.svelte';
   import PhotoComposer from './components/PhotoComposer.svelte';
-  import { api, type JobInfo, type NewJob, type PhotoRequest } from './lib/api';
+  import Tabs from './components/Tabs.svelte';
+  import { api, type JobInfo, type NewJob, type NewPhotos, type Palette } from './lib/api';
 
   let voices = $state<Record<string, string>>({ 'en-US-GuyNeural': 'Guy (US, deep narrator)' });
   let jobs = $state<JobInfo[] | null>(null);
+  /** gli stili e le scelte di partenza, dal server: i compositori aspettano lui */
+  let palette = $state<Palette | null>(null);
 
   const refresh = async () => {
     try { jobs = await api.jobs(); } catch { /* the API is starting: the next round will tell */ }
@@ -20,7 +24,7 @@
     await refresh();
   }
 
-  async function createPhotos(req: PhotoRequest) {
+  async function createPhotos(req: NewPhotos) {
     await api.photos(req);
     await refresh();
   }
@@ -38,6 +42,7 @@
   let timer: ReturnType<typeof setInterval> | undefined;
   onMount(() => {
     void api.voices().then((v) => (voices = v)).catch(() => {});
+    void api.styles().then((p) => (palette = p)).catch(() => {});
     void refresh();
     timer = setInterval(refresh, 4000);
   });
@@ -53,15 +58,16 @@
     </div>
   </header>
 
-  <div class="schede" role="tablist" aria-label="Cosa fare">
-    <button role="tab" aria-selected={tab === 'video'} onclick={() => (tab = 'video')}><Icon name="logo" />Video</button>
-    <button role="tab" aria-selected={tab === 'photo'} onclick={() => (tab = 'photo')}><Icon name="photo" />Immagini</button>
+  <div class="schede">
+    <Tabs label="Cosa fare" value={tab} options={[{ id: 'video', label: 'Video' }, { id: 'photo', label: 'Immagini' }]} onpick={(id) => (tab = id)} />
   </div>
 
-  {#if tab === 'video'}
-    <Composer {voices} loadNews={api.news} onCreate={create} />
+  {#if !palette}
+    <Loader />
+  {:else if tab === 'video'}
+    <Composer {voices} {palette} loadNews={api.news} onCreate={create} />
   {:else}
-    <PhotoComposer loadTags={api.tags} onCreate={createPhotos} />
+    <PhotoComposer {palette} loadTags={api.tags} onCreate={createPhotos} />
   {/if}
 
   <h2 class="titolo">{tab === 'photo' ? 'Le tue immagini' : 'I tuoi video'}</h2>
@@ -108,30 +114,7 @@
 
   header p { margin: 0; font-size: 12.5px; color: var(--ink-3); }
 
-  .schede {
-    display: inline-flex;
-    justify-self: start;
-    gap: 2px;
-    padding: 3px;
-    border-radius: var(--r-md);
-    background: var(--sunken);
-  }
-
-  .schede button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 32px;
-    padding: 0 14px;
-    border: 0;
-    border-radius: var(--r-sm);
-    background: transparent;
-    color: var(--ink-2);
-    font-weight: 540;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .schede button[aria-selected='true'] { background: var(--glass-strong); color: var(--ink); box-shadow: var(--shadow-1); }
+  .schede { width: min(100%, 260px); }
 
   .titolo { margin-top: 10px; padding: 0 2px; }
 

@@ -73,8 +73,12 @@ export function imagePrompt(story: Story, scene: Scene): string {
 
 const NO_REAL_PEOPLE = ["real person", "celebrity", "politician", "famous face", "likeness", "portrait photo"];
 
-export function negativeExtra(story: Story): string {
-  const parts = story.avoid.map((a) => a.trim()).filter(Boolean);
-  if (story.source) parts.push(...NO_REAL_PEOPLE);
+/** what a job may draw: the anachronism list on or off, real people in news pictures allowed or not */
+export interface Limits { avoid: boolean; realPeople: boolean }
+export const DEFAULT_LIMITS: Limits = { avoid: true, realPeople: false };
+
+export function negativeExtra(story: Story, limits: Limits = DEFAULT_LIMITS): string {
+  const parts = limits.avoid ? story.avoid.map((a) => a.trim()).filter(Boolean) : [];
+  if (story.source && !limits.realPeople) parts.push(...NO_REAL_PEOPLE);
   return parts.join(", ");
 }

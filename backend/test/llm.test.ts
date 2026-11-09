@@ -165,3 +165,12 @@ it("LlamaServer starts, waits for health and stops", async () => {
   await srv.stop();
   expect(killed).toBe(true);
 });
+
+it("with real people allowed, a news story may name them", async () => {
+  const story = { ...storyDict(), era: "Turin, Italy, November 2026" };
+  story.scenes[0].image = "Rosa Valli cutting a ribbon on a bridge";
+  const r = replying(JSON.stringify(story));
+  await generateStory("Bridge reopens", r.run, { maxSeconds: 10, notes: "- fact", newsText: ARTICLE, realPeople: true });
+  expect(r.prompts).toHaveLength(1);
+  expect(r.prompts[0]).not.toContain("Never depict real people");
+});

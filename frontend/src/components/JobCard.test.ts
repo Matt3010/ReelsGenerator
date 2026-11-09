@@ -2,11 +2,12 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { JobInfo } from '../lib/api';
+import { OPTIONS } from '../test/fixtures';
 import JobCard from './JobCard.svelte';
 
 const base: JobInfo = {
   id: '20261109-104755-a5b477', topic: 'Cruise ship pianist rescued', voice: 'en-US-GuyNeural', captions: true, news: null,
-  state: 'running', step: "Disegno l'immagine 3/8", title: null, error: null, created: 1,
+  state: 'running', step: "Disegno l'immagine 3/8", title: null, error: null, created: 1, options: OPTIONS,
 };
 
 describe('JobCard', () => {

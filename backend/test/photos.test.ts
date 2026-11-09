@@ -6,7 +6,10 @@ import { tmp } from "./helpers.js";
 
 it("has the five categories, each with starting tags", () => {
   expect(CATEGORIES.map((c) => c.id)).toEqual(["subject", "place", "era", "light", "framing"]);
-  for (const c of CATEGORIES) expect(c.defaults.length).toBeGreaterThan(3);
+  for (const c of CATEGORIES) {
+    expect(c.defaults.length).toBeGreaterThanOrEqual(16);
+    expect(new Set(c.defaults).size).toBe(c.defaults.length);
+  }
 });
 
 it("composes the prompt in category order, then the free text", () => {
@@ -16,6 +19,11 @@ it("composes the prompt in category order, then the free text", () => {
 
 it("ignores unknown categories and blank tags", () => {
   expect(composePrompt({ subject: [" ", "a cat"], colour: ["red"] } as Record<string, string[]>, "")).toBe("a cat");
+});
+
+it("offers every starting tag, after the favourites", () => {
+  const subject = suggestions([]).find((c) => c.id === "subject")!;
+  expect(subject.tags).toEqual([...CATEGORIES[0].defaults]);
 });
 
 it("suggests the most used and most recent tags first, then the starting ones", () => {

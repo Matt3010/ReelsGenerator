@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { NewsItem } from '../lib/api';
+import { PALETTE } from '../test/fixtures';
 import Composer from './Composer.svelte';
 
 const NEWS: NewsItem[] = [
@@ -13,7 +14,7 @@ const VOICES = { 'en-US-GuyNeural': 'Guy (US, deep narrator)', 'en-GB-RyanNeural
 function setup(over: Partial<{ loadNews: () => Promise<NewsItem[]>; onCreate: (r: unknown) => Promise<void> }> = {}) {
   const onCreate = over.onCreate ?? vi.fn(async () => {});
   const loadNews = over.loadNews ?? vi.fn(async () => NEWS);
-  render(Composer, { voices: VOICES, loadNews, onCreate });
+  render(Composer, { voices: VOICES, palette: PALETTE, loadNews, onCreate });
   return { onCreate, loadNews, user: userEvent.setup() };
 }
 
@@ -44,10 +45,12 @@ describe('Composer', () => {
     const { user, onCreate } = setup();
     await user.click(screen.getByRole('button', { name: /notizie di oggi/i }));
     await user.click(await screen.findByRole('button', { name: /Rocket lands/ }));
-    await user.selectOptions(screen.getByRole('combobox', { name: /voce/i }), 'en-GB-RyanNeural');
+    await user.click(screen.getByRole('button', { name: /^voce/i }));
+    await user.click(await screen.findByRole('button', { name: 'Ryan (UK)' }));
     await user.click(screen.getByRole('switch', { name: /sottotitoli/i }));
     await user.click(screen.getByRole('button', { name: /genera video/i }));
-    expect(onCreate).toHaveBeenCalledWith({ topic: 'Rocket lands on a barge', voice: 'en-GB-RyanNeural', captions: false, news: NEWS[1] });
+    expect(onCreate).toHaveBeenCalledWith({ topic: 'Rocket lands on a barge', voice: 'en-GB-RyanNeural', captions: false, news: NEWS[1],
+      options: { style: 'toon', realPeople: false, avoid: true } });
     expect(screen.getByRole('textbox', { name: /argomento/i })).toHaveValue('');
   });
 
@@ -55,7 +58,19 @@ describe('Composer', () => {
     const { user, onCreate } = setup();
     await user.type(screen.getByRole('textbox', { name: /argomento/i }), 'The Great Molasses Flood');
     await user.click(screen.getByRole('button', { name: /genera video/i }));
-    expect(onCreate).toHaveBeenCalledWith({ topic: 'The Great Molasses Flood', voice: 'en-US-GuyNeural', captions: true, news: null });
+    expect(onCreate).toHaveBeenCalledWith({ topic: 'The Great Molasses Flood', voice: 'en-US-GuyNeural', captions: true, news: null,
+      options: { style: 'toon', realPeople: false, avoid: true } });
+  });
+
+  it('lets me pick the style and lift the limits', async () => {
+    const { user, onCreate } = setup();
+    await user.type(screen.getByRole('textbox', { name: /argomento/i }), 'x');
+    await user.click(screen.getByRole('button', { name: /^stile/i }));
+    await user.click(await screen.findByRole('button', { name: 'Realistico' }));
+    await user.click(screen.getByRole('switch', { name: /persone reali/i }));
+    await user.click(screen.getByRole('switch', { name: /anacronismi/i }));
+    await user.click(screen.getByRole('button', { name: /genera video/i }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ options: { style: 'realistic', realPeople: true, avoid: false } }));
   });
 
   it('cannot generate without a topic', () => {
