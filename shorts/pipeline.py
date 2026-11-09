@@ -20,31 +20,14 @@ from .library import Library
 from .llm import Runner, choose_image, generate_story, research_notes
 from .render import render_video
 from .news import NewsItem, article_text, fetch_news
-from .spec import Source, Story, norm
-from .timeline import SceneAudio, Timeline, build_timeline
+from .spec import Source, Story
+from .timeline import SceneAudio, build_timeline
 
 ROOT = Path(__file__).resolve().parent.parent
 JOBS = ROOT / "jobs"
 MUSIC = ROOT / "music"
 LIBRARY = ROOT / "library"
 STYLE = "toon"
-
-
-_GPU = threading.Lock()  # the 6 GB card holds one model at a time: llama-server OR stable-diffusion.cpp
-
-
-class GpuBusy(RuntimeError):
-    pass
-
-
-@contextmanager
-def gpu(wait: bool = True):
-    if not _GPU.acquire(blocking=wait):
-        raise GpuBusy("la GPU sta già facendo un video: riprova quando ha finito")
-    try:
-        yield
-    finally:
-        _GPU.release()
 
 
 _LOCK = threading.RLock()
@@ -217,15 +200,8 @@ def default_engines() -> Engines:
 
 
 def run_default(job: Job) -> None:
-    with gpu():
-        run_job(job, default_engines())
+    run_job(job, default_engines())
 
 
 def default_news() -> list[NewsItem]:
     return fetch_news()
-
-
-def default_ideas() -> list[str]:
-    from .llm import suggest_topics
-    with gpu(wait=False), local_llm() as run:
-        return suggest_topics(run)

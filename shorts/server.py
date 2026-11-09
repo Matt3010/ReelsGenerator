@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, HttpUrl, field_validator
 
 from .news import NewsItem
-from .pipeline import JOBS, GpuBusy, Job, default_ideas, default_news, run_default
+from .pipeline import JOBS, Job, default_news, run_default
 from .tts import VOICES
 
 STATIC = Path(__file__).parent / "static"
@@ -49,7 +49,6 @@ class NewJob(BaseModel):
 
 
 def create_app(root: Path = JOBS, runner: Callable[[Job], None] = run_default,
-               ideas: Callable[[], list[str]] = default_ideas,
                news: Callable[[], list[NewsItem]] = default_news) -> FastAPI:
     app = FastAPI(title="AI Shorts")
     root.mkdir(parents=True, exist_ok=True)
@@ -77,13 +76,6 @@ def create_app(root: Path = JOBS, runner: Callable[[Job], None] = run_default,
     @app.get("/api/voices")
     def voices():
         return VOICES
-
-    @app.get("/api/ideas")
-    def get_ideas():
-        try:
-            return ideas()
-        except GpuBusy as e:
-            raise HTTPException(409, str(e)) from e
 
     @app.get("/api/news")
     def get_news():

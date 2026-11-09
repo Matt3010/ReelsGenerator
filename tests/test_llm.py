@@ -5,7 +5,7 @@ import pytest
 
 from shorts.library import Asset
 from shorts.llm import (LlamaServer, StoryGenerationError, choose_image, extract_json, generate_story, llama_runner,
-                        news_problems, research_notes, suggest_topics)
+                        news_problems, research_notes)
 
 
 def test_extract_json_from_fenced_block():
@@ -136,8 +136,6 @@ def test_choose_image_none_when_nothing_fits():
     assert choose_image("a bridge", [asset(7)], lambda p, schema=None: '{"id": 0}') is None
 
 
-def test_suggest_topics():
-    assert suggest_topics(lambda p, schema=None: '{"topics": [" A ", "B", ""]}') == ["A", "B"]
 
 
 class FakeProc:
@@ -216,6 +214,6 @@ def test_generate_story_for_news_retries_until_the_rules_hold(story_dict):
         prompts.append(prompt)
         return next(replies)
 
-    story = generate_story("Bridge reopens", run=run, max_seconds=10, notes="- fact", news_text=ARTICLE)
+    generate_story("Bridge reopens", run=run, max_seconds=10, notes="- fact", news_text=ARTICLE)
     assert len(prompts) == 2 and "Rosa Valli" in prompts[1]
     assert "real people" in prompts[0]                       # the news rules are in the prompt

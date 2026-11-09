@@ -133,15 +133,6 @@ Write compact research notes in English:
 Reply with only the bullet points."""
 
 
-IDEAS = """Suggest 8 topics for 30-second story shorts in English: surprising, TRUE, visual historical or science events
-with a clear cause and effect and a funny twist (like "The Great Molasses Flood of 1919" or "The 1518 dancing
-plague"). Mix eras and places; avoid tragedies with large death tolls as the main joke.
-Reply with ONLY JSON: {"topics": ["...", "..."]}, each topic a short title of at most 10 words."""
-
-TOPICS_SCHEMA = {"type": "object", "properties": {"topics": {"type": "array", "items": {"type": "string"}}},
-                 "required": ["topics"]}
-
-
 def extract_json(text: str) -> dict:
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
     fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
@@ -218,11 +209,6 @@ def choose_image(prompt: str, candidates: list[Asset], run: Runner) -> Optional[
     except ValueError:
         return None
     return pick if pick in ids else None
-
-
-def suggest_topics(run: Runner) -> list[str]:
-    data = extract_json(run(IDEAS, TOPICS_SCHEMA))
-    return [t.strip() for t in data.get("topics", []) if isinstance(t, str) and t.strip()]
 
 
 def llama_runner(base_url: str, client: httpx.Client | None = None, temperature: float = 0.7,

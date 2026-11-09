@@ -1,4 +1,3 @@
-import pytest
 import time
 
 from fastapi.testclient import TestClient
@@ -23,8 +22,7 @@ def make(tmp_path, **kw):
         (job.dir / "video.mp4").write_bytes(b"mp4")
         job.update(state="done", title="T")
 
-    app = create_app(tmp_path, runner=kw.get("runner", runner), ideas=kw.get("ideas", lambda: ["A", "B"]),
-                     news=kw.get("news", lambda: []))
+    app = create_app(tmp_path, runner=kw.get("runner", runner), news=kw.get("news", lambda: []))
     return TestClient(app), ran
 
 
@@ -63,11 +61,6 @@ def test_unknown_job_is_404(tmp_path):
     assert c.get("/api/jobs/..%2F..%2Fsecret/video").status_code == 404
 
 
-def test_ideas(tmp_path):
-    c, _ = make(tmp_path, ideas=lambda: ["The molasses flood", "The dancing plague"])
-    assert c.get("/api/ideas").json() == ["The molasses flood", "The dancing plague"]
-
-
 def test_retry_requeues(tmp_path):
     c, ran = make(tmp_path)
     jid = c.post("/api/jobs", json={"topic": "x", "voice": "en-US-GuyNeural", "captions": False}).json()["id"]
@@ -83,27 +76,6 @@ def test_story_endpoint(tmp_path, story_dict):
     assert c.get(f"/api/jobs/{jid}/story").status_code == 404
     (tmp_path / jid / "story.json").write_text(json.dumps(story_dict))
     assert c.get(f"/api/jobs/{jid}/story").json()["title"] == story_dict["title"]
-
-
-def test_ideas_while_the_gpu_is_busy_is_409(tmp_path):
-    from shorts.pipeline import GpuBusy
-
-    def busy():
-        raise GpuBusy("a video is being made")
-
-    c, _ = make(tmp_path, ideas=busy)
-    r = c.get("/api/ideas")
-    assert r.status_code == 409 and "video" in r.json()["detail"]
-
-
-def test_gpu_lock_is_exclusive():
-    from shorts.pipeline import GpuBusy, gpu
-    with gpu():
-        with pytest.raises(GpuBusy):
-            with gpu(wait=False):
-                pass
-    with gpu(wait=False):
-        pass
 
 
 ITEM = {"title": "Bridge reopens", "url": "https://bbc.co.uk/a1", "published": "2026-11-09T07:26:09+00:00",

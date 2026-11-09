@@ -40,13 +40,12 @@
 <body>
 <main>
   <h1>AI <span>Shorts</span></h1>
-  <p class="sub">Scrivi un argomento (o scegline uno tra le idee): il modello locale scrive la storia e disegna le immagini (riusando quelle già fatte), la voce la racconta.</p>
+  <p class="sub">Scegli una notizia di oggi (o scrivi un argomento): il modello locale scrive la storia e disegna le immagini (riusando quelle già fatte), la voce la racconta.</p>
 
   <section class="panel">
     <textarea id="topic" placeholder="es. The Great Molasses Flood of Boston, 1919"></textarea>
     <div class="row">
       <button id="news">📰 Notizie di oggi</button>
-      <button id="ideas">💡 Idee storiche</button>
       <select id="voice"></select>
       <label class="toggle"><input type="checkbox" id="captions" checked> Sottotitoli</label>
       <span style="flex:1"></span>
@@ -87,17 +86,6 @@ $("#news").onclick = async () => {
       const n = list[+c.dataset.i]; $("#topic").value = n.title; pick(n);
     });
   } finally { b.disabled = false; b.textContent = "📰 Notizie di oggi"; }
-};
-
-$("#ideas").onclick = async () => {
-  const b = $("#ideas"); b.disabled = true; b.textContent = "💡 Il modello ci pensa…";
-  try {
-    const r = await fetch("/api/ideas");
-    if (!r.ok) { $("#chips").innerHTML = `<span style="color:var(--muted)">${esc((await r.json()).detail || "Idee non disponibili")}</span>`; return; }
-    const list = await r.json();
-    $("#chips").innerHTML = list.map((t) => `<span class="chip">${esc(t)}</span>`).join("");
-    document.querySelectorAll(".chip").forEach((c) => c.onclick = () => { $("#topic").value = c.textContent; pick(null); });
-  } finally { b.disabled = false; b.textContent = "💡 Idee storiche"; }
 };
 
 $("#go").onclick = async () => {

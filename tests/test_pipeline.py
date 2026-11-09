@@ -1,13 +1,12 @@
 import json
 from contextlib import contextmanager
 
-import pytest
 from PIL import Image
 
 from shorts.library import Library
 from shorts.pipeline import Engines, Job, run_job
 from shorts.spec import Story
-from shorts.timeline import SceneAudio, Word, build_timeline
+from shorts.timeline import SceneAudio, Word
 
 
 class FakeTTS:
