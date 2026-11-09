@@ -19,9 +19,14 @@ Research notes (true facts to build on; use ONLY facts from here, never invent n
 
 Narration:
 - One surprising true story with a visual cause and effect. Only real, well-known facts. No invented dates or numbers.
-- {min_words}-{words} words in total, HARD LIMIT {words} (the voice reads ~2.9 words/s). {scenes} scenes, each ONE
-  short sentence (4-16 words). Beats: HOOK (the absurd fact) -> setting (year, place) -> escalation -> the snap
-  -> twist ending that loops back to the hook. Plain spoken English, no emojis, no stage directions.
+- {min_words}-{words} words in total, HARD LIMIT {words} (the voice reads ~2.9 words/s).
+- Write it as ONE CONTINUOUS STORY told by a person, then cut it into {scenes} scenes: each scene carries the next
+  1-2 sentences (12-25 words) of that same flowing text. Sentences follow from each other (because, so, but, then,
+  that's when...) and the listener always knows who and what "it" is; never a list of separate headlines.
+- The narration tells the story the way you would tell it to a friend; it never describes the pictures ("a figure
+  sits...", "a map shows..."): those go only in "image".
+- Open with the hook (the most surprising fact), tell what happened in order, end on a line that pays it off.
+  Plain spoken English, no emojis, no stage directions.
 
 Pictures (an image model draws them from your text, so describe only what is VISIBLE):
 - "image": one concrete picture in English, 12-40 words: subject, action, place, era, time of day, camera framing
@@ -119,7 +124,7 @@ function buildPrompt(topic: string, maxSeconds: number, notes?: string): string 
   const words = wordBudget(maxSeconds);
   return fill(PROMPT, {
     topic: topic.trim(), seconds: maxSeconds, words, min_words: Math.round(words * 0.75),
-    scenes: `${Math.max(3, Math.floor(words / 10))}-${Math.max(4, Math.floor(words / 7))}`,
+    scenes: `${Math.max(3, Math.floor(words / 18))}-${Math.max(4, Math.floor(words / 12))}`,
     notes: (notes || "(none: use only facts you are sure of)").trim(),
   });
 }

@@ -31,6 +31,15 @@ describe("generateStory", () => {
     expect((r.schemas[0] as any).properties.scenes.items.properties.image).toBeDefined();
   });
 
+  it("asks for one flowing narration in a few longer scenes, not a list of one-liners", async () => {
+    const r = replying(JSON.stringify(storyDict()));
+    await generateStory("x", r.run, { maxSeconds: 30 }).catch(() => {}); // the fixture is too short for 30 s: only the prompt matters
+    expect(r.prompts[0]).toContain("4-6 scenes");
+    expect(r.prompts[0]).toMatch(/one continuous story/i);
+    expect(r.prompts[0]).not.toMatch(/each ONE\s+short sentence/);
+    expect(r.prompts[0]).toMatch(/never describes the pictures/i);
+  });
+
   it("retries with the error", async () => {
     const bad = storyDict();
     bad.scenes[0].motion = "spin";
