@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { expect, it } from "vitest";
-import { STYLES, planImages, produceImages, sdCommand, sdGenerator, type SdConfig } from "../src/images.js";
+import { FORMATS, STYLES, planImages, produceImages, sdCommand, sdGenerator, type SdConfig } from "../src/images.js";
 import { Library } from "../src/library.js";
 import { imagePrompt, parseStory } from "../src/spec.js";
 import { storyDict } from "./fixtures.js";
@@ -107,4 +107,10 @@ it("offers a wide palette of styles, each named and with its own words", () => {
   expect(STYLES.free.positive).toBe("");
   const free = sdCommand(CFG, "a red barn", 1, "o.png", "free", "");
   expect(at(free, "-p")).toBe("a red barn");                 // no style words at all
+});
+
+it("draws the size it is asked for", () => {
+  expect(FORMATS).toEqual({ portrait: [768, 1344], square: [1024, 1024], landscape: [1344, 768] });
+  const cmd = sdCommand(CFG, "a barn", 1, "o.png", "free", "", FORMATS.landscape);
+  expect([at(cmd, "-W"), at(cmd, "-H")]).toEqual(["1344", "768"]);
 });

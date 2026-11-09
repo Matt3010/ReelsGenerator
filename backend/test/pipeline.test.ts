@@ -147,7 +147,7 @@ it("a photo job draws the prompt as written, with its negative prompt, and keeps
   const calls: string[][] = [];
   const { eng } = engines(root);
   const draw = eng.generate;
-  eng.generate = async (prompt, seed, out, style, negative) => { calls.push([prompt, style, negative]); return draw(prompt, seed, out, style, negative); };
+  eng.generate = async (prompt, seed, out, style, negative, size) => { calls.push([prompt, style, negative]); return draw(prompt, seed, out, style, negative, size); };
   const prompt = "An old fisherman mending nets at golden hour, 1920s harbour, cinematic";
   const job = Job.create(join(root, "jobs"), { topic: prompt, voice: "", captions: false, kind: "photo",
     photo: { prompt, negative: "blurry, extra fingers", count: 2 } });
@@ -157,4 +157,18 @@ it("a photo job draws the prompt as written, with its negative prompt, and keeps
   const ids: number[] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
   expect(ids).toHaveLength(2);
   expect(eng.library.get(ids[0])!.tags).toEqual(["old", "fisherman", "mending", "nets", "golden", "hour", "1920s", "harbour"]);
+});
+
+it("a photo job draws its format, and from a given seed the next ones (the same request, the same pictures)", async () => {
+  const root = tmp();
+  const calls: [number, readonly number[] | undefined][] = [];
+  const { eng } = engines(root);
+  const draw = eng.generate;
+  eng.generate = async (prompt, seed, out, style, negative, size) => { calls.push([seed, size]); return draw(prompt, seed, out, style, negative, size); };
+  const job = Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
+    photo: { prompt: "a cat", negative: "", count: 3, format: "square", seed: 42 } });
+  await runJob(job, eng);
+  expect(calls).toEqual([[42, [1024, 1024]], [43, [1024, 1024]], [44, [1024, 1024]]]);
+  const ids: number[] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
+  expect(eng.library.get(ids[1])!.seed).toBe(43);
 });

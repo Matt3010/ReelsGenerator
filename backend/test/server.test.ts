@@ -122,7 +122,8 @@ describe("photos", () => {
     const { id } = await r.json();
     expect(await waitFor(() => ran[0] === id)).toBe(true);
     const job = (await (await app.request("/api/jobs")).json())[0];
-    expect(job).toMatchObject({ kind: "photo", topic: "a cat, 1920s, smiling", photo: { prompt: "a cat, 1920s, smiling", negative: "dogs", count: 1 } });
+    expect(job).toMatchObject({ kind: "photo", topic: "a cat, 1920s, smiling",
+      photo: { prompt: "a cat, 1920s, smiling", negative: "dogs", count: 1, format: "portrait", seed: null } });
   });
 
   it("refuses an empty prompt and too many pictures, and takes a long prompt", async () => {
@@ -131,6 +132,9 @@ describe("photos", () => {
     expect((await postPhotos(app, { prompt: "a cat", count: 9 })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat, ".repeat(250) })).status).toBe(200);
     expect((await postPhotos(app, { prompt: "x".repeat(2001) })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", format: "panorama" })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", seed: -1 })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", format: "square", seed: 42, count: 4 })).status).toBe(200);
   });
 
   it("lists the pictures of a job and serves them", async () => {
@@ -143,6 +147,8 @@ describe("photos", () => {
     expect(img.status).toBe(200);
     expect(img.headers.get("content-type")).toBe("image/png");
     expect((await app.request("/api/library/999/image")).status).toBe(404);
+    expect(await (await app.request(`/api/library/${a.id}`)).json()).toEqual({ id: a.id, prompt: "a cat", seed: 1, width: 8, height: 14 });
+    expect((await app.request("/api/library/999")).status).toBe(404);
   });
 });
 

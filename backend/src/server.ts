@@ -9,7 +9,7 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { Library } from "./library.js";
 import { fetchNews, type NewsItem } from "./news.js";
-import { STYLES, type StyleId } from "./images.js";
+import { FORMATS, STYLES, type Format, type StyleId } from "./images.js";
 import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
 import { VOICES } from "./tts.js";
@@ -41,6 +41,8 @@ const PhotoJob = z.object({
   prompt: z.string().trim().min(1, "write a prompt").max(2000),
   negative: z.string().trim().max(2000).default(""),
   count: z.number().int().min(1).max(4).default(1),
+  format: z.enum(Object.keys(FORMATS) as [Format, ...Format[]]).default("portrait"),
+  seed: z.number().int().min(0).max(2 ** 31 - 5).nullable().default(null),
 });
 
 export interface AppOptions {
@@ -115,6 +117,14 @@ export function createApp(o: AppOptions = {}) {
     if (!Number.isInteger(id) || !library().remove(id)) return c.json({ detail: "no such picture" }, 404);
     for (const job of Job.list(root)) if (job.images().includes(id)) job.dropImage(id);
     return c.json({ ok: true });
+  });
+
+  // what a picture is: its prompt and seed (to make it again) and its size
+  app.get("/api/library/:id", (c) => {
+    const id = Number(c.req.param("id"));
+    const asset = Number.isInteger(id) ? library().get(id) : null;
+    if (!asset) return c.json({ detail: "no such picture" }, 404);
+    return c.json({ id: asset.id, prompt: asset.prompt, seed: asset.seed, width: asset.width, height: asset.height });
   });
 
   app.get("/api/library/:id/image", (c) => {

@@ -3,7 +3,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { DEFAULT_SD, modelName, planImages, produceImages, sdGenerator, type Generator, type StyleId } from "./images.js";
+import { DEFAULT_SD, FORMATS, modelName, planImages, produceImages, sdGenerator, type Format, type Generator, type StyleId } from "./images.js";
 import { Library } from "./library.js";
 import { chooseImage, generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
 import { articleText, type NewsItem } from "./news.js";
@@ -16,8 +16,8 @@ import { synthesize } from "./tts.js";
 export const JOBS = CONFIG.jobs;
 const LIBRARY = CONFIG.library;
 
-/** a photo job: the prompt and the negative prompt as written, drawn count times */
-export interface PhotoRequest { prompt: string; negative: string; count: number }
+/** a photo job: the prompt and the negative prompt as written, drawn count times in a format; from a seed, the next ones */
+export interface PhotoRequest { prompt: string; negative: string; count: number; format?: Format; seed?: number | null }
 /** the job's choices: the picture style and which limits apply (both kinds of job) */
 export interface JobOptions { style: StyleId; realPeople: boolean; avoid: boolean }
 export const DEFAULT_OPTIONS: JobOptions = { style: "toon", realPeople: false, avoid: true };
@@ -129,12 +129,15 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   const st = job.status();
   const req = st.photo!;
   const style = "free";
+  const size = FORMATS[req.format ?? "portrait"];
+  // a given seed makes the same pictures again; none, a random start
+  const first = req.seed ?? randomInt(2 ** 31 - 4);
   const ids: number[] = [];
   mkdirSync(join(job.dir, "work"), { recursive: true });
   for (let i = 1; i <= req.count; i++) {
     job.update({ state: "running", step: `Disegno l'immagine ${i}/${req.count}` });
-    const seed = randomInt(2 ** 31);
-    const file = await eng.generate(req.prompt, seed, join(job.dir, "work", `img${i}.png`), style, req.negative);
+    const seed = first + i - 1;
+    const file = await eng.generate(req.prompt, seed, join(job.dir, "work", `img${i}.png`), style, req.negative, size);
     ids.push((await eng.library.add(file, { prompt: req.prompt, tags: promptTags(req.prompt), style, seed, model: eng.modelName })).id);
   }
   writeFileSync(join(job.dir, "images.json"), JSON.stringify(ids), "utf8");

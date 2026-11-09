@@ -40,7 +40,13 @@ export const STYLES = {
 
 export type StyleId = keyof typeof STYLES;
 
-export type Generator = (prompt: string, seed: number, out: string, style: string, negativeExtra: string) => Promise<string>;
+/** the picture sizes on offer: vertical like the shorts, square, horizontal (SDXL's own shapes) */
+export const FORMATS = { portrait: [768, 1344], square: [1024, 1024], landscape: [1344, 768] } as const satisfies Record<string, readonly [number, number]>;
+export type Format = keyof typeof FORMATS;
+type Size = readonly [number, number];
+
+/** (prompt, seed, out, style, negative, size) -> the image; without a size, the config's (the shorts' 9:16) */
+export type Generator = (prompt: string, seed: number, out: string, style: string, negativeExtra: string, size?: Size) => Promise<string>;
 export type Chooser = (prompt: string, candidates: Asset[]) => Promise<number | null>;
 
 export interface SdConfig {
@@ -57,17 +63,18 @@ export const DEFAULT_SD: SdConfig = {
 
 export const modelName = (cfg: SdConfig) => basename(cfg.model, extname(cfg.model));
 
-export function sdCommand(cfg: SdConfig, prompt: string, seed: number, out: string, style: string, negExtra = ""): string[] {
+export function sdCommand(cfg: SdConfig, prompt: string, seed: number, out: string, style: string, negExtra = "", size?: Size): string[] {
+  const [width, height] = size ?? [cfg.width, cfg.height];
   const { positive, negative } = STYLES[style as StyleId];
   return [cfg.exe, "-m", cfg.model, "--vae", cfg.vae, "-p", positive ? `${positive}, ${prompt}` : prompt, "-n", negExtra ? `${negative}, ${negExtra}` : negative,
-    "-W", String(cfg.width), "-H", String(cfg.height), "--steps", String(cfg.steps), "--cfg-scale", String(cfg.cfg),
+    "-W", String(width), "-H", String(height), "--steps", String(cfg.steps), "--cfg-scale", String(cfg.cfg),
     "--sampling-method", cfg.sampler, "--scheduler", cfg.scheduler, "--seed", String(seed), "--vae-tiling", "-o", out];
 }
 
 export function sdGenerator(cfg: SdConfig = DEFAULT_SD, run: Run = runProcess): Generator {
-  return async (prompt, seed, out, style, negExtra) => {
+  return async (prompt, seed, out, style, negExtra, size) => {
     mkdirSync(dirname(out), { recursive: true });
-    const r = await run(sdCommand(cfg, prompt, seed, out, style, negExtra));
+    const r = await run(sdCommand(cfg, prompt, seed, out, style, negExtra, size));
     if (r.code !== 0 || !existsSync(out)) throw new Error(`sd.cpp exited ${r.code}: ${r.output.slice(-1500)}`);
     return out;
   };

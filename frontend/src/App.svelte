@@ -53,7 +53,7 @@
     ui.openModal({ title: job.kind === 'photo' ? 'Immagini' : job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story } });
 
   const apriFoto = (id: number) =>
-    ui.openModal({ title: 'Immagine', view: PhotoViewer, props: { id, prompt: pictures.find((p) => p.id === id)?.alt ?? '', onDelete: removePicture } });
+    ui.openModal({ title: 'Immagine', view: PhotoViewer, props: { id, prompt: pictures.find((p) => p.id === id)?.alt ?? '', onDelete: removePicture, loadInfo: api.picture } });
 
   /** la pagina la dice l'indirizzo: / i video, /immagini le immagini */
   const tab = $derived(nav.route.kind === 'photos' ? 'photo' : 'video');

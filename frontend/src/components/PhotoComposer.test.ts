@@ -13,9 +13,22 @@ describe('PhotoComposer', () => {
     const { user, onCreate } = setup();
     await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'a cybergirl, neon rain, 8k');
     await user.type(screen.getByRole('textbox', { name: /negative prompt/i }), 'blurry, extra fingers');
-    await user.click(screen.getByRole('button', { name: /genera immagine/i }));
-    expect(onCreate).toHaveBeenCalledWith({ prompt: 'a cybergirl, neon rain, 8k', negative: 'blurry, extra fingers', count: 1 });
+    await user.click(screen.getByRole('button', { name: /genera/i }));
+    expect(onCreate).toHaveBeenCalledWith({ prompt: 'a cybergirl, neon rain, 8k', negative: 'blurry, extra fingers', count: 1,
+      format: 'portrait', seed: null });
     expect(screen.getByRole('textbox', { name: /^prompt/i })).toHaveValue('');
+  });
+
+  it('lets me pick format and how many, and fix the seed', async () => {
+    const { user, onCreate } = setup();
+    await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'a fox');
+    await user.click(screen.getByRole('button', { name: /^formato/i }));
+    await user.click(await screen.findByRole('button', { name: /orizzontale/i }));
+    await user.click(screen.getByRole('button', { name: /^quante/i }));
+    await user.click(await screen.findByRole('button', { name: '4' }));
+    await user.type(screen.getByRole('textbox', { name: /seed/i }), '42');
+    await user.click(screen.getByRole('button', { name: /genera/i }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ format: 'landscape', count: 4, seed: 42 }));
   });
 
   it('takes a long prompt', () => {
@@ -26,13 +39,13 @@ describe('PhotoComposer', () => {
 
   it('cannot generate without a prompt', () => {
     setup();
-    expect(screen.getByRole('button', { name: /genera immagine/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /genera/i })).toBeDisabled();
   });
 
   it('shows why it could not start', async () => {
     const { user } = setup(vi.fn(async () => { throw new Error('write a prompt'); }));
     await user.type(screen.getByRole('textbox', { name: /^prompt/i }), 'x');
-    await user.click(screen.getByRole('button', { name: /genera immagine/i }));
+    await user.click(screen.getByRole('button', { name: /genera/i }));
     expect(await screen.findByRole('alert')).toHaveTextContent('write a prompt');
   });
 });

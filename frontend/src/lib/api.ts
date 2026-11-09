@@ -9,8 +9,11 @@ export interface Palette { styles: { id: string; label: string }[]; defaults: Jo
 
 export interface NewJob { topic: string; voice: string; captions: boolean; news: NewsItem | null; options: JobOptions }
 
-/** un'immagine: il prompt e il negative prompt come scritti */
-export interface PhotoRequest { prompt: string; negative: string; count: number }
+/** un'immagine: il prompt e il negative prompt come scritti, quante, in che formato, e da che seed (null: a caso) */
+export type Format = 'portrait' | 'square' | 'landscape';
+export interface PhotoRequest { prompt: string; negative: string; count: number; format: Format; seed: number | null }
+/** cos'è un'immagine della libreria: il seed per rifarla, la misura */
+export interface PictureInfo { id: number; prompt: string; seed: number; width: number; height: number }
 
 export interface JobInfo extends NewJob {
   kind?: 'video' | 'photo';
@@ -43,6 +46,7 @@ export const api = {
   retry: (id: string) => call<{ id: string }>(`/api/jobs/${id}/retry`, { method: 'POST' }),
   story: (id: string) => call<Story>(`/api/jobs/${id}/story`),
   remove: (id: string) => call<{ ok: true }>(`/api/jobs/${id}`, { method: 'DELETE' }),
+  picture: (id: number) => call<PictureInfo>(`/api/library/${id}`),
   removePicture: (id: number) => call<{ ok: true }>(`/api/library/${id}`, { method: 'DELETE' }),
   photos: (req: PhotoRequest) => call<{ id: string }>('/api/photos', { method: 'POST', body: JSON.stringify(req) }),
 };
