@@ -79,7 +79,7 @@ export const MODELS: ImageModel[] = [
     id: "krea2",
     label: "Krea 2 Turbo",
     note: "estetica fotografica (licenza Krea 2 Community)",
-    minutes: { standard: 4, fullhd: 12, "4k": 15 },
+    minutes: { standard: 4, fullhd: 9.5, "4k": 12.5 },
     files: [
       { name: "Krea 2 Turbo Q4_K_M", check: "Krea-2-Turbo-Q4_K_M.gguf", size: 7216993376,
         urls: [`${HF}/realrebelai/KREA-2_GGUFs/resolve/main/TURBO/Krea-2-Turbo-Q4_K_M.gguf`] },
