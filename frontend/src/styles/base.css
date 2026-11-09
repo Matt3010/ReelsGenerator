@@ -18,7 +18,7 @@ body {
   overscroll-behavior-y: none;
 }
 
-html[data-theme='dark'] { background: #0b0d10; }
+html[data-theme='dark'] { background: #000; }
 
 body {
   font-family: var(--font);
@@ -31,7 +31,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-[data-theme='dark'] body { background: #0b0d10; }
+[data-theme='dark'] body { background: #000; }
 
 button { font: inherit; color: inherit; cursor: pointer; }
 

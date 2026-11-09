@@ -12,7 +12,7 @@
   const apply = () => {
     const dark = (chosen() ?? (system.matches ? 'dark' : 'light')) === 'dark';
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#0b0d10' : '#e8ebef');
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#000000' : '#e8ebef');
   };
   apply();
   system.addEventListener('change', apply);

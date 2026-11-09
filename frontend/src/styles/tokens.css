@@ -71,14 +71,15 @@
 }
 
 
-/* scuro: lo dice `data-theme`, che public/theme.js mette prima di disegnare (dal sistema o dalla scelta) */
+/* scuro: lo dice `data-theme`, che public/theme.js mette prima di disegnare (dal sistema o dalla scelta).
+   Neri e grigi neutri, senza la punta di blu: lo sfondo è nero, le superfici salgono di grigio. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --base: 20 23 28;
+  --base: 18 18 18;
   --glass: rgb(var(--base) / 0.86);
   --glass-strong: rgb(var(--base) / 0.96);
-  --bar-glass: rgb(38 42 50 / 0.92);
-  --bar-glass-strong: rgb(38 42 50 / 0.98);
+  --bar-glass: rgb(32 32 32 / 0.92);
+  --bar-glass-strong: rgb(32 32 32 / 0.98);
   --bar-line: rgb(255 255 255 / 0.14);
   --sunken: rgb(255 255 255 / 0.06);
   --sunken-hover: rgb(255 255 255 / 0.1);
@@ -86,12 +87,12 @@
   --hairline-soft: rgb(255 255 255 / 0.07);
   --highlight: rgb(255 255 255 / 0.08);
 
-  --ink: #eef1f5;
-  --ink-2: #9aa4b2;
-  --ink-3: #6f7987;
-  --on-accent: #0e1116;
-  --accent: #f2f4f7;
-  --accent-grad: linear-gradient(180deg, #ffffff 0%, #dfe4ea 100%);
+  --ink: #f2f2f2;
+  --ink-2: #a3a3a3;
+  --ink-3: #737373;
+  --on-accent: #0a0a0a;
+  --accent: #f5f5f5;
+  --accent-grad: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
   --danger: #ff6b5e;
 
   --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.3);
