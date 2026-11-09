@@ -38,6 +38,18 @@ it("the generator fails with sd.cpp's message", async () => {
   await expect(gen(req("a barn", 3, join(tmp(), "a.png"), "toon", ""))).rejects.toThrow(/out of memory/);
 });
 
+it("the generator tells sd.cpp's errors, not its progress bars", async () => {
+  const output = "\r  |##########| 384/386 - 324.13MB/s\x1b[K\r  |##########| 386/386 - 329.96MB/s\x1b[K\n"
+    + "[I] loading tensors completed, taking 7.02s --- model_loader.cpp:1445\n"
+    + "[W] model_manager.cpp:1792 model manager memory available on CUDA0: need 5808.39 MB device, budget available 5173.00 MB\n"
+    + "[E] krea2 segment 1/29 failed during weight preparation --- ggml_runner.cpp:88\n"
+    + "[E] Diffusion model sampling failed --- diffusion_engine.cpp:301\n";
+  const gen = sdGenerator("sd-cli.exe", "/m", async () => ({ code: 1, output }));
+  const err = await gen(req("a barn", 3, join(tmp(), "a.png"), "toon", "")).catch((e: Error) => e);
+  expect((err as Error).message).toBe("sd.cpp exited 1: need 5808.39 MB device, budget available 5173.00 MB; "
+    + "krea2 segment 1/29 failed during weight preparation; Diffusion model sampling failed");
+});
+
 class FakeGen {
   prompts: string[] = [];
   negatives: string[] = [];

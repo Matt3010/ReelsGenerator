@@ -59,6 +59,21 @@ export function sdProgress(chunk: string, phase: SdPhase = "steps"): SdProgress 
   return last ? { step: Number(last[1]), steps: Number(last[2]), rate: `${last[3]} ${last[4]}`, phase } : null;
 }
 
+/**
+ * What went wrong, from sd.cpp's output: its [E] lines (and the memory it lacked), without the progress bars and the
+ * source file of each line; with none, the tail of what it said.
+ */
+export function sdError(output: string): string {
+  const lines = output.split(/\r|\n/).map((l) => l.replace(/\x1b\[[0-9;]*[A-Za-z]/g, "").trim());
+  const said = [
+    ...lines.map((l) => l.match(/need [\d.]+ MB device, budget available [\d.]+ MB/)?.[0]).filter((m): m is string => Boolean(m)),
+    ...lines.filter((l) => l.startsWith("[E]")).map((l) => l.replace(/^\[E\]\s*/, "").replace(/\s+---\s+\S+$/, "")),
+  ];
+  if (said.length) return said.join("; ");
+  const bar = new RegExp(BAR.source); // BAR is global: .test() would carry its position from one line to the next
+  return lines.filter((l) => l && !bar.test(l)).join(" ").slice(-500);
+}
+
 /** follows sd.cpp's output piece by piece: each bar with the phase the log last announced */
 function phaseReader(report: (p: SdProgress) => void): (chunk: string) => void {
   // before "generating image": the starting picture (img2img) encoded to the model's space
@@ -115,7 +130,7 @@ export function sdGenerator(exe = CONFIG.sdCli, dir = CONFIG.models, run: Run = 
     mkdirSync(dirname(r.out), { recursive: true });
     const onOutput = r.progress && phaseReader(r.progress);
     const res = await run(sdCommand(exe, dir, r), { onOutput });
-    if (res.code !== 0 || !existsSync(r.out)) throw new Error(`sd.cpp exited ${res.code}: ${res.output.slice(-1500)}`);
+    if (res.code !== 0 || !existsSync(r.out)) throw new Error(`sd.cpp exited ${res.code}: ${sdError(res.output)}`);
     return r.out;
   };
 }

@@ -64,5 +64,6 @@
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 34%, transparent);
   }
 
-  .alert span { flex: 1; min-width: 0; }
+  /* un errore lungo (un percorso, una riga di log) va a capo anche a metà parola, non esce dal riquadro */
+  .alert span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 </style>
