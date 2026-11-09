@@ -4,6 +4,7 @@
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
   import Loader from './Loader.svelte';
+  import PhotoProperties from './PhotoProperties.svelte';
   import { ui } from '../lib/ui.svelte';
 
   /** Un video: mentre si fa, il passo a cui è; fatto, il video da guardare e scaricare; andato male, il perché. */
@@ -51,10 +52,14 @@
   {/if}
 
   <div class="meta">
-    <p class="sotto">
-      {#if job.news}<Icon name="news" size="sm" tone="muted" /> {job.news.outlet} · {/if}{job.topic}
-      {#if job.duration}· {Math.round(job.duration)} s{/if}
-    </p>
+    {#if job.kind === 'photo' && job.photo}
+      <PhotoProperties photo={job.photo} />
+    {:else}
+      <p class="sotto">
+        {#if job.news}<Icon name="news" size="sm" tone="muted" /> {job.news.outlet} · {/if}{job.topic}
+        {#if job.duration}· {Math.round(job.duration)} s{/if}
+      </p>
+    {/if}
 
     {#if job.state === 'error' && job.error}
       <Alert message={job.error} action={{ label: 'Riprova', run: () => onRetry(job.id) }} />

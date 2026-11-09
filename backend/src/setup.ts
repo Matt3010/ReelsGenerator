@@ -22,6 +22,8 @@ export const ITEMS: Item[] = [
     urls: [`${HF}/Lykon/dreamshaper-xl-v2-turbo/resolve/main/DreamShaperXL_Turbo_v2_1.safetensors`] },
   { name: "SDXL VAE fp16-fix", check: "sdxl.vae.safetensors", size: 334641162,
     urls: [`${HF}/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl.vae.safetensors`] },
+  { name: "RealESRGAN x4plus", check: "RealESRGAN_x4plus.pth", size: 67040989,
+    urls: ["https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth"] },
 ]
 
 export function missing(root = CONFIG.models, items = ITEMS): Item[] {

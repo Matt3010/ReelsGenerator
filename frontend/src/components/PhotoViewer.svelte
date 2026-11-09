@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { imageUrl, type PictureInfo } from '../lib/api';
+  import { imageUrl, type PhotoRequest, type PictureInfo } from '../lib/api';
+  import PhotoProperties from './PhotoProperties.svelte';
   import Button from './Button.svelte';
   import Icon from './Icon.svelte';
   import { ui } from '../lib/ui.svelte';
@@ -8,9 +9,17 @@
   let {
     id,
     prompt,
+    photo,
     onDelete,
     loadInfo,
-  }: { id: number; prompt: string; onDelete: (id: number) => void; loadInfo: (id: number) => Promise<PictureInfo | null> } = $props();
+  }: {
+    id: number;
+    prompt: string;
+    /** con cosa è stata chiesta (null: un'immagine di un video) */
+    photo: PhotoRequest | null;
+    onDelete: (id: number) => void;
+    loadInfo: (id: number) => Promise<PictureInfo | null>;
+  } = $props();
 
   /** il seed (per rifarla) e la misura, appena arrivano */
   let info = $state<PictureInfo | null>(null);
@@ -28,8 +37,8 @@
 </script>
 
 <img src={imageUrl(id)} alt={prompt} />
-<p>{prompt}</p>
-{#if info}<p class="dati">Seed {info.seed} · {info.width}×{info.height}</p>{/if}
+<PhotoProperties photo={photo ?? { prompt, negative: '', count: 1, format: 'portrait', seed: null, resolution: 'standard' }}
+  seed={info?.seed} size={info ? [info.width, info.height] : undefined} />
 <div class="azioni">
   <Button look="ghost" size="sm" href={imageUrl(id)} download><Icon name="download" />Scarica</Button>
   <span class="spazio"></span>
@@ -39,8 +48,6 @@
 <style>
   img { display: block; width: 100%; border-radius: var(--r-in); background: var(--sunken); }
 
-  p { margin: 0; font-size: 13px; color: var(--ink-2); }
-  .dati { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; user-select: all; }
 
   .azioni { display: flex; gap: 6px; }
   .spazio { flex: 1; }

@@ -15,7 +15,7 @@ describe('PhotoComposer', () => {
     await user.type(screen.getByRole('textbox', { name: /negative prompt/i }), 'blurry, extra fingers');
     await user.click(screen.getByRole('button', { name: /genera/i }));
     expect(onCreate).toHaveBeenCalledWith({ prompt: 'a cybergirl, neon rain, 8k', negative: 'blurry, extra fingers', count: 1,
-      format: 'portrait', seed: null });
+      format: 'portrait', seed: null, resolution: 'standard' });
     expect(screen.getByRole('textbox', { name: /^prompt/i })).toHaveValue('');
   });
 
@@ -26,9 +26,11 @@ describe('PhotoComposer', () => {
     await user.click(await screen.findByRole('button', { name: /orizzontale/i }));
     await user.click(screen.getByRole('button', { name: /^quante/i }));
     await user.click(await screen.findByRole('button', { name: '4' }));
+    await user.click(screen.getByRole('button', { name: /^risoluzione/i }));
+    await user.click(await screen.findByRole('button', { name: /full hd/i }));
     await user.type(screen.getByRole('textbox', { name: /seed/i }), '42');
     await user.click(screen.getByRole('button', { name: /genera/i }));
-    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ format: 'landscape', count: 4, seed: 42 }));
+    expect(onCreate).toHaveBeenCalledWith(expect.objectContaining({ format: 'landscape', count: 4, seed: 42, resolution: 'fullhd' }));
   });
 
   it('takes a long prompt', () => {

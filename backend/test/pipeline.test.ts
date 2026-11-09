@@ -30,6 +30,7 @@ function engines(root: string, story = storyDict(), opts: { llmCalls?: string[];
       writeFileSync(out, "mp4");
     }),
     normalize: async (src, dst) => writeFileSync(dst, readFileSync(src)),
+    upscale: async () => {},
     maxSeconds: 10,
     article: async () => "The old bridge in Turin reopened on Monday after repairs.",
   };
@@ -171,4 +172,37 @@ it("a photo job draws its format, and from a given seed the next ones (the same 
   expect(calls).toEqual([[42, [1024, 1024]], [43, [1024, 1024]], [44, [1024, 1024]]]);
   const ids: number[] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
   expect(eng.library.get(ids[1])!.seed).toBe(43);
+});
+
+it("a photo job at Full HD draws with a hires fix and cuts to the exact size, with no ESRGAN", async () => {
+  const root = tmp();
+  const { eng } = engines(root);
+  const hires: unknown[] = [];
+  eng.generate = async (prompt, seed, out, style, negative, size, h) => {
+    hires.push(h);
+    await png(out, [1, 2, 3], [1920, 1088]);
+    return out;
+  };
+  let upscaled = 0;
+  eng.upscale = async () => { upscaled++; };
+  const job = Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
+    photo: { prompt: "a cat", negative: "", count: 1, format: "landscape", seed: 1, resolution: "fullhd" } });
+  await runJob(job, eng);
+  expect(hires).toEqual([[1920, 1080]]);
+  expect(upscaled).toBe(0);
+  const [id] = JSON.parse(readFileSync(join(job.dir, "images.json"), "utf8"));
+  expect([eng.library.get(id)!.width, eng.library.get(id)!.height]).toEqual([1920, 1080]);
+});
+
+it("a photo job at 4K draws at Full HD with the hires fix, then ESRGAN takes it to 4K", async () => {
+  const root = tmp();
+  const { eng } = engines(root);
+  const hires: unknown[] = [];
+  const sizes: unknown[] = [];
+  eng.generate = async (prompt, seed, out, style, negative, size, h) => { hires.push(h); await png(out, [1, 2, 3], [64, 36]); return out; };
+  eng.upscale = async (file, size) => { sizes.push(size); };
+  await runJob(Job.create(join(root, "jobs"), { topic: "a cat", voice: "", captions: false, kind: "photo",
+    photo: { prompt: "a cat", negative: "", count: 1, format: "landscape", seed: 1, resolution: "4k" } }), eng);
+  expect(hires).toEqual([[1920, 1080]]);
+  expect(sizes).toEqual([[3840, 2160]]);
 });

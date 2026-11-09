@@ -11,7 +11,9 @@ export interface NewJob { topic: string; voice: string; captions: boolean; news:
 
 /** un'immagine: il prompt e il negative prompt come scritti, quante, in che formato, e da che seed (null: a caso) */
 export type Format = 'portrait' | 'square' | 'landscape';
-export interface PhotoRequest { prompt: string; negative: string; count: number; format: Format; seed: number | null }
+/** oltre la misura del modello: disegnata e poi ingrandita (lato lungo 1920 o 3840) */
+export type Resolution = 'standard' | 'fullhd' | '4k';
+export interface PhotoRequest { prompt: string; negative: string; count: number; format: Format; seed: number | null; resolution: Resolution }
 /** cos'è un'immagine della libreria: il seed per rifarla, la misura */
 export interface PictureInfo { id: number; prompt: string; seed: number; width: number; height: number }
 

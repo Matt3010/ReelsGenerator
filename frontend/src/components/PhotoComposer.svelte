@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { Format, PhotoRequest } from '../lib/api';
+  import type { Format, PhotoRequest, Resolution } from '../lib/api';
+  import { FORMATI, RISOLUZIONI } from '../lib/photo';
   import Alert from './Alert.svelte';
   import Button from './Button.svelte';
   import Field from './Field.svelte';
@@ -8,21 +9,17 @@
   import TextField from './TextField.svelte';
 
   /**
-   * Un'immagine: il prompt e il negative prompt, passati al modello così come sono; sotto, in una riga, il formato,
+   * Un'immagine: il prompt e il negative prompt, passati al modello così come sono; sotto il formato, la risoluzione,
    * quante, e il seed (vuoto: a caso; scritto: le stesse immagini di nuovo, per ritoccare solo il prompt).
    */
   let { onCreate }: { onCreate: (req: PhotoRequest) => Promise<void> } = $props();
 
-  const FORMATI = [
-    { id: 'portrait', label: 'Verticale 9:16' },
-    { id: 'square', label: 'Quadrato 1:1' },
-    { id: 'landscape', label: 'Orizzontale 16:9' },
-  ];
   const QUANTE = [1, 2, 3, 4].map((n) => ({ id: String(n), label: String(n) }));
 
   let prompt = $state('');
   let negative = $state('');
   let format = $state<Format>('portrait');
+  let resolution = $state<Resolution>('standard');
   let count = $state(1);
   let seed = $state('');
   let sending = $state(false);
@@ -35,7 +32,7 @@
     sending = true;
     problem = '';
     try {
-      await onCreate({ prompt: prompt.trim(), negative: negative.trim(), count, format, seed: seedValue });
+      await onCreate({ prompt: prompt.trim(), negative: negative.trim(), count, format, seed: seedValue, resolution });
       prompt = '';
       negative = '';
     } catch (e) {
@@ -61,6 +58,9 @@
     <Field label="Formato">
       <PickField label="Formato" value={format} options={FORMATI} drop onpick={(id) => (format = id as Format)} />
     </Field>
+    <Field label="Risoluzione">
+      <PickField label="Risoluzione" value={resolution} options={RISOLUZIONI} drop onpick={(id) => (resolution = id as Resolution)} />
+    </Field>
     <Field label="Quante">
       <PickField label="Quante" value={String(count)} options={QUANTE} drop onpick={(id) => (count = Number(id))} />
     </Field>
@@ -79,7 +79,7 @@
 <style>
   .modulo { display: grid; gap: 12px; min-width: 0; }
 
-  /* formato, quante, seed: in una riga, il formato più largo */
-  .riga { display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: 8px; min-width: 0; }
+  /* formato, risoluzione, quante, seed: due per riga */
+  .riga { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-width: 0; }
   .riga > :global(*) { min-width: 0; }
 </style>

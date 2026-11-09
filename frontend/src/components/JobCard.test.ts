@@ -61,3 +61,13 @@ describe('JobCard deleting', () => {
     expect(screen.queryByRole('button', { name: /elimina/i })).not.toBeInTheDocument();
   });
 });
+
+describe('JobCard for a picture job', () => {
+  it('shows what the pictures were asked with', () => {
+    render(JobCard, { job: { ...base, kind: 'photo', topic: 'a fox',
+      photo: { prompt: 'a fox', negative: 'blurry', count: 1, format: 'square', seed: null, resolution: 'standard' } },
+      onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
+    expect(screen.getByText('Negative prompt', { selector: 'dt' })).toBeInTheDocument();
+    expect(screen.getByText('Quadrato 1:1')).toBeInTheDocument();
+  });
+});

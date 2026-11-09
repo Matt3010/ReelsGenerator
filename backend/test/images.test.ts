@@ -1,7 +1,8 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { expect, it } from "vitest";
-import { FORMATS, STYLES, planImages, produceImages, sdCommand, sdGenerator, type SdConfig } from "../src/images.js";
+import { describe, expect, it } from "vitest";
+import sharp from "sharp";
+import { FORMATS, STYLES, planImages, produceImages, sdCommand, sdGenerator, sdUpscaler, targetSize, fitTo, type SdConfig } from "../src/images.js";
 import { Library } from "../src/library.js";
 import { imagePrompt, parseStory } from "../src/spec.js";
 import { storyDict } from "./fixtures.js";
@@ -113,4 +114,46 @@ it("draws the size it is asked for", () => {
   expect(FORMATS).toEqual({ portrait: [768, 1344], square: [1024, 1024], landscape: [1344, 768] });
   const cmd = sdCommand(CFG, "a barn", 1, "o.png", "free", "", FORMATS.landscape);
   expect([at(cmd, "-W"), at(cmd, "-H")]).toEqual(["1344", "768"]);
+});
+
+describe("resolution", () => {
+  it("knows the exact size of each format at each resolution", () => {
+    expect(targetSize("portrait", "standard")).toEqual([768, 1344]);
+    expect(targetSize("landscape", "fullhd")).toEqual([1920, 1080]);
+    expect(targetSize("portrait", "fullhd")).toEqual([1080, 1920]);
+    expect(targetSize("square", "fullhd")).toEqual([1920, 1920]);
+    expect(targetSize("landscape", "4k")).toEqual([3840, 2160]);
+  });
+
+  it("enlarges with ESRGAN, then cuts to the exact size", async () => {
+    const d = tmp();
+    const input = await png(join(d, "in.png"), [9, 9, 9], [1344, 768]);
+    const calls: string[][] = [];
+    const up = sdUpscaler({ ...CFG, esrgan: "esrgan.pth" }, async (cmd) => {
+      calls.push(cmd);
+      await png(at(cmd, "-o"), [9, 9, 9], [5376, 3072]);
+      return { code: 0, output: "" };
+    });
+    await up(input, [1920, 1080]);
+    expect(calls[0]).toEqual(expect.arrayContaining(["-M", "upscale", "-i", input, "--upscale-model", "esrgan.pth"]));
+    const { width, height } = await sharp(input).metadata();
+    expect([width, height]).toEqual([1920, 1080]);
+  });
+});
+
+it("asks sd.cpp for a hires fix: drawn at its own size, then a second pass at the larger one (multiples of 64)", () => {
+  const cmd = sdCommand(CFG, "a barn", 1, "o.png", "free", "", FORMATS.landscape, [1920, 1080]);
+  expect([at(cmd, "-W"), at(cmd, "-H")]).toEqual(["1344", "768"]);
+  expect(cmd).toContain("--hires");
+  expect([at(cmd, "--hires-width"), at(cmd, "--hires-height")]).toEqual(["1920", "1088"]);
+  expect(at(cmd, "--hires-upscaler")).toBe("Lanczos");
+  expect(at(cmd, "--hires-denoising-strength")).toBe("0.35");
+  expect(sdCommand(CFG, "a barn", 1, "o.png", "free", "")).not.toContain("--hires");
+});
+
+it("cuts a picture to an exact size", async () => {
+  const file = await png(join(tmp(), "a.png"), [5, 5, 5], [1920, 1088]);
+  await fitTo(file, [1920, 1080]);
+  const { width, height } = await sharp(file).metadata();
+  expect([width, height]).toEqual([1920, 1080]);
 });

@@ -3,7 +3,8 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { appendFileSync, copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
-import { DEFAULT_SD, FORMATS, modelName, planImages, produceImages, sdGenerator, type Format, type Generator, type StyleId } from "./images.js";
+import { DEFAULT_SD, FORMATS, fitTo, modelName, planImages, produceImages, sdGenerator, sdUpscaler, targetSize, type Format, type Generator,
+  type Resolution, type StyleId, type Upscaler } from "./images.js";
 import { Library } from "./library.js";
 import { chooseImage, generateStory, researchNotes, withLlama, type Runner } from "./llm.js";
 import { articleText, type NewsItem } from "./news.js";
@@ -17,7 +18,11 @@ export const JOBS = CONFIG.jobs;
 const LIBRARY = CONFIG.library;
 
 /** a photo job: the prompt and the negative prompt as written, drawn count times in a format; from a seed, the next ones */
-export interface PhotoRequest { prompt: string; negative: string; count: number; format?: Format; seed?: number | null }
+export interface PhotoRequest {
+  prompt: string; negative: string; count: number; format?: Format; seed?: number | null;
+  /** past SDXL's own size (Full HD, 4K): enlarged after drawing */
+  resolution?: Resolution;
+}
 /** the job's choices: the picture style and which limits apply (both kinds of job) */
 export interface JobOptions { style: StyleId; realPeople: boolean; avoid: boolean }
 export const DEFAULT_OPTIONS: JobOptions = { style: "toon", realPeople: false, avoid: true };
@@ -109,6 +114,7 @@ export interface Engines {
   modelName: string;
   render: typeof renderVideo;
   normalize: (src: string, dst: string) => Promise<void>;
+  upscale: Upscaler;
   maxSeconds: number;
   article: (item: NewsItem) => Promise<string>;
 }
@@ -130,6 +136,10 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   const req = st.photo!;
   const style = "free";
   const size = FORMATS[req.format ?? "portrait"];
+  const resolution = req.resolution ?? "standard";
+  const exact = targetSize(req.format ?? "portrait", resolution);
+  // past SDXL's size: a hires fix to Full HD (real detail); 4K then goes up the last step with ESRGAN
+  const hires = resolution === "standard" ? undefined : targetSize(req.format ?? "portrait", "fullhd");
   // a given seed makes the same pictures again; none, a random start
   const first = req.seed ?? randomInt(2 ** 31 - 4);
   const ids: number[] = [];
@@ -137,7 +147,12 @@ async function runPhotoJob(job: Job, eng: Engines): Promise<void> {
   for (let i = 1; i <= req.count; i++) {
     job.update({ state: "running", step: `Disegno l'immagine ${i}/${req.count}` });
     const seed = first + i - 1;
-    const file = await eng.generate(req.prompt, seed, join(job.dir, "work", `img${i}.png`), style, req.negative, size);
+    const file = await eng.generate(req.prompt, seed, join(job.dir, "work", `img${i}.png`), style, req.negative, size, hires);
+    if (resolution === "fullhd") await fitTo(file, exact);
+    if (resolution === "4k") {
+      job.update({ step: `Ingrandisco l'immagine ${i}/${req.count}` });
+      await eng.upscale(file, exact);
+    }
     ids.push((await eng.library.add(file, { prompt: req.prompt, tags: promptTags(req.prompt), style, seed, model: eng.modelName })).id);
   }
   writeFileSync(join(job.dir, "images.json"), JSON.stringify(ids), "utf8");
@@ -237,6 +252,7 @@ export function defaultEngines(): Engines {
     modelName: modelName(DEFAULT_SD),
     render: renderVideo,
     normalize: normalizeAudio,
+    upscale: sdUpscaler(DEFAULT_SD),
     maxSeconds: 30,
     article: (item) => articleText(item),
   };

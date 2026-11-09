@@ -123,7 +123,7 @@ describe("photos", () => {
     expect(await waitFor(() => ran[0] === id)).toBe(true);
     const job = (await (await app.request("/api/jobs")).json())[0];
     expect(job).toMatchObject({ kind: "photo", topic: "a cat, 1920s, smiling",
-      photo: { prompt: "a cat, 1920s, smiling", negative: "dogs", count: 1, format: "portrait", seed: null } });
+      photo: { prompt: "a cat, 1920s, smiling", negative: "dogs", count: 1, format: "portrait", seed: null, resolution: "standard" } });
   });
 
   it("refuses an empty prompt and too many pictures, and takes a long prompt", async () => {
@@ -134,6 +134,8 @@ describe("photos", () => {
     expect((await postPhotos(app, { prompt: "x".repeat(2001) })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat", format: "panorama" })).status).toBe(422);
     expect((await postPhotos(app, { prompt: "a cat", seed: -1 })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", resolution: "8k" })).status).toBe(422);
+    expect((await postPhotos(app, { prompt: "a cat", resolution: "4k" })).status).toBe(200);
     expect((await postPhotos(app, { prompt: "a cat", format: "square", seed: 42, count: 4 })).status).toBe(200);
   });
 

@@ -9,7 +9,7 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { Library } from "./library.js";
 import { fetchNews, type NewsItem } from "./news.js";
-import { FORMATS, STYLES, type Format, type StyleId } from "./images.js";
+import { FORMATS, RESOLUTIONS, STYLES, type Format, type Resolution, type StyleId } from "./images.js";
 import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
 import { VOICES } from "./tts.js";
@@ -43,6 +43,7 @@ const PhotoJob = z.object({
   count: z.number().int().min(1).max(4).default(1),
   format: z.enum(Object.keys(FORMATS) as [Format, ...Format[]]).default("portrait"),
   seed: z.number().int().min(0).max(2 ** 31 - 5).nullable().default(null),
+  resolution: z.enum(Object.keys(RESOLUTIONS) as [Resolution, ...Resolution[]]).default("standard"),
 });
 
 export interface AppOptions {

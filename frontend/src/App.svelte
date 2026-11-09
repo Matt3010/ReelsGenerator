@@ -52,8 +52,11 @@
     // un lavoro di immagini si chiama così: il suo prompt intero non sta in una testata
     ui.openModal({ title: job.kind === 'photo' ? 'Immagini' : job.title ?? job.topic, view: JobCard, props: { job, onRetry: retry, onDelete: remove, loadStory: api.story } });
 
-  const apriFoto = (id: number) =>
-    ui.openModal({ title: 'Immagine', view: PhotoViewer, props: { id, prompt: pictures.find((p) => p.id === id)?.alt ?? '', onDelete: removePicture, loadInfo: api.picture } });
+  function apriFoto(id: number) {
+    const picture = pictures.find((p) => p.id === id);
+    ui.openModal({ title: 'Immagine', view: PhotoViewer,
+      props: { id, prompt: picture?.alt ?? '', photo: picture?.photo ?? null, onDelete: removePicture, loadInfo: api.picture } });
+  }
 
   /** la pagina la dice l'indirizzo: / i video, /immagini le immagini */
   const tab = $derived(nav.route.kind === 'photos' ? 'photo' : 'video');
@@ -62,7 +65,7 @@
   // le immagini finite nella galleria, le più nuove prima; i lavori ancora aperti restano riquadri sopra
   const tiles = $derived(tab === 'photo' ? shown?.filter((j) => j.state !== 'done') ?? [] : shown ?? []);
   const pictures = $derived(tab === 'photo'
-    ? (shown ?? []).filter((j) => j.state === 'done').flatMap((j) => (j.images ?? []).map((id) => ({ id, url: imageUrl(id), alt: j.topic })))
+    ? (shown ?? []).filter((j) => j.state === 'done').flatMap((j) => (j.images ?? []).map((id) => ({ id, url: imageUrl(id), alt: j.topic, photo: j.photo ?? null })))
     : []);
 
   async function retry(id: string) {
