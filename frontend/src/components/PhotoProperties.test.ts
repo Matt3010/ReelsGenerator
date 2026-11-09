@@ -24,6 +24,11 @@ it("pictures from before the model choice were DreamShaper's", () => {
   expect(value('Modello')).toBe('DreamShaper XL Turbo');
 });
 
+it('says how long the pictures took', () => {
+  render(PhotoProperties, { photo, took: 92 });
+  expect(value('Tempo')).toBe('1 min 32 s per 2 immagini');
+});
+
 it('says when the seed was random and the negative prompt empty', () => {
   render(PhotoProperties, { photo: { ...photo, seed: null, negative: '' } });
   expect(value('Seed')).toBe('casuale');

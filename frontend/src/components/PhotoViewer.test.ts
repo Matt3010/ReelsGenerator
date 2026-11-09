@@ -8,9 +8,10 @@ import PhotoViewer from './PhotoViewer.svelte';
 const PHOTO = { prompt: 'a robot, golden hour', negative: '', count: 1, format: 'landscape' as const, seed: null, resolution: 'fullhd' as const };
 
 it('shows the picture large, its properties with its own seed and size, and a download', async () => {
-  render(PhotoViewer, { id: 7, prompt: 'a robot, golden hour', photo: null, models: PALETTE.models, onDelete: vi.fn(),
+  render(PhotoViewer, { id: 7, prompt: 'a robot, golden hour', photo: null, took: 300, models: PALETTE.models, onDelete: vi.fn(),
     loadInfo: async () => ({ id: 7, prompt: 'a robot, golden hour', seed: 1234, width: 1920, height: 1080, model: 'zimage' }) });
   expect(await screen.findByText('Z-Image Turbo')).toBeInTheDocument();
+  expect(screen.getByText('5 min')).toBeInTheDocument();
   expect(await screen.findByText('1234')).toBeInTheDocument();
   expect(screen.getByText('1920×1080')).toBeInTheDocument();
   expect(screen.getByRole('img', { name: 'a robot, golden hour' })).toHaveAttribute('src', '/api/library/7/image');

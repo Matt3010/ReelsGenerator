@@ -36,6 +36,8 @@ export interface NewJob {
 export interface JobStatus extends NewJob {
   state: "queued" | "running" | "done" | "error"; step: string; title: string | null; error: string | null; created: number;
   duration?: number;
+  /** when the work began and ended (seconds, like created): the pages show how long it takes */
+  started?: number; finished?: number;
 }
 
 let lastCreated = 0;
@@ -81,7 +83,14 @@ export class Job {
     changed();
   }
 
-  update(patch: Partial<JobStatus>) { this.write({ ...this.status(), ...patch }); }
+  update(patch: Partial<JobStatus>) {
+    const st = { ...this.status(), ...patch };
+    const now = Date.now() / 1000;
+    if (patch.state === "queued") { delete st.started; delete st.finished; }
+    if (patch.state === "running" && st.started === undefined) st.started = now;
+    if (patch.state === "done" || patch.state === "error") st.finished = now;
+    this.write(st);
+  }
 
   /** the job and everything it made, gone (the pages hear of it) */
   remove(): void {

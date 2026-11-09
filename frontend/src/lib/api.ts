@@ -32,6 +32,9 @@ export interface JobInfo extends NewJob {
   error: string | null;
   created: number;
   duration?: number;
+  /** quando è partito e quando ha finito il lavoro (secondi, come created) */
+  started?: number;
+  finished?: number;
 }
 
 export interface Story { title?: string; scenes: { narration: string }[] }

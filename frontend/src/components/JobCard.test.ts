@@ -18,6 +18,23 @@ describe('JobCard', () => {
     expect(screen.queryByRole('link', { name: /scarica/i })).not.toBeInTheDocument();
   });
 
+  it('counts the time while it works, and says how long it took', () => {
+    const now = Date.now() / 1000;
+    const { unmount } = render(JobCard, { job: { ...base, started: now - 75 }, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
+    expect(screen.getByText(/1 min 15 s/)).toBeInTheDocument();
+    unmount();
+    render(JobCard, { job: { ...base, state: 'done', step: 'Fatto', started: now - 1200, finished: now - 100 },
+      onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
+    expect(screen.getByText(/in 18 min 20 s/)).toBeInTheDocument();
+  });
+
+  it('a failed job did not get done', () => {
+    const now = Date.now() / 1000;
+    render(JobCard, { job: { ...base, state: 'error', error: 'x', started: now - 60, finished: now },
+      onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });
+    expect(screen.queryByText(/fatto in/)).not.toBeInTheDocument();
+  });
+
   it('does not repeat the topic the modal already has as its title', () => {
     const job: JobInfo = { ...base, news: { title: 't', url: 'u', published: '', outlet: 'CBS News', summary: '' } };
     const { container } = render(JobCard, { job, onRetry: vi.fn(), onDelete: vi.fn(), loadStory: vi.fn() });

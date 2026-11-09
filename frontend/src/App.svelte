@@ -56,7 +56,7 @@
   function apriFoto(id: number) {
     const picture = pictures.find((p) => p.id === id);
     ui.openModal({ title: 'Immagine', view: PhotoViewer,
-      props: { id, prompt: picture?.alt ?? '', photo: picture?.photo ?? null, models: palette?.models ?? [],
+      props: { id, prompt: picture?.alt ?? '', photo: picture?.photo ?? null, took: picture?.took, models: palette?.models ?? [],
         onDelete: removePicture, loadInfo: api.picture } });
   }
 
@@ -67,7 +67,8 @@
   // le immagini finite nella galleria, le più nuove prima; i lavori ancora aperti restano riquadri sopra
   const tiles = $derived(tab === 'photo' ? shown?.filter((j) => j.state !== 'done') ?? [] : shown ?? []);
   const pictures = $derived(tab === 'photo'
-    ? (shown ?? []).filter((j) => j.state === 'done').flatMap((j) => (j.images ?? []).map((id) => ({ id, url: imageUrl(id), alt: j.topic, photo: j.photo ?? null })))
+    ? (shown ?? []).filter((j) => j.state === 'done').flatMap((j) => (j.images ?? []).map((id) => ({ id, url: imageUrl(id), alt: j.topic, photo: j.photo ?? null,
+        took: j.started !== undefined && j.finished !== undefined ? j.finished - j.started : undefined })))
     : []);
 
   async function retry(id: string) {

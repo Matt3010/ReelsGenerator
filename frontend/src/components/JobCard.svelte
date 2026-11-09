@@ -5,6 +5,7 @@
   import Icon from './Icon.svelte';
   import Loader from './Loader.svelte';
   import PhotoProperties from './PhotoProperties.svelte';
+  import { durata } from '../lib/tempo';
   import { ui } from '../lib/ui.svelte';
 
   /** Un video: mentre si fa, il passo a cui è; fatto, il video da guardare e scaricare; andato male, il perché. */
@@ -24,6 +25,17 @@
   } = $props();
 
   let copione = $state<string[] | null>(null);
+
+  // l'ora di adesso, ogni secondo, solo mentre lavora (come in SendLater)
+  let adesso = $state(Date.now() / 1000);
+  $effect(() => {
+    if (job.state !== 'running') return;
+    adesso = Date.now() / 1000;
+    const tick = setInterval(() => (adesso = Date.now() / 1000), 1000);
+    return () => clearInterval(tick);
+  });
+  /** da quanto lavora, o quanto ci ha messo */
+  const trascorso = $derived(job.started === undefined ? null : (job.finished ?? adesso) - job.started);
 
   /** si chiede accanto al tasto, come in SendLater: è una cosa che non torna indietro */
   function elimina(event: MouseEvent) {
@@ -50,19 +62,20 @@
     <!-- fallito, basta l'avviso qui sotto con Riprova -->
     <div class="attesa">
       <Loader delay={0} />
-      <p>{job.step}</p>
+      <p>{job.step}{#if job.state === 'running' && trascorso !== null} · {durata(trascorso)}{/if}</p>
     </div>
   {/if}
 
   <div class="meta">
     {#if job.kind === 'photo' && job.photo}
-      <PhotoProperties photo={job.photo} {models} />
+      <PhotoProperties photo={job.photo} {models} took={job.finished ? trascorso ?? undefined : undefined} />
     {:else}
       <!-- la modale ha già il titolo (o l'argomento, finché il titolo non c'è): qui solo quel che manca -->
       <p class="sotto">{[
         job.news?.outlet,
         job.title && job.title !== job.topic ? job.topic : null,
         job.duration ? `${Math.round(job.duration)} s` : null,
+        job.state === 'done' && trascorso !== null ? `fatto in ${durata(trascorso)}` : null,
       ].filter(Boolean).join(' · ')}</p>
     {/if}
 

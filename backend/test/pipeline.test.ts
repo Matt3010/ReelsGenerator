@@ -101,6 +101,21 @@ it("a news job uses the article and records the source", async () => {
   expect(story.source).toEqual({ outlet: "BBC News", title: NEWS.title, url: NEWS.url, published: NEWS.published });
 });
 
+it("notes when a job started and ended, and starts again on a retry", () => {
+  const job = Job.create(join(tmp(), "jobs"), { topic: "x", voice: "v", captions: false });
+  expect(job.status().started).toBeUndefined();
+  const before = Date.now() / 1000;
+  job.update({ state: "running", step: "a" });
+  const started = job.status().started!;
+  expect(started).toBeGreaterThanOrEqual(before);
+  job.update({ step: "b" });                                   // a later step keeps the start
+  expect(job.status().started).toBe(started);
+  job.update({ state: "done", step: "Fatto" });
+  expect(job.status().finished).toBeGreaterThanOrEqual(started);
+  job.update({ state: "queued", step: "In coda" });             // a retry: the clock starts over
+  expect([job.status().started, job.status().finished]).toEqual([undefined, undefined]);
+});
+
 it("lists jobs newest first", () => {
   const root = tmp();
   const a = Job.create(root, { topic: "first", voice: "v", captions: false });

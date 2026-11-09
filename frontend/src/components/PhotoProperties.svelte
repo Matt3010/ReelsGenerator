@@ -1,13 +1,16 @@
 <script lang="ts">
   import type { ImageModel, PhotoRequest } from '../lib/api';
   import { FORMATI, RISOLUZIONI, nomeDi } from '../lib/photo';
+  import { durata } from '../lib/tempo';
 
   /**
    * Con cosa sono state chieste le immagini: prompt, negative prompt, formato, risoluzione, quante, seed.
    * Per un'immagine sola (`seed`, `size`, `model`): il suo seed vero, la sua misura e il suo modello, al posto di quante.
    */
-  let { photo, seed, size, model, models = [] }: {
+  let { photo, seed, size, model, models = [], took }: {
     photo: PhotoRequest; seed?: number; size?: readonly [number, number]; model?: string; models?: ImageModel[];
+    /** quanto ci ha messo il lavoro, per tutte le sue immagini (secondi) */
+    took?: number;
   } = $props();
 
   /** prima della scelta del modello c'era solo DreamShaper */
@@ -22,6 +25,7 @@
     ...(seed === undefined ? [['Quante', String(photo.count)]] : []),
     ['Seed', String(seed ?? photo.seed ?? 'casuale')],
     ...(size ? [['Misura', `${size[0]}×${size[1]}`]] : []),
+    ...(took !== undefined ? [['Tempo', durata(took) + (photo.count > 1 ? ` per ${photo.count} immagini` : '')]] : []),
   ]);
 </script>
 

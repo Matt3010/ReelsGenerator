@@ -10,6 +10,7 @@
     id,
     prompt,
     photo,
+    took,
     models,
     onDelete,
     loadInfo,
@@ -18,6 +19,8 @@
     prompt: string;
     /** con cosa è stata chiesta (null: un'immagine di un video) */
     photo: PhotoRequest | null;
+    /** quanto ci ha messo il lavoro che l'ha fatta (secondi) */
+    took?: number;
     models: ImageModel[];
     onDelete: (id: number) => void;
     loadInfo: (id: number) => Promise<PictureInfo | null>;
@@ -40,7 +43,7 @@
 
 <img src={imageUrl(id)} alt={prompt} />
 <PhotoProperties photo={photo ?? { prompt, negative: '', count: 1, format: 'portrait', seed: null, resolution: 'standard' }}
-  seed={info?.seed} size={info ? [info.width, info.height] : undefined} model={info?.model} {models} />
+  seed={info?.seed} size={info ? [info.width, info.height] : undefined} model={info?.model} {models} {took} />
 <div class="azioni">
   <Button look="ghost" size="sm" href={imageUrl(id)} download><Icon name="download" />Scarica</Button>
   <span class="spazio"></span>
