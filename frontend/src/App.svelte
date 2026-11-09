@@ -127,11 +127,14 @@
 
 <style>
   /* i lavori fatti da bordo a bordo, più per riga quanto più è largo lo schermo */
+  /* la galleria da bordo a bordo, come in SendLater: il margine ai lati ce l'hanno solo i comandi e il titolo */
   main {
     display: grid;
     gap: 14px;
-    padding: max(18px, env(safe-area-inset-top)) var(--island-side) 40px;
+    padding: max(18px, env(safe-area-inset-top)) 0 40px;
   }
+
+  main > :global(:not(.grid)) { margin-inline: var(--island-side); }
 
   .comandi { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
 
