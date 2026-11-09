@@ -43,6 +43,13 @@ export interface JobInfo extends NewJob {
   detail?: string;
 }
 
+/** quanto lavora la macchina (come htop): memorie in MiB, cpu di un processo 100 = un core pieno */
+export interface Stats {
+  gpu: { name: string; util: number; memUsed: number; memTotal: number; power: number; temp: number } | null;
+  cpu: number; cores: number; mem: { used: number; total: number };
+  procs: { pid: number; name: string; cpu: number; mem: number }[];
+}
+
 export interface Story { title?: string; scenes: { narration: string }[] }
 
 async function call<T>(url: string, init: RequestInit = {}): Promise<T> {

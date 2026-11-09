@@ -139,3 +139,12 @@ it('an open job follows the server: its step changes while the modal is open', a
   serverSays();
   expect(await within(dialog).findByText(/^Disegno l'immagine 2\/5/)).toBeInTheDocument();
 });
+
+it('opens the Sistema page from the bar, without the job buttons', async () => {
+  fakeServer([]);
+  render(App);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('link', { name: /sistema/i }));
+  expect(await screen.findByRole('heading', { name: 'Sistema' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /nuovo video|nuova immagine/i })).not.toBeInTheDocument();
+});

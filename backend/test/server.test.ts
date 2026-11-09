@@ -195,6 +195,21 @@ describe("events", () => {
   });
 });
 
+describe("stats", () => {
+  it("streams the machine's numbers, a sample right away and then every few seconds", async () => {
+    let n = 0;
+    const app = createApp({ root: tmp(), stats: () => ({ sample: async () => ({ gpu: null, cpu: ++n, cores: 2, mem: { used: 1, total: 2 }, procs: [] }) }),
+      statsEvery: 10 });
+    const r = await app.request("/api/stats");
+    expect(r.headers.get("content-type")).toMatch(/text\/event-stream/);
+    const reader = r.body!.getReader();
+    const next = async () => JSON.parse(new TextDecoder().decode((await reader.read()).value).replace(/^data: /, ""));
+    expect((await next()).cpu).toBe(1);
+    expect((await next()).cpu).toBe(2);
+    await reader.cancel();
+  });
+});
+
 it("a job tells whoever listens each time its state changes", () => {
   const root = tmp();
   let heard = 0;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { nav } from '../lib/nav.svelte';
-  import { PHOTOS_PATH, VIDEO_PATH, type Route } from '../lib/routing';
+  import { PHOTOS_PATH, SYSTEM_PATH, VIDEO_PATH, type Route } from '../lib/routing';
   import type { IconName } from '../lib/icons';
   import Icon from './Icon.svelte';
 
@@ -8,6 +8,7 @@
   const SECTIONS: { href: string; label: string; icon: IconName; owns: Route['kind'][] }[] = [
     { href: VIDEO_PATH, label: 'Video', icon: 'logo', owns: ['video'] },
     { href: PHOTOS_PATH, label: 'Immagini', icon: 'photo', owns: ['photos'] },
+    { href: SYSTEM_PATH, label: 'Sistema', icon: 'system', owns: ['system'] },
   ];
 </script>
 
@@ -29,10 +30,10 @@
     right: var(--island-side);
     bottom: var(--island-gap);
     z-index: var(--z-bar);
-    max-width: 300px;
+    max-width: 380px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     height: 64px;
     padding: 0 6px;
     border: 1px solid var(--bar-line);

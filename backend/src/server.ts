@@ -13,6 +13,7 @@ import { STYLES, type StyleId } from "./images.js";
 import { DEFAULT_MODEL, FORMATS, MODELS, RESOLUTIONS, type Format, type Resolution } from "./models.js";
 import { DEFAULT_OPTIONS, JOBS, Job, defaultEngines, markInterrupted, onJobsChanged, runJob } from "./pipeline.js";
 import { CONFIG } from "./config.js";
+import { Sampler } from "./stats.js";
 import { VOICES } from "./tts.js";
 
 const NewsRef = z.object({
@@ -53,6 +54,8 @@ const PhotoJob = z.object({
 
 export interface AppOptions {
   root?: string; runner?: (job: Job) => Promise<void>; news?: () => Promise<NewsItem[]>; library?: () => Library;
+  /** a sampler of the machine for each page watching it, and how often (ms) */
+  stats?: () => Pick<Sampler, "sample">; statsEvery?: number;
 }
 
 const JOB_ID = /^\d{8}-\d{6}-[0-9a-f]{6}$/;
@@ -94,6 +97,17 @@ export function createApp(o: AppOptions = {}) {
     await new Promise<void>((done) => stream.onAbort(done));
     clearInterval(ping);
     stop();
+  }));
+
+  // the machine, like htop: a sample now and then every couple of seconds, only while a page watches
+  app.get("/api/stats", (c) => streamSSE(c, async (stream) => {
+    const sampler = (o.stats ?? (() => new Sampler()))();
+    let open = true;
+    stream.onAbort(() => { open = false; });
+    while (open) {
+      await stream.writeSSE({ data: JSON.stringify(await sampler.sample()) });
+      await stream.sleep(o.statsEvery ?? 2000);
+    }
   }));
 
   app.get("/api/jobs", (c) => c.json(Job.list(root).map((j) => ({ id: j.id, ...j.status(), images: j.images() }))));

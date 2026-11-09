@@ -14,6 +14,7 @@
   import PhotoTile from './components/PhotoTile.svelte';
   import PhotoViewer from './components/PhotoViewer.svelte';
   import SurePopover from './components/SurePopover.svelte';
+  import SystemPage from './components/SystemPage.svelte';
   import TabBar from './components/TabBar.svelte';
   import { api, imageUrl, type JobInfo, type NewJob, type Palette, type PhotoRequest } from './lib/api';
   import { follow } from './lib/events';
@@ -107,6 +108,9 @@
 <svelte:window onkeydown={onKeydown} />
 
 <main>
+  {#if nav.route.kind === 'system'}
+    <SystemPage />
+  {:else}
   <div class="comandi">
     <h2>{tab === 'photo' ? 'Le tue immagini' : 'I tuoi video'}</h2>
     <Button look="primary" onclick={nuovo} disabled={!palette}>
@@ -134,6 +138,7 @@
         {/if}
       {/snippet}
     </Gallery>
+  {/if}
   {/if}
 </main>
 
