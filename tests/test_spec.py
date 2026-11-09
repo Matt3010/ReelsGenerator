@@ -1,173 +1,85 @@
 import pytest
 from pydantic import ValidationError
 
-from shorts.spec import Story
+from shorts.spec import Story, image_prompt, norm
 
 
-def test_valid_story_parses_with_defaults(story_dict):
+def test_valid_story(story_dict):
     story = Story.model_validate(story_dict)
-    assert story.scenes[1].actors[0].x == 0
-    assert story.scenes[0].props[0].scale == 1
-    assert story.scenes[1].props == []
+    assert story.scenes[1].motion == "pan_left"
 
 
-def test_actor_must_be_in_cast(story_dict):
-    story_dict["scenes"][0]["actors"][0]["id"] = "ghost"
-    with pytest.raises(ValidationError, match="ghost"):
-        Story.model_validate(story_dict)
+def test_unknown_scene_cast_is_folded_into_the_picture(story_dict):
+    # small models list props ("horse-drawn cart") as characters: keep them as part of the picture instead
+    story_dict["scenes"][0]["cast"] = ["sam", "horse-drawn cart"]
+    story = Story.model_validate(story_dict)
+    assert story.scenes[0].cast == ["sam"]
+    assert story.scenes[0].image.endswith("over a river, horse-drawn cart")
 
 
-def test_camera_target_must_be_in_cast(story_dict):
-    story_dict["scenes"][1]["camera"]["target"] = "nobody"
-    with pytest.raises(ValidationError, match="nobody"):
-        Story.model_validate(story_dict)
+def test_unknown_cast_already_in_the_picture_is_not_repeated(story_dict):
+    story_dict["scenes"][0]["cast"] = ["river"]
+    story = Story.model_validate(story_dict)
+    assert story.scenes[0].cast == [] and story.scenes[0].image.endswith("over a river")
 
 
-def test_unknown_setting_rejected(story_dict):
-    story_dict["scenes"][0]["setting"] = "mars-base-9"
+def test_unknown_motion_is_rejected(story_dict):
+    story_dict["scenes"][1]["motion"] = "spin"
     with pytest.raises(ValidationError):
         Story.model_validate(story_dict)
 
 
-def test_bad_color_rejected(story_dict):
-    story_dict["cast"][0]["shirt"] = "red"
-    with pytest.raises(ValidationError):
-        Story.model_validate(story_dict)
-
-
-def test_duplicate_cast_ids_rejected(story_dict):
+def test_duplicate_cast_ids_are_rejected(story_dict):
     story_dict["cast"].append(dict(story_dict["cast"][0]))
     with pytest.raises(ValidationError, match="duplicate"):
         Story.model_validate(story_dict)
 
 
-def test_empty_narration_rejected(story_dict):
-    story_dict["scenes"][0]["narration"] = "  "
-    with pytest.raises(ValidationError):
-        Story.model_validate(story_dict)
-
-
-def test_json_schema_lists_settings():
-    schema = Story.model_json_schema()
-    text = str(schema)
-    assert "countryside" in text and "walk" in text
-
-
-def test_effect_word_must_be_in_narration(story_dict):
-    story_dict["scenes"][1]["effect_word"] = "exploded"
-    with pytest.raises(ValidationError, match="exploded"):
-        Story.model_validate(story_dict)
-
-
-def test_effect_word_matches_ignoring_case_and_punctuation(story_dict):
-    story_dict["scenes"][1]["effect_word"] = "SNAPPED"
-    assert Story.model_validate(story_dict).scenes[1].effect_word == "SNAPPED"
-
-
-LAMP = [
-    {"shape": "cylinder", "size": [0.15, 3.5, 0.15], "pos": [0, 1.75, 0], "color": "#333333"},
-    {"shape": "sphere", "size": [0.5, 0.5, 0.5], "pos": [0, 3.7, 0], "color": "#ffd27a", "glow": True},
-]
-
-
-def test_custom_object_is_a_light_source(story_dict):
-    story_dict["scenes"][0]["props"].append({"x": 3, "z": -8, "parts": LAMP})
+def test_tags_are_normalised_to_lowercase_unique(story_dict):
+    story_dict["scenes"][0]["tags"] = ["Bridge", "bridge ", "River"]
     story = Story.model_validate(story_dict)
-    assert [p.shape for p in story.scenes[0].props[-1].parts] == ["cylinder", "sphere"]
+    assert story.scenes[0].tags == ["bridge", "river"]
 
 
-def test_custom_object_without_light_rejected(story_dict):
-    story_dict["scenes"][0]["props"].append({
-        "x": 3, "z": -8,
-        "parts": [{"shape": "cylinder", "size": [6, 10, 6], "pos": [0, 5, 0], "color": "#6b3d1f"}],
-    })
-    with pytest.raises(ValidationError, match="light"):
-        Story.model_validate(story_dict)
-
-
-def test_custom_light_must_be_small(story_dict):
-    story_dict["scenes"][0]["props"].append({
-        "x": 3, "z": -8,
-        "parts": LAMP + [{"shape": "box", "size": [8, 2, 1], "pos": [0, 1, 0], "color": "#6b3d1f"}],
-    })
-    with pytest.raises(ValidationError, match="small"):
-        Story.model_validate(story_dict)
-
-
-def test_custom_object_needs_parts(story_dict):
-    story_dict["scenes"][0]["props"].append({"x": 3, "z": -8, "parts": []})
-    with pytest.raises(ValidationError, match="parts"):
-        Story.model_validate(story_dict)
-
-
-def test_animal_cast_needs_only_species(story_dict):
-    story_dict["cast"].append({"id": "zebra", "name": "Zebra", "species": "zebra"})
-    story_dict["scenes"][0]["actors"].append({"id": "zebra", "x": 2})
+def test_image_prompt_adds_the_look_of_every_character_in_the_scene(story_dict):
     story = Story.model_validate(story_dict)
-    assert story.cast[1].species == "zebra" and story.cast[1].skin is None
-    assert story.cast[0].species == "human"
+    p = image_prompt(story, story.scenes[0])
+    assert p.startswith("soldiers marching in step")
+    assert "a young soldier in a red 19th-century uniform" in p
+    assert "red 19th-century" not in image_prompt(story, story.scenes[1])
 
 
-def test_unknown_species_rejected(story_dict):
-    story_dict["cast"].append({"id": "dragon", "name": "D", "species": "dragon"})
-    with pytest.raises(ValidationError):
-        Story.model_validate(story_dict)
+def test_norm():
+    assert norm("Snapped!") == "snapped"
 
 
-def test_herd_count(story_dict):
-    story_dict["scenes"][0]["actors"][0]["count"] = 9
-    assert Story.model_validate(story_dict).scenes[0].actors[0].count == 9
-    story_dict["scenes"][0]["actors"][0]["count"] = 40
-    with pytest.raises(ValidationError):
-        Story.model_validate(story_dict)
-
-
-def test_large_cast_allowed(story_dict):
-    for i in range(25):
-        story_dict["cast"].append({"id": f"p{i}", "name": f"P{i}"})
-    story_dict["scenes"][0]["actors"] = [{"id": f"p{i}", "x": i % 10 - 5} for i in range(12)]
-    story_dict["scenes"][0]["actors"][0]["count"] = 30
+@pytest.mark.parametrize("text", ["same as previous", "Same as the previous scene", "identical to above"])
+def test_same_as_previous_reuses_the_previous_picture(story_dict, text):
+    story_dict["scenes"][1]["image"] = text
     story = Story.model_validate(story_dict)
-    assert len(story.cast) == 26 and len(story.scenes[0].actors) == 12
+    assert story.scenes[1].image == story.scenes[0].image
+    assert story.scenes[1].cast == story.scenes[0].cast
 
 
-def test_custom_parts_can_glow(story_dict):
-    story_dict["scenes"][0]["props"].append({
-        "x": 3, "z": -8,
-        "parts": [{"shape": "sphere", "size": [0.4, 0.4, 0.4], "pos": [0, 3, 0], "color": "#ffd27a", "glow": True}],
-    })
-    assert Story.model_validate(story_dict).scenes[0].props[-1].parts[0].glow is True
-
-
-@pytest.mark.parametrize("setting", ["home", "office", "classroom", "tavern"])
-def test_interior_settings(story_dict, setting):
-    story_dict["scenes"][0]["setting"] = setting
-    assert Story.model_validate(story_dict).scenes[0].setting == setting
-
-
-def test_custom_parts_have_organic_shapes_and_tilt(story_dict):
-    story_dict["scenes"][0]["props"].append({
-        "x": 6, "z": -16,
-        "parts": [
-            {"shape": "capsule", "size": [0.4, 1, 0.4], "pos": [0, 0.3, 0], "rot_z": 90, "color": "#6b3d1f"},
-            {"shape": "torus", "size": [1, 1, 0.2], "pos": [0, 1, 0], "rot_x": 90, "color": "#ff9a3c", "glow": True},
-        ],
-    })
-    parts = Story.model_validate(story_dict).scenes[0].props[-1].parts
-    assert [p.shape for p in parts] == ["capsule", "torus"]
-    assert (parts[0].rot_z, parts[1].rot_x) == (90, 90)
-
-
-@pytest.mark.parametrize("species", ["whale", "shark", "dolphin", "manta"])
-def test_sea_animals(story_dict, species):
-    story_dict["cast"].append({"id": "sea", "name": "Sea", "species": species})
-    assert Story.model_validate(story_dict).cast[-1].species == species
-
-
-def test_story_mood(story_dict):
-    assert Story.model_validate(story_dict).mood == "funny"
-    story_dict["mood"] = "mysterious"
-    assert Story.model_validate(story_dict).mood == "mysterious"
-    story_dict["mood"] = "angry"
-    with pytest.raises(ValidationError):
+def test_same_as_previous_on_the_first_scene_is_rejected(story_dict):
+    story_dict["scenes"][0]["image"] = "same as previous"
+    with pytest.raises(ValidationError, match="first scene"):
         Story.model_validate(story_dict)
+
+
+def test_image_prompt_pins_the_era(story_dict):
+    story = Story.model_validate(story_dict)
+    assert image_prompt(story, story.scenes[1]).endswith("Manchester, England, 1831")
+
+
+def test_negative_extra_lists_the_anachronisms(story_dict):
+    from shorts.spec import negative_extra
+    assert negative_extra(Story.model_validate(story_dict)) == "cars, electric lights"
+
+
+def test_news_pictures_never_show_real_people(story_dict):
+    from shorts.spec import negative_extra
+    story_dict["source"] = {"outlet": "BBC News", "title": "t", "url": "u", "published": ""}
+    neg = negative_extra(Story.model_validate(story_dict))
+    assert neg.startswith("cars, electric lights") and "celebrity" in neg and "politician" in neg
+

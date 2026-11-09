@@ -9,3 +9,7 @@ pytest-asyncio
 pillow
 numpy
 soundfile
+sqlalchemy>=2.0
+alembic>=1.13
+feedparser>=6.0
+trafilatura>=2.0

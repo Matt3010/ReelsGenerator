@@ -1,77 +1,62 @@
-"""Ask an LLM (Claude Code on the user's subscription by default) for a story.json."""
+"""Story writing with a local model served by llama.cpp (llama-server, OpenAI-compatible, JSON-schema constrained)."""
 from __future__ import annotations
 
 import json
 import re
 import subprocess
-from typing import Callable
+import time
+from pathlib import Path
+from typing import Callable, Optional, Protocol
 
+import httpx
 from pydantic import ValidationError
 
-from .catalog import prompt_listing
+from .library import Asset
 from .spec import Story
 
-Runner = Callable[[str], str]
+ROOT = Path(__file__).resolve().parent.parent
+
+
+class Runner(Protocol):
+    def __call__(self, prompt: str, schema: dict | None = None, think: bool = False) -> str: ...
 
 
 class StoryGenerationError(RuntimeError):
     pass
 
 
-PROMPT = """You are the writer and director of a {seconds}-second-max vertical animated story short (YouTube Shorts / TikTok).
-Style: flat 2D cartoon characters (bean heads, stick limbs) standing in a colourful low-poly 3D world, gliding cameras,
-a single deadpan English narrator. Funny, surprising, and TRUE.
+PROMPT = """You write {seconds}-second vertical story shorts (YouTube Shorts / TikTok): a deadpan English narrator over
+a sequence of still cartoon illustrations, one picture per scene, with a slow zoom or pan on each.
+Funny, surprising, and TRUE.
 
 TOPIC: {topic}
 
-Write the narration first, then stage it:
+Research notes (true facts to build on; use ONLY facts from here, never invent numbers):
+{notes}
+
+Narration:
 - One surprising true story with a visual cause and effect. Only real, well-known facts. No invented dates or numbers.
-- {min_words}-{words} words total. HARD LIMIT {words} words: the voice reads ~2.9 words/s and the short must stay
-  under {seconds} s. {scenes} scenes, each ONE short sentence (4-16 words). Every word must earn its place.
-- Beats: HOOK (the absurd fact in one line) -> setting (year, place) -> escalation -> the snap/turning point
-  -> twist ending that loops back to the hook. Drop any beat that does not fit the word limit.
-- Never describe what the viewer already sees. Plain spoken English, no emojis, no stage directions in narration.
+- {min_words}-{words} words in total, HARD LIMIT {words} (the voice reads ~2.9 words/s). {scenes} scenes, each ONE
+  short sentence (4-16 words). Beats: HOOK (the absurd fact) -> setting (year, place) -> escalation -> the snap
+  -> twist ending that loops back to the hook. Plain spoken English, no emojis, no stage directions.
 
-Staging rules (the engine renders exactly this, so keep it physically sensible):
-- World units are metres. Camera looks toward -z. The frame is VERTICAL (9:16), so keep actors close together:
-  x in [-2.5, 2.5], and use depth (z in [-3, 2]) to stagger groups instead of spreading them sideways.
-  Props sit behind them: z between -4 and -40, x between -15 and 15, plus a few framing props at the sides
-  (x beyond +-5, z between 0 and -5). Dress every scene richly: 8-16 props that tell where and when we are
-  (period vehicles, market stalls, crates, signs, trees, statues...), at several depths, never an empty stage
-  (the engine also adds background scenery for the setting). A prop is {{"model": "<pack>/<name>", "x", "z",
-  "scale" (default 1 = real size), "rot_y" (degrees)}} using ONLY keys from this catalog (height in metres):
-{catalog}
-- Every actor id must be in "cast". Humans: distinctive colours (hex like "#c0392b");
-  nobody wears a hat. Animals (3D, animated): set "species" to one of cat, cow, dog, eagle, horse, llama, pig,
-  fish, pug, sheep, wolf, zebra, whale, shark, dolphin, manta. Other animals are not available: rewrite the staging around them (e.g. show the
-  people reacting) rather than substituting a wrong animal.
-  Animals appear as themselves, never as humans. For a herd or crowd use ONE actor with "count" (2-30 copies).
-  Use as many cast members as the story needs (up to 30); up to 12 actors per scene.
-- For "walk"/"run" set to_x to where they end up. Use "close" shots with a camera target for emotional beats,
-  "wide"/"aerial" to establish places. Vary shots; never three of the same shot size in a row.
-- Indoor stories use an interior setting (home, office, classroom, tavern, lab): the room, its windows and typical
-  furniture are built automatically; add the story's own props (furniture-kit models fit rooms).
-- Make the characters ACT. Give most scenes 1-3 "beats": moments pinned to an exact narration word where an actor
-  changes expression or action, a cartoon symbol pops over a head (exclaim, question, sweat, anger, stars, hearts,
-  idea, zzz), the camera cuts to a new shot (close-up on the reaction; "angle": "dutch" when things go wrong),
-  and/or a sound effect plays. Reactions land ON the punch word. Prefer reactions that show feeling: a smug grin
-  before the disaster, sweat when it starts, shock on the snap, a dazed fall after. Listeners automatically look at
-  whoever is talking, so give the explainer the "talk" action.
-- Set "mood" to pick the background music: funny (mishaps, absurd stories), upbeat (adventure, success),
-  mysterious (secrets, crimes, unexplained), sad (loss, tragedy), epic (battles, great feats).
-- Use effects sparingly: at most 3 per short ("shake" for impacts, "explosion", "splash", "confetti", "smoke", "flash").
-  Set "effect_word" to the exact narration word the effect (and any "fall"/"shocked" reaction) must land on.
-- Every object is a catalog model: pick the closest one for things the catalog lacks (a printing press -> a desk with
-  a machine-like model, a molasses tank -> a large cylinder-like building or silo). The ONLY exception is light
-  sources: lanterns, torches, campfires, lit windows, glowing signs may be built from up to 8 small "parts"
-  (box/cylinder/sphere/cone/capsule/torus; size = [width, height, depth] in metres, every value <= 5; pos = part
-  centre relative to the prop's ground point; optional "rot_x"/"rot_z" tilt in degrees). Mark the lit parts with
-  "glow": true: at night they shine and light the scene, so night scenes need a few of them.
-- Keep big objects (taller than 6 m) at z <= -15 and off-centre (|x| >= 6) so they frame the actors instead of
-  filling the screen.
+Pictures (an image model draws them from your text, so describe only what is VISIBLE):
+- "image": one concrete picture in English, 12-40 words: subject, action, place, era, time of day, camera framing
+  (wide shot / close-up / low angle). Never ask for text, signs with words, logos or speech bubbles.
+- "cast": recurring characters. Give each a "look" (age, clothes, colours, one distinctive detail; 6-25 words) that
+  never changes; list in a scene's "cast" only the characters visible in its picture (at most 2 is best), and do NOT
+  describe their clothes again in "image". Background people are just described in "image".
+- "tags": 3-8 lowercase single words naming the subject, place, era and mood, used to find the picture again later.
+- When two scenes show the same thing, write exactly the same "image" text and cast: the picture is reused.
+- "motion": zoom_in (tension, reveal), zoom_out (show the scale), pan_left / pan_right (travel, crowds),
+  pan_up (tall things, hope), pan_down (falling, gloom). Vary it between scenes.
+- "era": the place and year every picture is set in (e.g. "Boston North End, January 1919").
+- "avoid": 3-8 things the image model must NOT draw because they would be wrong here: anachronisms (cars, phones,
+  plastic, modern clothes...) and wrong materials or colours (e.g. "blue water" for a flood of dark molasses).
+- Describe materials, colours and period details explicitly in every "image" (e.g. "thick dark brown molasses").
+- "mood" picks the music: funny, upbeat, mysterious, sad, epic.
 
-Reply with ONLY one JSON object that validates against this JSON Schema (no markdown, no commentary):
-{schema}
+Reply with ONLY the JSON object.
 """
 
 RETRY = """
@@ -84,8 +69,81 @@ Previous reply:
 
 Fix every problem and reply again with ONLY the corrected JSON object."""
 
+CHOOSE = """A short video needs this picture:
+"{prompt}"
+
+These pictures already exist in the library:
+{listing}
+
+Answer with the id of a picture that shows the same subject, place and era and could be used as it is, or 0 if none
+of them really fits (when in doubt, answer 0). Reply with ONLY JSON: {{"id": <number>}}"""
+
+RESEARCH = """You are researching a 30-second story short about: {topic}
+
+Think carefully, then write compact research notes in English:
+- 8-12 bullet points of well-established TRUE facts (who, where, when, what happened, how big, the consequences),
+  with the exact numbers where they are well known. Leave out anything you are not sure of.
+- One bullet "Twist:" with the most surprising or ironic true detail, good for the last line.
+- One bullet "Visuals:" with what the place, people, clothes, vehicles and materials looked like at the time.
+Reply with only the bullet points."""
+
+NEWS_RULES = """
+This short is about a NEWS story. The article below is the ONLY source: every fact must come from it.
+- Never depict real people: no names of real people anywhere in "image", "look" or "era". Characters are generic
+  figures ("a firefighter", "a minister in a grey suit"); prefer symbolic pictures (a gavel, a map, a crowd, empty
+  streets) over people.
+
+ARTICLE:
+{article}
+"""
+
+PROPER = re.compile(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b")
+
+
+def news_problems(story: Story, article: str) -> list[str]:
+    """rule breaches of a news short: real names in the pictures"""
+    problems = []
+    era = story.era.lower()
+    names = set()
+    for sentence in re.split(r"(?<=[.!?])\s+", article):
+        for m in PROPER.finditer(sentence):
+            if m.start() == 0 and " " not in m.group():   # a capital at the start of a sentence is just grammar
+                continue
+            words = m.group().split()
+            names.update(" ".join(words[i:]) for i in range(len(words)))   # "Rosa Valli" -> also "Valli"
+    texts = [("image", s.image) for s in story.scenes] + [("look", c.look) for c in story.cast]
+    for name in sorted(names, key=len, reverse=True):
+        if name.lower() in era:
+            continue
+        for field, text in texts:
+            if re.search(rf"\b{re.escape(name)}\b", text):
+                problems.append(f'"{name}" appears in a {field}: never name real people, use a generic figure')
+                break
+    return problems
+
+
+RESEARCH_ARTICLE = """You are preparing a 30-second news short. Use ONLY this article, nothing you remember.
+
+ARTICLE:
+{article}
+
+Write compact research notes in English:
+- 6-10 bullet points with the facts of the article (who in general terms, where, when, what happened, numbers).
+- One bullet "Visuals:" symbolic pictures that could show this without showing any real person.
+Reply with only the bullet points."""
+
+
+IDEAS = """Suggest 8 topics for 30-second story shorts in English: surprising, TRUE, visual historical or science events
+with a clear cause and effect and a funny twist (like "The Great Molasses Flood of 1919" or "The 1518 dancing
+plague"). Mix eras and places; avoid tragedies with large death tolls as the main joke.
+Reply with ONLY JSON: {"topics": ["...", "..."]}, each topic a short title of at most 10 words."""
+
+TOPICS_SCHEMA = {"type": "object", "properties": {"topics": {"type": "array", "items": {"type": "string"}}},
+                 "required": ["topics"]}
+
 
 def extract_json(text: str) -> dict:
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
     fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
     candidates = [fenced.group(1)] if fenced else []
     start, end = text.find("{"), text.rfind("}")
@@ -106,27 +164,44 @@ def word_budget(max_seconds: int) -> int:
     return round((max_seconds - 4) * 2.9)
 
 
-def build_prompt(topic: str, max_seconds: int = 30) -> str:
-    schema = json.dumps(Story.model_json_schema(), separators=(",", ":"))
+def build_prompt(topic: str, max_seconds: int = 30, notes: str | None = None) -> str:
     words = word_budget(max_seconds)
-    scenes = f"{max(3, words // 16)}-{max(4, words // 9)}"
-    return PROMPT.format(topic=topic.strip(), schema=schema, seconds=max_seconds, words=words, catalog=prompt_listing(),
-                         min_words=round(words * 0.75), scenes=scenes)
+    scenes = f"{max(3, words // 10)}-{max(4, words // 7)}"
+    return PROMPT.format(topic=topic.strip(), seconds=max_seconds, words=words, min_words=round(words * 0.75),
+                         scenes=scenes, notes=(notes or "(none: use only facts you are sure of)").strip())
 
 
-def generate_story(topic: str, run: Runner | None = None, attempts: int = 3, max_seconds: int = 30) -> Story:
-    run = run or claude_code_runner()
-    base = build_prompt(topic, max_seconds)
+def research_notes(topic: str, run: Runner, source_text: str | None = None) -> str:
+    """a free-form, thinking pass that collects the facts before the constrained JSON pass"""
+    prompt = (RESEARCH_ARTICLE.format(article=source_text) if source_text
+              else RESEARCH.format(topic=topic.strip()))
+    text = run(prompt, None, think=True)
+    return re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
+
+
+def generate_story(topic: str, run: Runner, attempts: int = 3, max_seconds: int = 30, notes: str | None = None,
+                   news_text: str | None = None) -> Story:
+    schema = Story.model_json_schema()
+    base = build_prompt(topic, max_seconds, notes)
+    if news_text:
+        base += NEWS_RULES.format(article=news_text)
     limit = word_budget(max_seconds)
-    prompt = base
-    last_error = "no attempts"
+    minimum = round(limit * 0.75 * 0.85)
+    prompt, last_error = base, "no attempts"
     for _ in range(attempts):
-        reply = run(prompt)
+        reply = run(prompt, schema)
         try:
             story = Story.model_validate(extract_json(reply))
             n = sum(len(s.narration.split()) for s in story.scenes)
             if n > limit * 1.08:
                 raise ValueError(f"the narration is too long: {n} words, the limit is {limit}. Cut it down.")
+            if n < minimum:
+                raise ValueError(f"the narration is too short: {n} words, write at least {round(limit * 0.75)} "
+                                 f"words in more scenes so the short lasts about {max_seconds} seconds.")
+            if news_text:
+                problems = news_problems(story, news_text)
+                if problems:
+                    raise ValueError("; ".join(problems))
             return story
         except (ValueError, ValidationError) as e:
             last_error = str(e)
@@ -134,33 +209,81 @@ def generate_story(topic: str, run: Runner | None = None, attempts: int = 3, max
     raise StoryGenerationError(f"story still invalid after {attempts} attempts: {last_error}")
 
 
-def claude_code_runner(model: str | None = None, timeout: int = 600) -> Runner:
-    """Runs `claude -p` so the request uses the Claude subscription logged in on this PC (no API key)."""
+def choose_image(prompt: str, candidates: list[Asset], run: Runner) -> Optional[int]:
+    listing = "\n".join(f'{a.id}: "{a.prompt}"' for a in candidates)
+    ids = [a.id for a in candidates]
+    schema = {"type": "object", "properties": {"id": {"type": "integer", "enum": [0, *ids]}}, "required": ["id"]}
+    try:
+        pick = extract_json(run(CHOOSE.format(prompt=prompt, listing=listing), schema)).get("id")
+    except ValueError:
+        return None
+    return pick if pick in ids else None
 
-    def run(prompt: str) -> str:
-        cmd = ["claude", "-p", "--output-format", "json", "--tools", "", "--no-session-persistence"]
-        if model:
-            cmd += ["--model", model]
-        proc = subprocess.run(
-            cmd, input=prompt, capture_output=True, text=True, encoding="utf-8", timeout=timeout, shell=False,
-        )
-        if proc.returncode != 0:
-            raise StoryGenerationError(f"claude exited {proc.returncode}: {proc.stderr[-2000:] or proc.stdout[-2000:]}")
-        envelope = json.loads(proc.stdout)
-        if envelope.get("is_error"):
-            raise StoryGenerationError(f"claude error: {envelope.get('result')}")
-        return envelope["result"]
+
+def suggest_topics(run: Runner) -> list[str]:
+    data = extract_json(run(IDEAS, TOPICS_SCHEMA))
+    return [t.strip() for t in data.get("topics", []) if isinstance(t, str) and t.strip()]
+
+
+def llama_runner(base_url: str, client: httpx.Client | None = None, temperature: float = 0.7,
+                 max_tokens: int = 4096, timeout: float = 900) -> Runner:
+    client = client or httpx.Client(timeout=timeout)
+
+    def run(prompt: str, schema: dict | None = None, think: bool = False) -> str:
+        body: dict = {"messages": [{"role": "user", "content": prompt}], "temperature": temperature,
+                      "max_tokens": max_tokens * (3 if think else 1),
+                      "chat_template_kwargs": {"enable_thinking": think}}
+        if schema is not None:
+            body["response_format"] = {"type": "json_schema", "json_schema": {"name": "reply", "schema": schema}}
+        try:
+            r = client.post(f"{base_url}/v1/chat/completions", json=body)
+        except httpx.HTTPError as e:
+            raise StoryGenerationError(f"llama-server unreachable: {e}") from e
+        if r.status_code != 200:
+            raise StoryGenerationError(f"llama-server answered {r.status_code}: {r.text[-1500:]}")
+        content = r.json()["choices"][0]["message"].get("content") or ""
+        return re.sub(r"<think>.*?</think>", "", content, flags=re.S).strip() if think else content
 
     return run
 
 
-IDEAS = """Suggest 8 topics for 60-second animated story shorts in English: surprising, TRUE, visual historical or
-science events with a clear cause and effect and a funny twist (like "The Great Molasses Flood of 1919" or
-"The 1518 dancing plague"). Mix eras and places; avoid tragedies with large death tolls as the main joke.
-Reply with ONLY JSON: {"topics": ["...", "..."]}, each topic a short title of at most 10 words."""
+class LlamaServer:
+    """runs llama-server for the duration of a `with` block (the GPU is then free again for the image model)"""
 
+    def __init__(self, exe: str = str(ROOT / "tools" / "llama" / "llama-server.exe"),
+                 model: str = str(ROOT / "models" / "Qwen3-8B-Q4_K_M.gguf"), port: int = 8091, ctx: int = 8192,
+                 startup_timeout: float = 300, log: Path | None = None,
+                 popen: Callable = subprocess.Popen, get: Callable = httpx.get, sleep: Callable = time.sleep):
+        self.cmd = [exe, "-m", model, "--host", "127.0.0.1", "--port", str(port), "-c", str(ctx),
+                    "-np", "1", "--jinja"]  # no -ngl: llama.cpp fits the layers to the free VRAM (2x faster)
+        self.url = f"http://127.0.0.1:{port}"
+        self.startup_timeout, self.log = startup_timeout, log
+        self.popen, self.get, self.sleep = popen, get, sleep
+        self.proc = None
 
-def suggest_topics(run: Runner | None = None) -> list[str]:
-    run = run or claude_code_runner()
-    data = extract_json(run(IDEAS))
-    return [t.strip() for t in data.get("topics", []) if isinstance(t, str) and t.strip()]
+    def __enter__(self) -> str:
+        out = self.log.open("ab") if self.log else subprocess.DEVNULL
+        self.proc = self.popen(self.cmd, stdout=out, stderr=subprocess.STDOUT,
+                               creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        deadline = time.monotonic() + self.startup_timeout
+        while True:
+            if self.proc.poll() is not None:
+                raise StoryGenerationError("llama-server exited while loading the model (see the job log)")
+            try:
+                if self.get(f"{self.url}/health", timeout=5).status_code == 200:
+                    return self.url
+            except httpx.HTTPError:
+                pass
+            if time.monotonic() > deadline:
+                self.__exit__(None, None, None)
+                raise StoryGenerationError("llama-server did not become ready in time")
+            self.sleep(1)
+
+    def __exit__(self, *exc) -> None:
+        if self.proc is not None and self.proc.poll() is None:
+            self.proc.terminate()
+            try:
+                self.proc.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+        self.proc = None

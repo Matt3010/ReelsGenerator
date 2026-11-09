@@ -1,3 +1,4 @@
+import pytest
 import time
 
 from fastapi.testclient import TestClient
@@ -22,7 +23,8 @@ def make(tmp_path, **kw):
         (job.dir / "video.mp4").write_bytes(b"mp4")
         job.update(state="done", title="T")
 
-    app = create_app(tmp_path, runner=kw.get("runner", runner), ideas=kw.get("ideas", lambda: ["A", "B"]))
+    app = create_app(tmp_path, runner=kw.get("runner", runner), ideas=kw.get("ideas", lambda: ["A", "B"]),
+                     news=kw.get("news", lambda: []))
     return TestClient(app), ran
 
 
@@ -81,3 +83,49 @@ def test_story_endpoint(tmp_path, story_dict):
     assert c.get(f"/api/jobs/{jid}/story").status_code == 404
     (tmp_path / jid / "story.json").write_text(json.dumps(story_dict))
     assert c.get(f"/api/jobs/{jid}/story").json()["title"] == story_dict["title"]
+
+
+def test_ideas_while_the_gpu_is_busy_is_409(tmp_path):
+    from shorts.pipeline import GpuBusy
+
+    def busy():
+        raise GpuBusy("a video is being made")
+
+    c, _ = make(tmp_path, ideas=busy)
+    r = c.get("/api/ideas")
+    assert r.status_code == 409 and "video" in r.json()["detail"]
+
+
+def test_gpu_lock_is_exclusive():
+    from shorts.pipeline import GpuBusy, gpu
+    with gpu():
+        with pytest.raises(GpuBusy):
+            with gpu(wait=False):
+                pass
+    with gpu(wait=False):
+        pass
+
+
+ITEM = {"title": "Bridge reopens", "url": "https://bbc.co.uk/a1", "published": "2026-11-09T07:26:09+00:00",
+        "outlet": "BBC News", "summary": "The old bridge reopened."}
+
+
+def test_news_endpoint_lists_todays_news(tmp_path):
+    from shorts.news import NewsItem
+    c, _ = make(tmp_path, news=lambda: [NewsItem(**ITEM)])
+    assert c.get("/api/news").json() == [ITEM]
+
+
+def test_a_job_can_start_from_a_news_item(tmp_path):
+    c, ran = make(tmp_path)
+    jid = c.post("/api/jobs", json={"topic": "Bridge reopens", "voice": "en-US-GuyNeural", "captions": True,
+                                    "news": ITEM}).json()["id"]
+    assert wait_for(lambda: ran == [jid])
+    assert c.get("/api/jobs").json()[0]["news"]["outlet"] == "BBC News"
+
+
+def test_news_with_a_non_http_link_is_rejected(tmp_path):
+    c, _ = make(tmp_path)
+    bad = dict(ITEM, url="file:///etc/passwd")
+    assert c.post("/api/jobs", json={"topic": "x", "voice": "en-US-GuyNeural", "captions": True,
+                                     "news": bad}).status_code == 422

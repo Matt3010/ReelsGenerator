@@ -1,7 +1,10 @@
 .venv/
 __pycache__/
 .pytest_cache/
-engine/node_modules/
-engine/public/jobs/
 jobs/
 *.pyc
+# local models and binaries (~13 GB), downloaded by setup
+models/
+tools/
+# generated picture library (images + SQLite index)
+library/

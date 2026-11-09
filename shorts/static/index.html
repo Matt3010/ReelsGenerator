@@ -40,17 +40,19 @@
 <body>
 <main>
   <h1>AI <span>Shorts</span></h1>
-  <p class="sub">Scrivi un argomento (o scegline uno tra le idee): Claude scrive la storia, la voce la racconta, il motore 3D la anima.</p>
+  <p class="sub">Scrivi un argomento (o scegline uno tra le idee): il modello locale scrive la storia e disegna le immagini (riusando quelle già fatte), la voce la racconta.</p>
 
   <section class="panel">
     <textarea id="topic" placeholder="es. The Great Molasses Flood of Boston, 1919"></textarea>
     <div class="row">
-      <button id="ideas">💡 Idee</button>
+      <button id="news">📰 Notizie di oggi</button>
+      <button id="ideas">💡 Idee storiche</button>
       <select id="voice"></select>
       <label class="toggle"><input type="checkbox" id="captions" checked> Sottotitoli</label>
       <span style="flex:1"></span>
       <button class="primary" id="go">Genera video</button>
     </div>
+    <div class="topic" id="picked" style="margin-top:10px"></div>
     <div class="chips" id="chips"></div>
   </section>
 
@@ -67,13 +69,35 @@ async function loadVoices() {
   $("#voice").innerHTML = Object.entries(v).map(([k, n]) => `<option value="${k}">${esc(n)}</option>`).join("");
 }
 
-$("#ideas").onclick = async () => {
-  const b = $("#ideas"); b.disabled = true; b.textContent = "💡 Claude ci pensa…";
+let picked = null;   // the news item the next video is based on
+function pick(item) {
+  picked = item;
+  $("#picked").innerHTML = item ? `📰 Fonte: <b>${esc(item.outlet)}</b> · <a href="${esc(item.url)}" target="_blank" style="color:var(--muted)">articolo</a>` : "";
+}
+$("#topic").oninput = () => pick(null);
+
+$("#news").onclick = async () => {
+  const b = $("#news"); b.disabled = true; b.textContent = "📰 Leggo i giornali…";
   try {
-    const list = await (await fetch("/api/ideas")).json();
+    const r = await fetch("/api/news");
+    const list = r.ok ? await r.json() : [];
+    if (!list.length) { $("#chips").innerHTML = `<span style="color:var(--muted)">Nessuna notizia disponibile</span>`; return; }
+    $("#chips").innerHTML = list.map((n, i) => `<span class="chip" data-i="${i}">📰 ${esc(n.outlet)} · ${esc(n.title)}</span>`).join("");
+    document.querySelectorAll(".chip").forEach((c) => c.onclick = () => {
+      const n = list[+c.dataset.i]; $("#topic").value = n.title; pick(n);
+    });
+  } finally { b.disabled = false; b.textContent = "📰 Notizie di oggi"; }
+};
+
+$("#ideas").onclick = async () => {
+  const b = $("#ideas"); b.disabled = true; b.textContent = "💡 Il modello ci pensa…";
+  try {
+    const r = await fetch("/api/ideas");
+    if (!r.ok) { $("#chips").innerHTML = `<span style="color:var(--muted)">${esc((await r.json()).detail || "Idee non disponibili")}</span>`; return; }
+    const list = await r.json();
     $("#chips").innerHTML = list.map((t) => `<span class="chip">${esc(t)}</span>`).join("");
-    document.querySelectorAll(".chip").forEach((c) => c.onclick = () => { $("#topic").value = c.textContent; });
-  } finally { b.disabled = false; b.textContent = "💡 Altre idee"; }
+    document.querySelectorAll(".chip").forEach((c) => c.onclick = () => { $("#topic").value = c.textContent; pick(null); });
+  } finally { b.disabled = false; b.textContent = "💡 Idee storiche"; }
 };
 
 $("#go").onclick = async () => {
@@ -81,9 +105,9 @@ $("#go").onclick = async () => {
   if (!topic) { $("#topic").focus(); return; }
   $("#go").disabled = true;
   await fetch("/api/jobs", { method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ topic, voice: $("#voice").value, captions: $("#captions").checked }) });
+    body: JSON.stringify({ topic, voice: $("#voice").value, captions: $("#captions").checked, news: picked }) });
   $("#go").disabled = false;
-  $("#topic").value = "";
+  $("#topic").value = ""; pick(null);
   refresh();
 };
 
@@ -110,7 +134,7 @@ async function refresh() {
         : `<div class="ph"><div>${j.state === "error" ? "⚠️" : '<div class="spin"></div>'}${esc(j.step)}</div></div>`}
       <div class="meta">
         <div class="title">${esc(j.title || "Senza titolo")}</div>
-        <div class="topic">${esc(j.topic)}</div>
+        <div class="topic">${j.news ? `📰 ${esc(j.news.outlet)} · ` : ""}${esc(j.topic)}</div>
         <div class="state ${j.state}">${LABEL[j.state] || j.state}${j.duration ? ` · ${j.duration}s` : ""}</div>
         ${j.error ? `<div class="err">${esc(j.error)}</div>` : ""}
         <div class="acts">

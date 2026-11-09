@@ -9,18 +9,28 @@ from typing import Callable
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, HttpUrl, field_validator
 
-from .pipeline import JOBS, Job, run_job
+from .news import NewsItem
+from .pipeline import JOBS, GpuBusy, Job, default_ideas, default_news, run_default
 from .tts import VOICES
 
 STATIC = Path(__file__).parent / "static"
+
+
+class NewsRef(BaseModel):
+    title: str
+    url: HttpUrl
+    published: str = ""
+    outlet: str
+    summary: str = ""
 
 
 class NewJob(BaseModel):
     topic: str
     voice: str = "en-US-GuyNeural"
     captions: bool = True
+    news: NewsRef | None = None
 
     @field_validator("topic")
     @classmethod
@@ -38,19 +48,9 @@ class NewJob(BaseModel):
         return v
 
 
-def default_runner(job: Job) -> None:
-    from .llm import generate_story
-    from .tts import synthesize
-    run_job(job, generate=generate_story, tts=synthesize)
-
-
-def default_ideas() -> list[str]:
-    from .llm import suggest_topics
-    return suggest_topics()
-
-
-def create_app(root: Path = JOBS, runner: Callable[[Job], None] = default_runner,
-               ideas: Callable[[], list[str]] = default_ideas) -> FastAPI:
+def create_app(root: Path = JOBS, runner: Callable[[Job], None] = run_default,
+               ideas: Callable[[], list[str]] = default_ideas,
+               news: Callable[[], list[NewsItem]] = default_news) -> FastAPI:
     app = FastAPI(title="AI Shorts")
     root.mkdir(parents=True, exist_ok=True)
     work: "queue.Queue[Job]" = queue.Queue()
@@ -80,7 +80,14 @@ def create_app(root: Path = JOBS, runner: Callable[[Job], None] = default_runner
 
     @app.get("/api/ideas")
     def get_ideas():
-        return ideas()
+        try:
+            return ideas()
+        except GpuBusy as e:
+            raise HTTPException(409, str(e)) from e
+
+    @app.get("/api/news")
+    def get_news():
+        return [n.to_dict() for n in news()]
 
     @app.get("/api/jobs")
     def list_jobs():
@@ -88,7 +95,8 @@ def create_app(root: Path = JOBS, runner: Callable[[Job], None] = default_runner
 
     @app.post("/api/jobs")
     def new_job(req: NewJob):
-        job = Job.create(root, req.topic, req.voice, req.captions)
+        ref = req.news.model_dump(mode="json") if req.news else None
+        job = Job.create(root, req.topic, req.voice, req.captions, news=ref)
         work.put(job)
         return {"id": job.id}
 

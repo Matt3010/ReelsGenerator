@@ -1,30 +1,13 @@
 import json
+from contextlib import contextmanager
 
-from shorts.pipeline import Job, hit_frames, run_job
+import pytest
+from PIL import Image
+
+from shorts.library import Library
+from shorts.pipeline import Engines, Job, run_job
 from shorts.spec import Story
 from shorts.timeline import SceneAudio, Word, build_timeline
-
-
-def test_hit_frame_lands_on_effect_word(story_dict):
-    story_dict["scenes"][1]["effect_word"] = "snapped"
-    story = Story.model_validate(story_dict)
-    tl = build_timeline([
-        SceneAudio("a.mp3", 1.0, [Word("Seventy", 0.0, 0.5)]),
-        SceneAudio("b.mp3", 1.0, [Word("Then", 0.0, 0.2), Word("the", 0.2, 0.3), Word("deck", 0.3, 0.5), Word("snapped.", 0.5, 0.9)]),
-    ], fps=30, lead=0, gap=0, tail=0, trim=False)
-    hits = hit_frames(story, tl)
-    assert hits[1] == 30 + 15
-
-
-def test_hit_frame_defaults_to_forty_percent_of_speech(story_dict):
-    story = Story.model_validate(story_dict)
-    tl = build_timeline([
-        SceneAudio("a.mp3", 2.0, [Word("a", 0.0, 0.5), Word("b", 1.5, 2.0)]),
-        SceneAudio("b.mp3", 1.0, []),
-    ], fps=30, lead=0, gap=0, tail=0, trim=False)
-    hits = hit_frames(story, tl)
-    assert hits[0] == 24          # words span frames 0..60 -> 40 %
-    assert hits[1] == 60 + 12     # no words: 40 % of the scene
 
 
 class FakeTTS:
@@ -37,44 +20,91 @@ class FakeTTS:
         return SceneAudio(out_path.name, 1.0, [Word(w, i * 0.2, i * 0.2 + 0.15) for i, w in enumerate(text.split())])
 
 
-def test_run_job_writes_story_voice_props_and_video(tmp_path, story_dict):
-    tts = FakeTTS()
+class FakeGen:
+    def __init__(self):
+        self.prompts = []
+
+    def __call__(self, prompt, seed, out, style, negative_extra=""):
+        self.prompts.append(prompt)
+        Image.new("RGB", (8, 14), (len(self.prompts) * 50, 0, 0)).save(out)
+        return out
+
+
+def engines(tmp_path, story_dict, *, llm_calls=None, render=None):
+    llm_calls = [] if llm_calls is None else llm_calls
+
+    @contextmanager
+    def llm():
+        def run(prompt, schema=None, think=False):
+            llm_calls.append(prompt)
+            if schema is None and not think:
+                return "{}"
+            return "Facts: the bridge fell in 1831." if think else json.dumps(story_dict)
+        yield run
+
     rendered = {}
 
-    def render(job_dir, props_path, out_path, log):
-        rendered["props"] = json.loads(props_path.read_text())
-        out_path.write_bytes(b"mp4")
+    def fake_render(job_dir, tl, images, motions, music, captions, out, log, **kw):
+        rendered.update(images=images, motions=motions, music=music, captions=captions, total=tl.total)
+        out.write_bytes(b"mp4")
 
-    job = Job.create(tmp_path, topic="bridges", voice="en-US-GuyNeural", captions=True)
-    run_job(job, generate=lambda topic: Story.model_validate(story_dict), tts=tts, render=render)
+    eng = Engines(llm=llm, generate=FakeGen(), tts=FakeTTS(), library=Library(tmp_path / "lib"),
+                  render=render or fake_render, normalize=lambda src, dst: dst.write_bytes(src.read_bytes()),
+                  model_name="fake", max_seconds=10,
+                  article=lambda item: "The old bridge in Turin reopened on Monday after repairs.")
+    return eng, rendered
+
+
+def test_run_job_writes_story_images_and_video(tmp_path, story_dict):
+    eng, rendered = engines(tmp_path, story_dict)
+    job = Job.create(tmp_path / "jobs", topic="bridges", voice="en-US-GuyNeural", captions=True)
+    run_job(job, eng)
 
     st = job.status()
-    assert st["state"] == "done" and st["title"] == story_dict["title"]
-    assert (job.dir / "video.mp4").exists()
-    assert [c[2] for c in tts.calls] == ["s01.mp3", "s02.mp3"]
-    p = rendered["props"]
-    assert p["captions"] is True and p["story"]["title"] == story_dict["title"]
-    assert p["timeline"]["scenes"][0]["audio"] == "s01.mp3"
-    assert "effect_frame" in p["timeline"]["scenes"][1]
+    assert st["state"] == "done" and st["title"] == story_dict["title"], st
+    assert (job.dir / "video.mp4").exists() and (job.dir / "story.json").exists()
+    assert [c[2] for c in eng.tts.calls] == ["s01.mp3", "s02.mp3"]
+    assert len(eng.generate.prompts) == 2
+    assert [p.parent for p in rendered["images"]] == [eng.library.images_dir] * 2
+    assert rendered["motions"] == ["zoom_in", "pan_left"] and rendered["captions"] is True
+    assert json.loads((job.dir / "images.json").read_text()) == [1, 2]
+    assert (job.dir / "notes.txt").read_text() == "Facts: the bridge fell in 1831."
 
 
-def test_run_job_records_failure(tmp_path):
-    job = Job.create(tmp_path, topic="x", voice="v", captions=False)
-
-    def boom(topic):
-        raise RuntimeError("model unavailable")
-
-    run_job(job, generate=boom, tts=FakeTTS(), render=lambda *a: None)
-    st = job.status()
-    assert st["state"] == "error" and "model unavailable" in st["error"]
+def test_second_job_reuses_the_library_pictures(tmp_path, story_dict):
+    eng, _ = engines(tmp_path, story_dict)
+    run_job(Job.create(tmp_path / "jobs", topic="a", voice="v", captions=False), eng)
+    run_job(Job.create(tmp_path / "jobs", topic="b", voice="v", captions=False), eng)
+    assert len(eng.generate.prompts) == 2                  # nothing new to draw the second time
+    assert eng.library.get(1).uses == 2
 
 
-def test_run_job_reuses_existing_story(tmp_path, story_dict):
-    job = Job.create(tmp_path, topic="x", voice="v", captions=False)
+def test_run_job_reuses_existing_story_without_starting_the_llm(tmp_path, story_dict):
+    calls = []
+    eng, _ = engines(tmp_path, story_dict, llm_calls=calls)
+    job = Job.create(tmp_path / "jobs", topic="x", voice="v", captions=False)
     (job.dir / "story.json").write_text(json.dumps(story_dict))
-    called = []
-    run_job(job, generate=lambda t: called.append(t), tts=FakeTTS(), render=lambda j, p, o, log: o.write_bytes(b"x"))
-    assert called == [] and job.status()["state"] == "done"
+    run_job(job, eng)
+    assert calls == [] and job.status()["state"] == "done"
+
+
+def test_run_job_records_failure(tmp_path, story_dict):
+    def render(*a, **kw):
+        raise RuntimeError("ffmpeg exploded")
+
+    eng, _ = engines(tmp_path, story_dict, render=render)
+    job = Job.create(tmp_path / "jobs", topic="x", voice="v", captions=False)
+    run_job(job, eng)
+    st = job.status()
+    assert st["state"] == "error" and "ffmpeg exploded" in st["error"]
+
+
+def test_successful_retry_clears_old_error(tmp_path, story_dict):
+    eng, _ = engines(tmp_path, story_dict)
+    job = Job.create(tmp_path / "jobs", topic="x", voice="v", captions=False)
+    job.update(state="error", error="old failure")
+    run_job(job, eng)
+    assert job.status()["error"] is None
 
 
 def test_list_jobs_newest_first(tmp_path):
@@ -82,58 +112,6 @@ def test_list_jobs_newest_first(tmp_path):
     b = Job.create(tmp_path, topic="second", voice="v", captions=False)
     ids = [j.id for j in Job.list(tmp_path)]
     assert ids.index(b.id) < ids.index(a.id)
-
-
-def test_successful_retry_clears_old_error(tmp_path, story_dict):
-    job = Job.create(tmp_path, topic="x", voice="v", captions=False)
-    job.update(state="error", error="old failure")
-    (job.dir / "story.json").write_text(json.dumps(story_dict))
-    run_job(job, generate=lambda t: None, tts=FakeTTS(), render=lambda j, p, o, log: o.write_bytes(b"x"))
-    assert job.status()["error"] is None
-
-
-def test_job_folder_sees_the_models(tmp_path, story_dict):
-    from shorts.pipeline import MODELS_DIR
-    job = Job.create(tmp_path, topic="x", voice="v", captions=False)
-    (job.dir / "story.json").write_text(json.dumps(story_dict))
-    run_job(job, generate=lambda t: None, tts=FakeTTS(), render=lambda j, p, o, log: o.write_bytes(b"x"))
-    copy = job.dir / "models" / "animals" / "cow.glb"
-    assert copy.exists() and not (job.dir / "models").is_symlink()
-    assert copy.stat().st_size == (MODELS_DIR / "animals" / "cow.glb").stat().st_size
-
-
-def test_cleanup_removes_remotion_bundles(tmp_path):
-    from shorts.pipeline import cleanup_remotion_tmp
-    (tmp_path / "remotion-webpack-bundle-abc" / "public").mkdir(parents=True)
-    (tmp_path / "puppeteer_dev_chrome_profile-x").mkdir()
-    (tmp_path / "keep-me").mkdir()
-    cleanup_remotion_tmp(tmp_path)
-    assert sorted(p.name for p in tmp_path.iterdir()) == ["keep-me"]
-
-
-def test_render_props_carry_beats_and_sounds(tmp_path, story_dict):
-    story_dict["scenes"][1]["beats"] = [{"word": "deck", "actor": "sam", "symbol": "exclaim"}]
-    rendered = {}
-
-    def render(job_dir, props_path, out_path, log):
-        rendered.update(json.loads(props_path.read_text()))
-        out_path.write_bytes(b"x")
-
-    job = Job.create(tmp_path, topic="x", voice="v", captions=False)
-    (job.dir / "story.json").write_text(json.dumps(story_dict))
-    run_job(job, generate=lambda t: None, tts=FakeTTS(), render=render)
-    beat = rendered["timeline"]["scenes"][1]["beats"][0]
-    assert beat["symbol"] == "exclaim" and isinstance(beat["frame"], int)
-    assert {"sound": "pop", "frame": beat["frame"], "volume": 0.6} in rendered["sfx"]
-    assert (job.dir / "sfx" / "pop.wav").exists()
-
-
-def test_sfx_library_covers_every_sound():
-    from typing import get_args
-    from shorts.spec import Sfx
-    from shorts.sfx import SFX_DIR
-    missing = [s for s in get_args(Sfx) if not (SFX_DIR / f"{s}.wav").exists()]
-    assert missing == []
 
 
 def _loudness(path):
@@ -167,3 +145,21 @@ def test_pick_music_follows_the_mood(tmp_path):
     assert {pick_music("funny", f"t{i}", tmp_path).name for i in range(20)} == {"a.mp3", "b.mp3"}
     assert pick_music("epic", "topic", tmp_path).parent.name in {"funny", "sad"}        # no epic tracks: any track
     assert pick_music("funny", "topic", tmp_path / "missing") is None
+
+
+NEWS = {"title": "Bridge reopens after storm", "url": "https://bbc.co.uk/a1", "published": "2026-11-09T07:26:09+00:00",
+        "outlet": "BBC News", "summary": "The old bridge reopened."}
+
+
+def test_a_news_job_uses_the_article_and_records_the_source(tmp_path, story_dict):
+    calls = []
+    eng, rendered = engines(tmp_path, story_dict, llm_calls=calls)
+    job = Job.create(tmp_path / "jobs", topic=NEWS["title"], voice="v", captions=True, news=NEWS)
+    run_job(job, eng)
+    assert job.status()["state"] == "done", job.status()
+    assert (job.dir / "article.txt").read_text() == "The old bridge in Turin reopened on Monday after repairs."
+    assert "The old bridge in Turin reopened" in calls[0]          # research uses the article
+    story = Story.model_validate_json((job.dir / "story.json").read_text())
+    assert story.source.outlet == "BBC News" and story.source.url == NEWS["url"]
+
+
