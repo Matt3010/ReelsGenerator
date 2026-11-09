@@ -2,7 +2,6 @@ import { expect, it } from "vitest";
 import { FEEDS, articleText, fetchNews, parseFeed, type Feed, type Fetcher, type NewsItem } from "../src/news.js";
 
 const BBC: Feed = { name: "BBC News", url: "https://feeds.bbci.co.uk/news/world/rss.xml", credit: "BBC News" };
-const GOOGLE: Feed = { name: "Google News", url: "https://news.google.com/rss", credit: null };
 
 const RSS = `<?xml version="1.0"?><rss version="2.0"><channel><title>BBC News</title>
 <item><title>Bridge reopens after storm</title><link>https://bbc.co.uk/a1</link>
@@ -11,10 +10,10 @@ const RSS = `<?xml version="1.0"?><rss version="2.0"><channel><title>BBC News</t
 <pubDate>Mon, 02 Nov 2026 07:00:00 GMT</pubDate><description>Last week.</description></item>
 </channel></rss>`;
 
-const GNEWS = `<?xml version="1.0"?><rss version="2.0"><channel><title>Top stories</title>
-<item><title>Rocket lands on a barge - The Guardian</title><link>https://news.google.com/rss/articles/XYZ</link>
-<pubDate>Mon, 09 Nov 2026 01:10:00 GMT</pubDate><source url="https://www.theguardian.com">The Guardian</source>
-<description>&lt;ol&gt;&lt;li&gt;&lt;a href="x"&gt;Rocket lands on a barge&lt;/a&gt;&lt;/li&gt;&lt;/ol&gt;</description></item>
+const GUARDIAN = `<?xml version="1.0"?><rss version="2.0"><channel><title>World news | The Guardian</title>
+<item><title>Rocket lands on a barge</title><link>https://www.theguardian.com/science/rocket</link>
+<pubDate>Mon, 09 Nov 2026 01:10:00 GMT</pubDate>
+<description>&lt;p&gt;The booster came down on a &lt;a href="x"&gt;barge&lt;/a&gt; at sea.&lt;/p&gt;</description></item>
 </channel></rss>`;
 
 const NOW = new Date("2026-11-09T12:00:00Z");
@@ -25,11 +24,9 @@ it("reads title, link, date, outlet and summary", async () => {
     outlet: "BBC News", summary: "The old bridge reopened on Monday." });
 });
 
-it("credits the real outlet of Google News items and strips the suffix and HTML", async () => {
-  const [item] = await parseFeed(GNEWS, GOOGLE);
-  expect(item.title).toBe("Rocket lands on a barge");
-  expect(item.outlet).toBe("The Guardian");
-  expect(item.summary).toBe("Rocket lands on a barge");
+it("strips the HTML of a summary", async () => {
+  const [item] = await parseFeed(GUARDIAN, { name: "The Guardian", url: "u", credit: "The Guardian" });
+  expect(item.summary).toBe("The booster came down on a barge at sea.");
 });
 
 const pages = (routes: Record<string, string | [string, string]>): Fetcher => async (url) => {
@@ -46,7 +43,8 @@ it("keeps recent items, newest first, without duplicates", async () => {
 });
 
 it("skips a broken feed", async () => {
-  const items = await fetchNews([BBC, GOOGLE], pages({ [GOOGLE.url]: GNEWS }), NOW);
+  const guardian: Feed = { name: "The Guardian", url: "https://g", credit: "The Guardian" };
+  const items = await fetchNews([BBC, guardian], pages({ [guardian.url]: GUARDIAN }), NOW);
   expect(items.map((i) => i.outlet)).toEqual(["The Guardian"]);
 });
 
@@ -62,9 +60,7 @@ it("extracts the article body", async () => {
   expect(text).not.toContain("<p>");
 });
 
-it("falls back to title and summary on consent pages and errors", async () => {
-  const consent = pages({ "https://news.google.com/x": [ARTICLE, "https://consent.google.com/ml?continue=x"] });
-  expect(await articleText(item("https://news.google.com/x"), consent)).toBe("Rocket\n\nRocket lands on a barge");
+it("falls back to title and summary when the page is unreachable", async () => {
   expect(await articleText(item("https://down"), pages({}))).toBe("Rocket\n\nRocket lands on a barge");
 });
 
@@ -72,4 +68,5 @@ it("caps the article length", async () => {
   expect((await articleText(item("https://x"), pages({ "https://x": ARTICLE }), 300)).length).toBeLessThanOrEqual(300);
 });
 
-it("uses English feeds", () => expect(FEEDS.map((f) => f.name)).toEqual(["BBC News", "ANSA English", "Google News"]));
+it("uses English feeds whose links lead to the article itself", () =>
+  expect(FEEDS.map((f) => f.name)).toEqual(["BBC News", "ANSA English", "The Guardian", "NPR", "Al Jazeera"]));

@@ -22,7 +22,7 @@ compiled for the GTX 1060) and downloads the models into the `models` volume if 
 ## Layout
 - `backend/` TypeScript: `spec` story contract (zod) · `llm` llama-server, research and story prompts · `images` sd.cpp
   and the reuse plan · `library` picture index (Drizzle ORM + SQLite, migrations in `drizzle/`) · `news` RSS feeds (BBC,
-  ANSA English, Google News) and article text · `tts` Edge voices · `timeline` · `render` frames (sharp), captions,
+  ANSA English, The Guardian, NPR, Al Jazeera) and article text · `tts` Edge voices · `timeline` · `render` frames (sharp), captions,
   audio graph, ffmpeg · `pipeline` jobs · `server` API · `setup` model downloads · `config` paths from the environment.
 - `frontend/` Svelte 5 + Vite with SendLater's design system (tokens, glass surfaces, Inter, lucide icons).
 - `docker/` the two images and nginx's config.
